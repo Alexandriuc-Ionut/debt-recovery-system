@@ -7,7 +7,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:3001', // Next.js dev server
+    origin: [
+      'http://localhost:3001',
+      'https://debt-recovery-system.vercel.app',
+      'https://byionut.com',
+      'https://www.byionut.com',
+    ],
     credentials: true,
   });
 
