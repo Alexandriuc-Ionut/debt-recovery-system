@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BarChart3, Mail, CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
 import { authService } from '@/services/auth.service';
@@ -9,12 +9,7 @@ import { apiFetch } from '@/services/api';
 
 export default function VerifyEmailContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-
-  const [status, setStatus] = useState<'pending' | 'verifying' | 'success' | 'error'>(
-    token ? 'verifying' : 'pending',
-  );
+  const [status, setStatus] = useState<'pending' | 'verifying' | 'success' | 'error'>('pending');
   const [errorMsg, setErrorMsg] = useState('');
   const [resendEmail, setResendEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
@@ -32,8 +27,12 @@ export default function VerifyEmailContent() {
   }, [router]);
 
   useEffect(() => {
-    if (token) verify(token);
-  }, [token, verify]);
+    const token = new URLSearchParams(window.location.search).get('token');
+    if (token) {
+      setStatus('verifying');
+      verify(token);
+    }
+  }, [verify]);
 
   async function handleResend() {
     if (!resendEmail.trim()) return;
