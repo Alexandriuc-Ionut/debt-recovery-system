@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:15
+    container_name: debt_recovery_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: debt_recovery
+    ports:
+      - "5432:5432"
+    volumes:
+      - debt_recovery_pgdata:/var/lib/postgresql/data
+
+volumes:
+  debt_recovery_pgdata:

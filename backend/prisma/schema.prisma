@@ -1,0 +1,378 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  ACCOUNTANT
+  VIEWER
+}
+
+enum InvoiceStatus {
+  OPEN
+  PARTIAL
+  PAID
+  CANCELED
+}
+
+enum PaymentMethod {
+  BANK
+  CASH
+  CARD
+  OTHER
+}
+
+enum Channel {
+  EMAIL
+  SMS
+}
+
+enum ReminderStatus {
+  SENT
+  FAILED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NoticeType {
+  SOMATIE
+  NOTIFICARE_FORMALA
+}
+
+enum AuditAction {
+  CREATE_CLIENT
+  UPDATE_CLIENT
+  DELETE_CLIENT
+
+  CREATE_INVOICE
+  UPDATE_INVOICE
+  CANCEL_INVOICE
+
+  ADD_PAYMENT
+  DELETE_PAYMENT
+
+  SEND_REMINDER
+  GENERATE_NOTICE
+
+  CALCULATE_AI_SCORE
+  LOGIN
+  LOGOUT
+  VERIFY_EMAIL
+  UPDATE_SETTINGS
+}
+
+enum RecurringInterval {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum ExpenseCategory {
+  UTILITIES
+  SALARIES
+  RENT
+  SUPPLIES
+  SERVICES
+  TAXES
+  OTHER
+}
+
+enum EFacturaStatus {
+  PENDING
+  VALIDATED
+  ERROR
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String
+  cui       String?  @unique
+  email     String?
+  phone     String?
+  address   String?
+  city      String?
+  county    String?
+  vatRate   Decimal? @db.Decimal(5, 2)
+  createdAt DateTime @default(now())
+
+  users              User[]
+  clients            Client[]
+  invoices           Invoice[]
+  rules              ReminderRule[]
+  aiScores           AIClientScore[]
+  auditLogs          AuditLog[]
+  invoiceSeries      InvoiceSeries[]
+  bankAccounts       BankAccount[]
+  recurringInvoices  RecurringInvoice[]
+  expenses           Expense[]
+  efacturaSubmissions EFacturaSubmission[]
+}
+
+model User {
+  id                      Int       @id @default(autoincrement())
+  companyId               Int
+  email                   String    @unique
+  passwordHash            String
+  fullName                String?
+  phone                   String?
+  role                    UserRole  @default(ADMIN)
+  isActive                Boolean   @default(true)
+  isEmailVerified         Boolean   @default(false)
+  emailVerificationToken  String?   @unique
+  emailVerificationExpiry DateTime?
+  createdAt               DateTime  @default(now())
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  auditLogs AuditLog[]
+
+  @@index([companyId])
+}
+
+model InvoiceSeries {
+  id         Int     @id @default(autoincrement())
+  companyId  Int
+  name       String
+  prefix     String
+  nextNumber Int     @default(1)
+  isDefault  Boolean @default(false)
+  createdAt  DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, prefix])
+  @@index([companyId])
+}
+
+model BankAccount {
+  id             Int     @id @default(autoincrement())
+  companyId      Int
+  bankName       String
+  iban           String
+  accountHolder  String
+  currency       String  @default("RON")
+  isDefault      Boolean @default(false)
+  createdAt      DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  name      String
+  cui       String?
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoices          Invoice[]
+  aiScore           AIClientScore?
+  recurringInvoices RecurringInvoice[]
+
+  @@index([companyId])
+}
+
+model Invoice {
+  id          Int           @id @default(autoincrement())
+  companyId   Int
+  clientId    Int
+
+  series      String?
+  number      String
+  issueDate   DateTime
+  dueDate     DateTime
+  currency    String        @default("RON")
+  totalAmount Decimal       @db.Decimal(14, 2)
+  status      InvoiceStatus @default(OPEN)
+  notes       String?
+  createdAt   DateTime      @default(now())
+
+  company  Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client   Client          @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  payments  Payment[]
+  reminders Reminder[]
+  notices   PaymentNotice[]
+  efactura  EFacturaSubmission?
+
+  @@unique([companyId, series, number])
+  @@index([companyId])
+  @@index([clientId])
+  @@index([dueDate])
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  invoiceId Int
+  amount    Decimal       @db.Decimal(14, 2)
+  paidAt    DateTime
+  method    PaymentMethod @default(BANK)
+  reference String?
+  createdAt DateTime      @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([paidAt])
+}
+
+model ReminderRule {
+  id           Int      @id @default(autoincrement())
+  companyId    Int
+  name         String
+  daysOffset   Int
+  channel      Channel
+  templateCode String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  reminders Reminder[]
+
+  @@index([companyId])
+}
+
+model Reminder {
+  id        Int            @id @default(autoincrement())
+  invoiceId Int
+  ruleId    Int?
+  channel   Channel
+  recipient String
+  status    ReminderStatus
+  errorMsg  String?
+  sentAt    DateTime       @default(now())
+
+  invoice Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  rule    ReminderRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([sentAt])
+}
+
+model PaymentNotice {
+  id          Int        @id @default(autoincrement())
+  invoiceId   Int
+  noticeType  NoticeType
+  pdfUrl      String?
+  generatedAt DateTime   @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([generatedAt])
+}
+
+model AIClientScore {
+  id           Int       @id @default(autoincrement())
+  companyId    Int
+  clientId     Int       @unique
+
+  trustScore   Int
+  riskLevel    RiskLevel
+  lateProb     Decimal?  @db.Decimal(5, 4)
+  modelVersion String?
+  calculatedAt DateTime  @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([riskLevel])
+}
+
+model AuditLog {
+  id        Int         @id @default(autoincrement())
+  companyId Int?
+  userId    Int?
+  action    AuditAction
+
+  entityType String?
+  entityId   Int?
+  success    Boolean  @default(true)
+
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model RecurringInvoice {
+  id           Int               @id @default(autoincrement())
+  companyId    Int
+  clientId     Int
+  templateName String
+  series       String?
+  amount       Decimal           @db.Decimal(14, 2)
+  currency     String            @default("RON")
+  notes        String?
+  interval     RecurringInterval
+  dayOfMonth   Int               @default(1)
+  nextRunAt    DateTime
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([nextRunAt])
+}
+
+model EFacturaSubmission {
+  id          Int            @id @default(autoincrement())
+  companyId   Int
+  invoiceId   Int            @unique
+  executionId String?        // ANAF id_incarcare (index number)
+  messageId   String?        // ANAF message ID for download
+  status      EFacturaStatus @default(PENDING)
+  xmlContent  String?        // Generated UBL 2.1 XML
+  recipisa    Json?          // Full ANAF receipt
+  errorMsg    String?
+  submittedAt DateTime       @default(now())
+  processedAt DateTime?
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model Expense {
+  id          Int             @id @default(autoincrement())
+  companyId   Int
+  category    ExpenseCategory
+  description String
+  amount      Decimal         @db.Decimal(14, 2)
+  currency    String          @default("RON")
+  date        DateTime
+  supplier    String?
+  reference   String?
+  createdAt   DateTime        @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([date])
+}
