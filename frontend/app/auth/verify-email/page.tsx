@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { BarChart3, Mail, CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
 import { authService } from '@/services/auth.service';
+import { apiFetch } from '@/services/api';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -21,17 +22,11 @@ export default function VerifyEmailPage() {
 
   const verify = useCallback(async (t: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/auth/verify-email?token=${t}`);
-      if (res.ok) {
-        setStatus('success');
-        setTimeout(() => router.replace('/auth/login'), 3000);
-      } else {
-        const data = await res.json() as { message?: string };
-        setErrorMsg(data.message || 'Verification failed');
-        setStatus('error');
-      }
-    } catch {
-      setErrorMsg('Network error. Please try again.');
+      await apiFetch(`/auth/verify-email?token=${t}`);
+      setStatus('success');
+      setTimeout(() => router.replace('/auth/login'), 3000);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Verification failed');
       setStatus('error');
     }
   }, [router]);
@@ -168,5 +163,13 @@ export default function VerifyEmailPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
