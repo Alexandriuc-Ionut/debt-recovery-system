@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20"]
 cmds = ["npm install --include=dev"]
 
 [phases.build]
-cmds = ["npx prisma generate", "npm run build"]
+cmds = ["npx prisma generate"]
 
 [start]
-cmd = "npx prisma migrate deploy && node dist/main.js"
+cmd = "npx prisma migrate deploy && npx ts-node -r tsconfig-paths/register src/main.ts"
