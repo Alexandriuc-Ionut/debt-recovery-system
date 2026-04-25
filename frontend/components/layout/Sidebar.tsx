@@ -8,19 +8,7 @@ import {
   Receipt, RefreshCw, FileCode, Activity,
 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
-
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/clients', label: 'Clients', icon: Users },
-  { href: '/invoices', label: 'Invoices', icon: FileText },
-  { href: '/payments', label: 'Payments', icon: CreditCard },
-  { href: '/reminders', label: 'Reminders', icon: Bell },
-  { href: '/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/recurring', label: 'Recurring', icon: RefreshCw },
-  { href: '/efactura', label: 'e-Factura', icon: FileCode },
-  { href: '/ai', label: 'AI Scoring', icon: Brain },
-  { href: '/audit', label: 'Audit Log', icon: Activity },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SidebarProps {
   open: boolean;
@@ -29,6 +17,20 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { href: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
+    { href: '/clients', label: t.nav.clients, icon: Users },
+    { href: '/invoices', label: t.nav.invoices, icon: FileText },
+    { href: '/payments', label: t.nav.payments, icon: CreditCard },
+    { href: '/reminders', label: t.nav.reminders, icon: Bell },
+    { href: '/expenses', label: t.nav.expenses, icon: Receipt },
+    { href: '/recurring', label: t.nav.recurring, icon: RefreshCw },
+    { href: '/efactura', label: t.nav.efactura, icon: FileCode },
+    { href: '/ai', label: t.nav.aiScoring, icon: Brain },
+    { href: '/audit', label: t.nav.auditLog, icon: Activity },
+  ];
 
   return (
     <aside className="w-64 h-full min-h-full bg-[#0f1623] text-white flex flex-col overflow-hidden">
@@ -84,7 +86,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           }`}
         >
           <Settings className={`w-4 h-4 flex-shrink-0 ${pathname === '/settings' ? 'text-blue-400' : 'text-slate-500'}`} />
-          Settings
+          {t.nav.settings}
           {pathname === '/settings' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
         </Link>
         <Link
@@ -101,7 +103,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           </span>
-          My Profile
+          {t.nav.myProfile}
           {pathname === '/profile' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
         </Link>
         <button
@@ -109,7 +111,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent transition-all"
         >
           <LogOut className="w-4 h-4 flex-shrink-0 text-slate-500" />
-          Sign out
+          {t.nav.signOut}
         </button>
       </div>
     </aside>

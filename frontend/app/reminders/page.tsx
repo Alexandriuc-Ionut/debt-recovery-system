@@ -7,6 +7,7 @@ import {
   AlertTriangle, Calendar, TrendingUp,
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { remindersService } from '@/services/reminders.service';
 import { clientsService } from '@/services/clients.service';
 import { formatDateTime } from '@/utils/format';
@@ -225,6 +226,7 @@ function ClientReminderCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RemindersPage() {
+  const { t } = useLanguage();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -320,7 +322,7 @@ export default function RemindersPage() {
   const unremindedClients = clients.filter((c) => !groups.some((g) => g.clientId === c.id));
 
   return (
-    <AppLayout title="Reminders">
+    <AppLayout title={t.reminders.title}>
       <div className="space-y-5">
 
         {/* ── Toolbar ─────────────────────────────────────────────────────── */}

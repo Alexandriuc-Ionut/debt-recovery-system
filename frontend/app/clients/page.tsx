@@ -30,6 +30,7 @@ function Pagination({ page, totalPages, onPage }: { page: number; totalPages: nu
 }
 import AppLayout from '@/components/layout/AppLayout';
 import Modal from '@/components/ui/Modal';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { clientsService } from '@/services/clients.service';
 import { remindersService } from '@/services/reminders.service';
 import { formatDate } from '@/utils/format';
@@ -39,6 +40,7 @@ const emptyForm = { name: '', cui: '', email: '', phone: '', address: '' };
 const fieldClass = 'w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 dark:focus:border-blue-500/40 transition';
 
 export default function ClientsPage() {
+  const { t } = useLanguage();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -134,7 +136,7 @@ export default function ClientsPage() {
   function handleSearch(v: string) { setSearch(v); setPage(1); }
 
   return (
-    <AppLayout title="Clients">
+    <AppLayout title={t.clients.title}>
       <div className="space-y-5">
 
         {/* Toolbar */}
@@ -144,7 +146,7 @@ export default function ClientsPage() {
             <input
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search clients..."
+              placeholder={t.clients.searchClients}
               className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#070b11] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 dark:focus:border-blue-500/40 transition"
             />
           </div>
@@ -158,7 +160,7 @@ export default function ClientsPage() {
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
-              New Client
+              {t.clients.addClient}
             </button>
           </div>
         </div>
@@ -166,7 +168,7 @@ export default function ClientsPage() {
         {/* Desktop Table */}
         <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm overflow-hidden">
           {loading && (
-            <div className="p-10 text-center text-slate-400 text-sm">Loading clients...</div>
+            <div className="p-10 text-center text-slate-400 text-sm">{t.common.loading}</div>
           )}
           {error && (
             <div className="p-6 text-sm text-red-600 bg-red-50">{error}</div>
@@ -178,7 +180,7 @@ export default function ClientsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/[0.06]">
-                      {['Name', 'CUI', 'Email', 'Phone', 'Address', 'Created', 'Actions'].map((h) => (
+                      {[t.common.name, t.clients.cui, t.common.email, t.common.phone, t.common.address, t.common.date, t.common.actions].map((h) => (
                         <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           {h}
                         </th>
@@ -224,7 +226,7 @@ export default function ClientsPage() {
                     {paginated.length === 0 && (
                       <tr>
                         <td colSpan={7} className="px-5 py-12 text-center text-slate-400 text-sm">
-                          {search ? 'No clients match your search.' : 'No clients yet. Add your first client.'}
+                          {search ? t.clients.noClientsMatch : t.clients.noClients}
                         </td>
                       </tr>
                     )}
@@ -286,7 +288,7 @@ export default function ClientsPage() {
                 ))}
                 {paginated.length === 0 && (
                   <div className="px-4 py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
-                    {search ? 'No clients match your search.' : 'No clients yet.'}
+                    {search ? t.clients.noClientsMatch : t.clients.noClients}
                   </div>
                 )}
               </div>
@@ -297,7 +299,7 @@ export default function ClientsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal title="Add New Client" open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); setLookupMsg(null); }}>
+      <Modal title={t.clients.addClient} open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); setLookupMsg(null); }}>
         <form onSubmit={handleCreate} className="space-y-4">
           {formError && <div className="text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 rounded-lg">{formError}</div>}
 
@@ -355,14 +357,14 @@ export default function ClientsPage() {
               onClick={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); setLookupMsg(null); }}
               className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors shadow-sm"
             >
-              {submitting ? 'Creating...' : 'Create Client'}
+              {submitting ? t.common.loading : t.clients.addClient}
             </button>
           </div>
         </form>

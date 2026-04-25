@@ -36,6 +36,7 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Badge, { invoiceStatusBadge } from '@/components/ui/Badge';
 import { dashboardService } from '@/services/dashboard.service';
 import { formatCompactCurrency, formatDate } from '@/utils/format';
@@ -86,6 +87,7 @@ function AgingTooltip({ active, payload }: { active?: boolean; payload?: { name:
 
 /* ─── Main page ─────────────────────────────────────────────────────────────── */
 export default function DashboardPage() {
+  const { t } = useLanguage();
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -100,11 +102,11 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <AppLayout title="Dashboard">
+      <AppLayout title={t.dashboard.title}>
         <div className="flex items-center justify-center h-64">
           <div className="flex items-center gap-3 text-slate-400">
             <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm">Loading dashboard…</span>
+            <span className="text-sm">{t.dashboard.loadingDashboard}</span>
           </div>
         </div>
       </AppLayout>
@@ -113,7 +115,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <AppLayout title="Dashboard">
+      <AppLayout title={t.dashboard.title}>
         <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-xl">{error}</div>
       </AppLayout>
     );
@@ -126,10 +128,10 @@ export default function DashboardPage() {
 
   /* Cash flow chart data */
   const cashFlowData = [
-    { name: 'Overdue', value: data.cashFlow.overdue },
-    { name: 'This Week', value: data.cashFlow.thisWeek },
-    { name: 'This Month', value: data.cashFlow.thisMonth },
-    { name: 'Next Month', value: data.cashFlow.nextMonth },
+    { name: t.dashboard.overdue, value: data.cashFlow.overdue },
+    { name: t.dashboard.thisWeek, value: data.cashFlow.thisWeek },
+    { name: t.dashboard.thisMonth, value: data.cashFlow.thisMonth },
+    { name: t.dashboard.nextMonth, value: data.cashFlow.nextMonth },
   ];
 
   /* Aging pie data */
@@ -146,13 +148,13 @@ export default function DashboardPage() {
   const outstandingPct = Math.round((data.totals.totalOutstanding / totalForBar) * 100);
 
   return (
-    <AppLayout title="Dashboard">
+    <AppLayout title={t.dashboard.title}>
       <div className="space-y-5">
 
         {/* ── Row 1: Stats ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           <StatCard
-            title="Total Invoiced"
+            title={t.dashboard.totalInvoiced}
             value={formatCompactCurrency(data.totals.totalInvoices)}
             icon={FileText}
             gradient="from-blue-500 to-blue-700"
@@ -161,7 +163,7 @@ export default function DashboardPage() {
             valueColor="text-blue-400"
           />
           <StatCard
-            title="Total Collected"
+            title={t.dashboard.totalCollected}
             value={formatCompactCurrency(data.totals.totalPaid)}
             icon={DollarSign}
             gradient="from-emerald-500 to-teal-600"
@@ -170,7 +172,7 @@ export default function DashboardPage() {
             valueColor="text-emerald-400"
           />
           <StatCard
-            title="Outstanding"
+            title={t.dashboard.outstanding}
             value={formatCompactCurrency(data.totals.totalOutstanding)}
             icon={TrendingDown}
             gradient="from-amber-500 to-orange-500"
@@ -179,7 +181,7 @@ export default function DashboardPage() {
             valueColor="text-amber-400"
           />
           <StatCard
-            title="Overdue Invoices"
+            title={t.dashboard.overdueInvoices}
             value={data.totals.overdueInvoices}
             icon={AlertTriangle}
             gradient="from-red-500 to-rose-600"
@@ -196,8 +198,8 @@ export default function DashboardPage() {
           <div className="xl:col-span-2 rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 shadow-lg">
             <div className="flex items-center justify-between mb-1">
               <div>
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Cash Flow Forecast</p>
-                <p className="text-xs text-slate-600 mt-0.5">Expected collections — next 60 days</p>
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.dashboard.cashFlowForecast}</p>
+                <p className="text-xs text-slate-600 mt-0.5">{t.dashboard.expectedCollections}</p>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-blue-400 font-medium bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
                 <Activity className="w-3 h-3" /> Live
@@ -208,7 +210,7 @@ export default function DashboardPage() {
             <p className="text-3xl font-bold text-blue-400 mt-3 tracking-tight">
               {formatCompactCurrency(cashFlowData.reduce((s, b) => s + b.value, 0))}
             </p>
-            <p className="text-xs text-slate-500 mt-0.5 mb-4">Total expected collections</p>
+            <p className="text-xs text-slate-500 mt-0.5 mb-4">{t.dashboard.totalExpectedCollections}</p>
 
             <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={cashFlowData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
@@ -228,10 +230,10 @@ export default function DashboardPage() {
             {/* Bucket pills */}
             <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/[0.05]">
               {[
-                { label: 'Overdue', value: data.cashFlow.overdue, color: 'text-red-400', dot: 'bg-red-500' },
-                { label: 'This Week', value: data.cashFlow.thisWeek, color: 'text-amber-400', dot: 'bg-amber-400' },
-                { label: 'This Month', value: data.cashFlow.thisMonth, color: 'text-blue-400', dot: 'bg-blue-500' },
-                { label: 'Next Month', value: data.cashFlow.nextMonth, color: 'text-emerald-400', dot: 'bg-emerald-500' },
+                { label: t.dashboard.overdue, value: data.cashFlow.overdue, color: 'text-red-400', dot: 'bg-red-500' },
+                { label: t.dashboard.thisWeek, value: data.cashFlow.thisWeek, color: 'text-amber-400', dot: 'bg-amber-400' },
+                { label: t.dashboard.thisMonth, value: data.cashFlow.thisMonth, color: 'text-blue-400', dot: 'bg-blue-500' },
+                { label: t.dashboard.nextMonth, value: data.cashFlow.nextMonth, color: 'text-emerald-400', dot: 'bg-emerald-500' },
               ].map(({ label, value, color, dot }) => (
                 <div key={label} className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -250,7 +252,7 @@ export default function DashboardPage() {
             {/* Collection ratio */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Collection Ratio</p>
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.dashboard.collectionRatio}</p>
                 <span className="text-xs font-bold text-blue-400">{paidPct}%</span>
               </div>
               <div className="h-2.5 bg-white/5 rounded-full overflow-hidden mb-3">
@@ -261,9 +263,9 @@ export default function DashboardPage() {
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { label: 'Invoiced', value: formatCompactCurrency(data.totals.totalInvoices), color: 'text-slate-300' },
-                  { label: 'Paid', value: formatCompactCurrency(data.totals.totalPaid), color: 'text-emerald-400' },
-                  { label: 'Due', value: formatCompactCurrency(data.totals.totalOutstanding), color: 'text-amber-400' },
+                  { label: t.dashboard.invoiced, value: formatCompactCurrency(data.totals.totalInvoices), color: 'text-slate-300' },
+                  { label: t.common.paid, value: formatCompactCurrency(data.totals.totalPaid), color: 'text-emerald-400' },
+                  { label: t.common.due, value: formatCompactCurrency(data.totals.totalOutstanding), color: 'text-amber-400' },
                 ].map(({ label, value, color }) => (
                   <div key={label} className="bg-white/[0.03] rounded-xl p-2.5 border border-white/[0.04]">
                     <p className="text-[10px] text-slate-600 font-medium mb-1">{label}</p>
@@ -275,7 +277,7 @@ export default function DashboardPage() {
 
             {/* Aging donut */}
             <div>
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">Aging Analysis</p>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">{t.dashboard.agingAnalysis}</p>
               {agingData.length > 0 ? (
                 <div className="flex items-center gap-4">
                   <PieChart width={88} height={88}>
@@ -286,9 +288,9 @@ export default function DashboardPage() {
                   </PieChart>
                   <div className="flex-1 space-y-2">
                     {[
-                      { label: '0–30 days', value: data.aging.bucket0to30, color: '#f59e0b', textColor: 'text-amber-400' },
-                      { label: '31–60 days', value: data.aging.bucket31to60, color: '#f97316', textColor: 'text-orange-400' },
-                      { label: '60+ days', value: data.aging.bucket61plus, color: '#ef4444', textColor: 'text-red-400' },
+                      { label: t.dashboard.days0to30, value: data.aging.bucket0to30, color: '#f59e0b', textColor: 'text-amber-400' },
+                      { label: t.dashboard.days31to60, value: data.aging.bucket31to60, color: '#f97316', textColor: 'text-orange-400' },
+                      { label: t.dashboard.days60plus, value: data.aging.bucket61plus, color: '#ef4444', textColor: 'text-red-400' },
                     ].map(({ label, value, color, textColor }) => (
                       <div key={label} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -300,21 +302,21 @@ export default function DashboardPage() {
                     ))}
                     {agingTotal > 0 && (
                       <div className="flex items-center justify-between border-t border-white/[0.05] pt-2 mt-1">
-                        <span className="text-[10px] text-slate-600">Total overdue</span>
+                        <span className="text-[10px] text-slate-600">{t.dashboard.totalOverdue}</span>
                         <span className="text-xs font-bold text-white">{formatCompactCurrency(agingTotal)}</span>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-20 text-xs text-slate-600">No overdue invoices</div>
+                <div className="flex items-center justify-center h-20 text-xs text-slate-600">{t.dashboard.noOverdueInvoices}</div>
               )}
             </div>
 
             {/* Outstanding bar */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Outstanding</p>
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.dashboard.outstanding}</p>
                 <span className="text-xs font-bold text-amber-400">{outstandingPct}%</span>
               </div>
               <div className="h-2 bg-white/5 rounded-full overflow-hidden">
@@ -324,7 +326,7 @@ export default function DashboardPage() {
                 />
               </div>
               <div className="flex justify-between mt-1.5">
-                <span className="text-[10px] text-slate-600">Remaining balance</span>
+                <span className="text-[10px] text-slate-600">{t.dashboard.remainingBalance}</span>
                 <span className="text-[10px] font-bold text-amber-400">{formatCompactCurrency(data.totals.totalOutstanding)}</span>
               </div>
             </div>
@@ -340,12 +342,12 @@ export default function DashboardPage() {
                 <FileText className="w-3.5 h-3.5 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Invoice Overview</p>
-                <p className="text-[10px] text-slate-500">{data.invoices.length} invoices tracked</p>
+                <p className="text-sm font-semibold text-white">{t.dashboard.invoiceOverview}</p>
+                <p className="text-[10px] text-slate-500">{data.invoices.length} {t.dashboard.invoicesTracked}</p>
               </div>
             </div>
             <a href="/invoices" className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">
-              View all <ArrowRight className="w-3.5 h-3.5" />
+              {t.common.viewAll} <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
 
@@ -354,7 +356,7 @@ export default function DashboardPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.05]">
-                  {['Client', 'Invoice #', 'Total', 'Paid', 'Remaining', 'Due Date', 'Overdue', 'Status'].map((h) => (
+                  {[t.dashboard.client, t.dashboard.invoiceNo, t.common.total, t.common.paid, t.dashboard.remaining, t.dashboard.dueDate, t.dashboard.overdueInvoices, t.common.status].map((h) => (
                     <th key={h} className="px-5 py-3 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -379,7 +381,7 @@ export default function DashboardPage() {
                       <td className="px-5 py-3.5 text-slate-500 text-xs whitespace-nowrap">{formatDate(inv.dueDate)}</td>
                       <td className="px-5 py-3.5">
                         {inv.overdueDays > 0
-                          ? <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">{inv.overdueDays}d late</span>
+                          ? <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">{inv.overdueDays}{t.dashboard.dLate}</span>
                           : <span className="text-slate-700 text-xs">—</span>}
                       </td>
                       <td className="px-5 py-3.5"><Badge label={label} variant={variant} /></td>
@@ -387,7 +389,7 @@ export default function DashboardPage() {
                   );
                 })}
                 {data.invoices.length === 0 && (
-                  <tr><td colSpan={8} className="px-5 py-14 text-center text-slate-600 text-sm">No invoices yet</td></tr>
+                  <tr><td colSpan={8} className="px-5 py-14 text-center text-slate-600 text-sm">{t.dashboard.noInvoices}</td></tr>
                 )}
               </tbody>
             </table>
@@ -413,9 +415,9 @@ export default function DashboardPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { l: 'Total', v: formatCompactCurrency(inv.totalAmount), c: 'text-slate-300' },
-                      { l: 'Paid', v: formatCompactCurrency(inv.paidAmount), c: 'text-emerald-400' },
-                      { l: 'Due', v: formatCompactCurrency(inv.remainingAmount), c: 'text-amber-400' },
+                      { l: t.common.total, v: formatCompactCurrency(inv.totalAmount), c: 'text-slate-300' },
+                      { l: t.common.paid, v: formatCompactCurrency(inv.paidAmount), c: 'text-emerald-400' },
+                      { l: t.common.due, v: formatCompactCurrency(inv.remainingAmount), c: 'text-amber-400' },
                     ].map(({ l, v, c }) => (
                       <div key={l} className="bg-white/[0.03] rounded-lg p-2 border border-white/[0.04]">
                         <p className="text-[10px] text-slate-600 mb-0.5">{l}</p>
@@ -425,14 +427,14 @@ export default function DashboardPage() {
                   </div>
                   {inv.overdueDays > 0 && (
                     <div className="flex items-center gap-1.5 text-xs text-red-400">
-                      <Clock className="w-3 h-3" /> {inv.overdueDays} days overdue
+                      <Clock className="w-3 h-3" /> {inv.overdueDays} {t.dashboard.dLate}
                     </div>
                   )}
                 </div>
               );
             })}
             {data.invoices.length === 0 && (
-              <p className="p-8 text-center text-slate-600 text-sm">No invoices yet</p>
+              <p className="p-8 text-center text-slate-600 text-sm">{t.dashboard.noInvoices}</p>
             )}
           </div>
           <Pagination page={page} totalPages={invTotalPages} onPage={setPage} />

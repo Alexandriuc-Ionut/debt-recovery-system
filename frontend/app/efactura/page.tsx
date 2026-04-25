@@ -6,6 +6,7 @@ import {
   Info, FileDown, RefreshCw, Send, X,
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { efacturaService } from '@/services/efactura.service';
 import type { EFacturaSubmission } from '@/services/efactura.service';
 import { formatDate, formatCompactCurrency } from '@/utils/format';
@@ -175,6 +176,7 @@ function RecrepisaModal({ sub, onClose }: { sub: EFacturaSubmission; onClose: ()
 
 /* ─── Main page ─────────────────────────────────────────────────────────────── */
 export default function EFacturaPage() {
+  const { t } = useLanguage();
   const [submissions, setSubmissions] = useState<EFacturaSubmission[]>([]);
   const [eligible, setEligible] = useState<(Invoice & { client: { name: string } })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -235,7 +237,7 @@ export default function EFacturaPage() {
   const errors    = submissions.filter((s) => s.status === 'ERROR').length;
 
   return (
-    <AppLayout title="e-Factura">
+    <AppLayout title={t.efactura.title}>
       <div className="space-y-5">
 
         {/* ── Stats + info ─────────────────────────────────────────────────── */}

@@ -9,10 +9,12 @@ import {
   Users, Menu, X, Star, ArrowUpRight,
 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /* ─── Nav ─────────────────────────────────────────────────────────────────── */
 function Navbar({ scrolled }: { scrolled: boolean }) {
   const [open, setOpen] = useState(false);
+  const { lang, setLang, t } = useLanguage();
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#080d14]/90 backdrop-blur-xl border-b border-white/[0.06] shadow-2xl' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-6">
@@ -26,18 +28,27 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-6 text-sm text-slate-400 font-medium">
-          {['Features', 'How It Works', 'Benefits', 'Pricing'].map((l) => (
-            <a key={l} href={`#${l.toLowerCase().replace(/\s+/g, '-')}`}
-              className="hover:text-white transition-colors">{l}</a>
+          {[
+              { label: t.landing.nav.features, href: '#features' },
+              { label: t.landing.nav.howItWorks, href: '#how-it-works' },
+              { label: t.landing.nav.benefits, href: '#benefits' },
+              { label: t.landing.nav.pricing, href: '#pricing' },
+            ].map(({ label, href }) => (
+            <a key={label} href={href} className="hover:text-white transition-colors">{label}</a>
           ))}
         </div>
 
         {/* CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/auth/login" className="text-sm text-slate-400 hover:text-white font-medium transition-colors px-3 py-1.5">Sign In</Link>
+          {/* Language toggle */}
+          <div className="flex items-center rounded-lg border border-white/[0.15] overflow-hidden text-xs font-bold">
+            <button onClick={() => setLang('ro')} className={`px-2.5 py-1.5 transition-colors ${lang === 'ro' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>RO</button>
+            <button onClick={() => setLang('en')} className={`px-2.5 py-1.5 transition-colors ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>EN</button>
+          </div>
+          <Link href="/auth/login" className="text-sm text-slate-400 hover:text-white font-medium transition-colors px-3 py-1.5">{t.landing.nav.signIn}</Link>
           <Link href="/auth/register"
             className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-blue-500/25">
-            Get Started <ArrowRight className="w-3.5 h-3.5" />
+            {t.landing.nav.getStarted} <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
@@ -50,17 +61,22 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden bg-[#080d14]/95 backdrop-blur-xl border-t border-white/[0.06] px-5 py-4 space-y-3">
-          {['Features', 'How It Works', 'Benefits', 'Pricing'].map((l) => (
-            <a key={l} href={`#${l.toLowerCase().replace(/\s+/g, '-')}`}
+          {[
+              { label: t.landing.nav.features, href: '#features' },
+              { label: t.landing.nav.howItWorks, href: '#how-it-works' },
+              { label: t.landing.nav.benefits, href: '#benefits' },
+              { label: t.landing.nav.pricing, href: '#pricing' },
+            ].map(({ label, href }) => (
+            <a key={label} href={href}
               onClick={() => setOpen(false)}
-              className="block text-sm text-slate-300 font-medium py-2 hover:text-white">{l}</a>
+              className="block text-sm text-slate-300 font-medium py-2 hover:text-white">{label}</a>
           ))}
           <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.06]">
             <Link href="/auth/login" onClick={() => setOpen(false)}
-              className="text-sm text-slate-400 hover:text-white font-medium py-2 text-center">Sign In</Link>
+              className="text-sm text-slate-400 hover:text-white font-medium py-2 text-center">{t.landing.nav.signIn}</Link>
             <Link href="/auth/register" onClick={() => setOpen(false)}
               className="flex items-center justify-center gap-1.5 bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl">
-              Get Started <ArrowRight className="w-3.5 h-3.5" />
+              {t.landing.pricing.getStarted} <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -266,6 +282,7 @@ function MockDashboard() {
 function PricingCard({ plan, price, features, highlighted }: {
   plan: string; price: string; features: string[]; highlighted?: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <div className={`relative rounded-2xl p-6 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 ${
       highlighted
@@ -274,14 +291,14 @@ function PricingCard({ plan, price, features, highlighted }: {
     }`}>
       {highlighted && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-orange-400 text-[#080d14] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-          Most Popular
+          {t.landing.pricing.mostPopular}
         </div>
       )}
       <div>
         <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${highlighted ? 'text-blue-200' : 'text-slate-500'}`}>{plan}</p>
         <div className="flex items-end gap-1">
           <span className={`text-4xl font-bold ${highlighted ? 'text-white' : 'text-slate-100'}`}>{price}</span>
-          {price !== 'Free' && price !== 'Custom' && <span className={`text-sm mb-1 ${highlighted ? 'text-blue-200' : 'text-slate-500'}`}>/mo</span>}
+          {price !== 'Free' && price !== 'Custom' && <span className={`text-sm mb-1 ${highlighted ? 'text-blue-200' : 'text-slate-500'}`}>{t.landing.pricing.perMonth}</span>}
         </div>
       </div>
       <ul className="space-y-2.5 flex-1">
@@ -298,7 +315,7 @@ function PricingCard({ plan, price, features, highlighted }: {
             ? 'bg-white text-blue-600 hover:bg-blue-50'
             : 'bg-white/[0.06] text-slate-300 hover:bg-white/[0.1] border border-white/[0.08]'
         }`}>
-        Get Started <ArrowRight className="w-3.5 h-3.5" />
+        {t.landing.pricing.getStarted} <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
   );
@@ -307,6 +324,7 @@ function PricingCard({ plan, price, features, highlighted }: {
 /* ─── Main ─────────────────────────────────────────────────────────────────── */
 export default function LandingPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -331,42 +349,41 @@ export default function LandingPage() {
           {/* Badge */}
           <div className="flex justify-center mb-6">
             <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold px-4 py-2 rounded-full">
-              <Zap className="w-3.5 h-3.5" /> AI-Powered Debt Recovery Platform
+              <Zap className="w-3.5 h-3.5" /> {t.landing.hero.badge}
             </div>
           </div>
 
           {/* Headline */}
           <h1 className="text-center text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] mb-6">
-            <span className="text-white">Recover Faster.</span>
+            <span className="text-white">{t.landing.hero.headline1}</span>
             <br />
             <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-300 bg-clip-text text-transparent">
-              Invoice Smarter.
+              {t.landing.hero.headline2}
             </span>
           </h1>
 
           <p className="text-center text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            The complete B2B debt recovery platform for Romanian enterprises. AI risk scoring, automated reminders,
-            ANAF integration, and professional PDF documents — all in one place.
+            {t.landing.hero.subtitle}
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
             <Link href="/auth/register"
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-7 py-3.5 rounded-xl transition-all duration-200 shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5">
-              Start Free Today <ArrowRight className="w-4 h-4" />
+              {t.landing.hero.startFree} <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/auth/login"
               className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.1] text-slate-300 hover:text-white font-semibold px-7 py-3.5 rounded-xl transition-all duration-200">
-              Sign In <ArrowUpRight className="w-4 h-4" />
+              {t.landing.hero.signIn} <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
 
           {/* Trust indicators */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-16">
-            {['No credit card required', 'ANAF integrated', 'GDPR compliant', 'Romanian support'].map((t) => (
-              <div key={t} className="flex items-center gap-1.5 text-sm text-slate-500">
+            {[t.landing.hero.noCard, t.landing.hero.anafIntegrated, t.landing.hero.gdpr, t.landing.hero.support].map((item) => (
+              <div key={item} className="flex items-center gap-1.5 text-sm text-slate-500">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                {t}
+                {item}
               </div>
             ))}
           </div>
@@ -380,9 +397,9 @@ export default function LandingPage() {
       <section id="features" className="py-24 px-5 sm:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Features</p>
-            <h2 className="text-4xl font-bold text-white mb-4">Everything you need to recover faster</h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">A complete suite of tools built specifically for B2B credit management and debt recovery.</p>
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">{t.landing.features.sectionLabel}</p>
+            <h2 className="text-4xl font-bold text-white mb-4">{t.landing.features.title}</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">{t.landing.features.subtitle}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <FeatureCard icon={Brain} color="bg-gradient-to-br from-purple-500 to-violet-700"
@@ -420,10 +437,10 @@ export default function LandingPage() {
       <section className="py-16 px-5 sm:px-8 border-y border-white/[0.05]">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Stat value="3×" label="Faster debt recovery" color="text-blue-400" />
-            <Stat value="98%" label="Invoice accuracy rate" color="text-emerald-400" />
-            <Stat value="€0" label="Setup cost" color="text-amber-400" />
-            <Stat value="100%" label="ANAF compliant" color="text-violet-400" />
+            <Stat value="3×" label={t.landing.stats.fasterRecovery} color="text-blue-400" />
+            <Stat value="98%" label={t.landing.stats.invoiceAccuracy} color="text-emerald-400" />
+            <Stat value="€0" label={t.landing.stats.setupCost} color="text-amber-400" />
+            <Stat value="100%" label={t.landing.stats.anafCompliant} color="text-violet-400" />
           </div>
         </div>
       </section>
@@ -433,18 +450,18 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">How It Works</p>
-              <h2 className="text-4xl font-bold text-white mb-4">From invoice to recovery in minutes</h2>
-              <p className="text-slate-500 mb-12 leading-relaxed">Our streamlined workflow takes you from client onboarding to automated debt recovery with zero manual effort.</p>
+              <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">{t.landing.howItWorks.sectionLabel}</p>
+              <h2 className="text-4xl font-bold text-white mb-4">{t.landing.howItWorks.title}</h2>
+              <p className="text-slate-500 mb-12 leading-relaxed">{t.landing.howItWorks.subtitle}</p>
               <div className="space-y-0">
-                <Step n={1} icon={Users} title="Add your clients"
-                  desc="Import client companies with ANAF auto-fill. All fiscal data populated instantly from CUI lookup." />
-                <Step n={2} icon={FileText} title="Create & send invoices"
-                  desc="Generate professional invoices with custom series, auto-numbering, and PDF export in seconds." />
-                <Step n={3} icon={Brain} title="AI scores the risk"
-                  desc="Our engine analyses payment behavior and assigns a trust score — you know exactly who to chase first." />
-                <Step n={4} icon={Bell} title="Automated reminders"
-                  desc="Configured rules send reminder emails automatically. Escalating templates for overdue invoices." />
+                <Step n={1} icon={Users} title={t.landing.howItWorks.step1Title}
+                  desc={t.landing.howItWorks.step1Desc} />
+                <Step n={2} icon={FileText} title={t.landing.howItWorks.step2Title}
+                  desc={t.landing.howItWorks.step2Desc} />
+                <Step n={3} icon={Brain} title={t.landing.howItWorks.step3Title}
+                  desc={t.landing.howItWorks.step3Desc} />
+                <Step n={4} icon={Bell} title={t.landing.howItWorks.step4Title}
+                  desc={t.landing.howItWorks.step4Desc} />
               </div>
             </div>
 
@@ -518,9 +535,9 @@ export default function LandingPage() {
       <section id="benefits" className="py-24 px-5 sm:px-8 bg-white/[0.015] border-y border-white/[0.05]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Benefits</p>
-            <h2 className="text-4xl font-bold text-white mb-4">Why teams choose DebtRecovery</h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">Built for the realities of Romanian B2B finance — not a generic tool.</p>
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">{t.landing.benefits.sectionLabel}</p>
+            <h2 className="text-4xl font-bold text-white mb-4">{t.landing.benefits.title}</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">{t.landing.benefits.subtitle}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
@@ -571,9 +588,9 @@ export default function LandingPage() {
       <section id="pricing" className="py-24 px-5 sm:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Pricing</p>
-            <h2 className="text-4xl font-bold text-white mb-4">Simple, transparent pricing</h2>
-            <p className="text-slate-500 text-lg max-w-lg mx-auto">Start free and scale as your portfolio grows. No hidden fees, no surprises.</p>
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">{t.landing.pricing.sectionLabel}</p>
+            <h2 className="text-4xl font-bold text-white mb-4">{t.landing.pricing.title}</h2>
+            <p className="text-slate-500 text-lg max-w-lg mx-auto">{t.landing.pricing.subtitle}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             <PricingCard plan="Starter" price="Free"
@@ -598,20 +615,20 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center justify-center gap-1 mb-4">
               {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />)}
-              <span className="ml-2 text-sm text-slate-400 font-medium">Trusted by SMEs across Romania</span>
+              <span className="ml-2 text-sm text-slate-400 font-medium">{t.landing.cta.trustedBy}</span>
             </div>
-            <h2 className="text-4xl font-bold text-white mb-4">Ready to recover what's yours?</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">{t.landing.cta.title}</h2>
             <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-              Join hundreds of Romanian businesses using DebtRecovery to collect faster, reduce risk, and grow with confidence.
+              {t.landing.cta.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/auth/register"
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 text-base">
-                Create Free Account <ArrowRight className="w-4 h-4" />
+                {t.landing.cta.createAccount} <ArrowRight className="w-4 h-4" />
               </Link>
               <Link href="/auth/login"
                 className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.1] text-slate-300 hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 text-base">
-                Sign In
+                {t.landing.cta.signIn}
               </Link>
             </div>
           </div>
@@ -627,14 +644,14 @@ export default function LandingPage() {
                 <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-contain rounded-md" />
               </div>
               <span className="font-bold text-white">DebtRecovery</span>
-              <span className="text-slate-600 text-sm ml-1">· Resolution Through Dialogue</span>
+              <span className="text-slate-600 text-sm ml-1">· {t.landing.footer.tagline}</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              {['Features', 'Pricing', 'Privacy Policy', 'Terms'].map((l) => (
+              {[t.landing.footer.features, t.landing.footer.pricing, t.landing.footer.privacy, t.landing.footer.terms].map((l) => (
                 <a key={l} href="#" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">{l}</a>
               ))}
             </div>
-            <p className="text-sm text-slate-600">© 2026 DebtRecovery. All rights reserved.</p>
+            <p className="text-sm text-slate-600">{t.landing.footer.rights}</p>
           </div>
         </div>
       </footer>

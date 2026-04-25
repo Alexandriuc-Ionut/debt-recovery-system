@@ -6,6 +6,7 @@ import {
   Check, Eye, EyeOff, Lock, Bell, Palette, Sun, Moon,
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { authService } from '@/services/auth.service';
 import type { AuthUser } from '@/types';
 
@@ -44,6 +45,7 @@ function Field({ label, value, hint }: { label: string; value: string; hint?: st
 }
 
 export default function ProfilePage() {
+  const { t } = useLanguage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -116,7 +118,7 @@ export default function ProfilePage() {
   const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-white/[0.05] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition';
 
   return (
-    <AppLayout title="My Profile">
+    <AppLayout title={t.profile.title}>
       <div className="max-w-2xl mx-auto space-y-5">
 
         {/* Avatar card */}

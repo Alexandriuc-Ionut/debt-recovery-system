@@ -30,6 +30,7 @@ function Pagination({ page, totalPages, onPage }: { page: number; totalPages: nu
 }
 import AppLayout from '@/components/layout/AppLayout';
 import Modal from '@/components/ui/Modal';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Badge, { invoiceStatusBadge } from '@/components/ui/Badge';
 import { invoicesService } from '@/services/invoices.service';
 import { clientsService } from '@/services/clients.service';
@@ -48,15 +49,17 @@ const emptyForm = {
   notes: '',
 };
 
-const statusFilters: { label: string; value: InvoiceStatus | 'ALL' }[] = [
-  { label: 'All', value: 'ALL' },
-  { label: 'Open', value: 'OPEN' },
-  { label: 'Partial', value: 'PARTIAL' },
-  { label: 'Paid', value: 'PAID' },
-  { label: 'Canceled', value: 'CANCELED' },
-];
-
 export default function InvoicesPage() {
+  const { t } = useLanguage();
+
+  const statusFilters: { label: string; value: InvoiceStatus | 'ALL' }[] = [
+    { label: t.common.all, value: 'ALL' },
+    { label: t.invoices.open, value: 'OPEN' },
+    { label: t.invoices.partial, value: 'PARTIAL' },
+    { label: t.invoices.paid, value: 'PAID' },
+    { label: t.invoices.canceled, value: 'CANCELED' },
+  ];
+
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'ALL'>('ALL');
@@ -141,7 +144,7 @@ export default function InvoicesPage() {
   const paginatedInvoices = filteredInvoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <AppLayout title="Invoices">
+    <AppLayout title={t.invoices.title}>
       <div className="space-y-5">
 
         {/* Toolbar */}
@@ -186,14 +189,14 @@ export default function InvoicesPage() {
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              New Invoice
+              {t.invoices.addInvoice}
             </button>
           </div>
         </div>
 
         {/* Table */}
         <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm overflow-hidden">
-          {loading && <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">Loading invoices...</div>}
+          {loading && <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">{t.common.loading}</div>}
           {error && <div className="p-6 text-sm text-red-600 bg-red-50">{error}</div>}
           {!loading && !error && (
             <>
@@ -202,7 +205,7 @@ export default function InvoicesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/[0.06]">
-                      {['Invoice #', 'Client', 'Issue Date', 'Due Date', 'Amount', 'Status', ''].map((h) => (
+                      {[t.invoices.invoiceNumber, t.invoices.client, t.invoices.issueDate, t.invoices.dueDate, t.common.amount, t.common.status, ''].map((h) => (
                         <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           {h}
                         </th>
@@ -326,7 +329,7 @@ export default function InvoicesPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal title="New Invoice" open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}>
+      <Modal title={t.invoices.addInvoice} open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}>
         <form onSubmit={handleCreate} className="space-y-4">
           {formError && (
             <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">{formError}</div>
@@ -450,14 +453,14 @@ export default function InvoicesPage() {
               onClick={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}
               className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors shadow-sm"
             >
-              {submitting ? 'Creating...' : 'Create Invoice'}
+              {submitting ? t.common.loading : t.invoices.addInvoice}
             </button>
           </div>
         </form>

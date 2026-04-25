@@ -7,6 +7,7 @@ import {
   ChevronLeft, ChevronRight, Calendar, Filter, Search,
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiFetch } from '@/services/api';
 import { formatDateTime } from '@/utils/format';
 import type { AuditLog, AuditAction } from '@/types';
@@ -59,6 +60,7 @@ interface AuditResponse {
 }
 
 export default function AuditPage() {
+  const { t } = useLanguage();
   const [data, setData] = useState<AuditResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -124,7 +126,7 @@ export default function AuditPage() {
   const hasFilters = action !== 'ALL' || from || to || search;
 
   return (
-    <AppLayout title="Audit Log">
+    <AppLayout title={t.audit.title}>
       <div className="space-y-4">
 
         {/* ── Filters bar ───────────────────────────────────────────────────── */}

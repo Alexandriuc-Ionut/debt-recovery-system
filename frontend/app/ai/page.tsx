@@ -29,6 +29,7 @@ function Pagination({ page, totalPages, onPage }: { page: number; totalPages: nu
   );
 }
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Badge, { riskLevelBadge } from '@/components/ui/Badge';
 import { aiService } from '@/services/ai.service';
 import { clientsService } from '@/services/clients.service';
@@ -42,6 +43,7 @@ function RiskIcon({ level }: { level: string }) {
 }
 
 export default function AiPage() {
+  const { t } = useLanguage();
   const [scores, setScores] = useState<AIClientScore[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +98,7 @@ export default function AiPage() {
     : null;
 
   return (
-    <AppLayout title="AI Scoring">
+    <AppLayout title={t.ai.title}>
       <div className="space-y-5">
 
         {/* Header */}
@@ -111,7 +113,7 @@ export default function AiPage() {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
             <RefreshCw className={`w-4 h-4 ${scoringAll ? 'animate-spin' : ''}`} />
-            {scoringAll ? 'Calculating...' : 'Score All Clients'}
+            {scoringAll ? t.ai.calculating : t.ai.scoreAllClients}
           </button>
         </div>
 
@@ -119,16 +121,16 @@ export default function AiPage() {
         {scores.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm p-4">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Avg. Trust Score</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t.ai.avgTrustScore}</p>
               <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{avgScore}<span className="text-sm font-normal text-slate-400 dark:text-slate-500">/100</span></p>
             </div>
             <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm p-4">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">High Risk</p>
-              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{highRisk}<span className="text-sm font-normal text-slate-400 dark:text-slate-500"> clients</span></p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t.ai.highRisk}</p>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{highRisk}<span className="text-sm font-normal text-slate-400 dark:text-slate-500"> {t.ai.clients}</span></p>
             </div>
             <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm p-4 col-span-2 sm:col-span-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Unscored</p>
-              <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">{unscoredClients.length}<span className="text-sm font-normal text-slate-400 dark:text-slate-500"> clients</span></p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t.ai.unscored}</p>
+              <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">{unscoredClients.length}<span className="text-sm font-normal text-slate-400 dark:text-slate-500"> {t.ai.clients}</span></p>
             </div>
           </div>
         )}
@@ -137,7 +139,7 @@ export default function AiPage() {
         <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl px-4 py-3 flex gap-3 items-start">
           <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-blue-700 dark:text-blue-300">
-            The AI scoring engine uses rule-based analysis of payment history to calculate a <strong>trust score (0–100)</strong> and a <strong>risk level</strong> for each client.
+            {t.ai.aiDescription}
           </p>
         </div>
 
@@ -146,8 +148,8 @@ export default function AiPage() {
         {/* Scored clients */}
         <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Scored Clients</h2>
-            <span className="text-xs text-slate-400 dark:text-slate-500">{scores.length} records</span>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t.ai.scoredClients}</h2>
+            <span className="text-xs text-slate-400 dark:text-slate-500">{scores.length} {t.ai.records}</span>
           </div>
 
           {loading && <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">Loading scores...</div>}
@@ -158,7 +160,7 @@ export default function AiPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/[0.06]">
-                      {['Client', 'Trust Score', 'Risk Level', 'Late Probability', 'Calculated At', ''].map((h) => (
+                      {[t.ai.clients, t.ai.trustScore, t.ai.riskLevel, t.ai.lateProbability, t.ai.calculatedAt, ''].map((h) => (
                         <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -195,7 +197,7 @@ export default function AiPage() {
                               className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold disabled:opacity-50 transition-all"
                             >
                               <Zap className="w-3.5 h-3.5" />
-                              {scoringId === s.clientId ? 'Recalculating...' : 'Recalculate'}
+                              {scoringId === s.clientId ? t.ai.recalculating : t.ai.recalculate}
                             </button>
                           </td>
                         </tr>
@@ -204,7 +206,7 @@ export default function AiPage() {
                     {scores.length === 0 && (
                       <tr>
                         <td colSpan={6} className="px-5 py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
-                          No scores yet. Click &quot;Score All Clients&quot; to run the AI analysis.
+                          {t.ai.noScores}
                         </td>
                       </tr>
                     )}
@@ -242,7 +244,7 @@ export default function AiPage() {
                           className="flex items-center gap-1 text-xs text-blue-600 font-semibold disabled:opacity-50"
                         >
                           <Zap className="w-3 h-3" />
-                          {scoringId === s.clientId ? 'Recalculating...' : 'Recalculate'}
+                          {scoringId === s.clientId ? t.ai.recalculating : t.ai.recalculate}
                         </button>
                       </div>
                     </div>

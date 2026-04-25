@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ToastContainer, toast } from '@/components/ui/Toast';
 import { apiFetch } from '@/services/api';
 import {
@@ -498,8 +499,9 @@ function BankAccountsSection() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
+  const { t } = useLanguage();
   return (
-    <AppLayout title="Settings">
+    <AppLayout title={t.settings.title}>
       <ToastContainer />
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">

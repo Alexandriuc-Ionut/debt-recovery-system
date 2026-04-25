@@ -1,26 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Pencil, Receipt, TrendingDown } from 'lucide-react';
+import { Plus, Trash2, Pencil, TrendingDown } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import Modal from '@/components/ui/Modal';
 import { expensesService } from '@/services/expenses.service';
 import { formatCompactCurrency, formatDate } from '@/utils/format';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Expense, ExpenseCategory } from '@/types';
 
-const CATEGORIES: { value: ExpenseCategory; label: string; color: string }[] = [
-  { value: 'UTILITIES', label: 'Utilities', color: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20' },
-  { value: 'SALARIES', label: 'Salaries', color: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-100 dark:border-violet-500/20' },
-  { value: 'RENT', label: 'Rent', color: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20' },
-  { value: 'SUPPLIES', label: 'Supplies', color: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20' },
-  { value: 'SERVICES', label: 'Services', color: 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-100 dark:border-cyan-500/20' },
-  { value: 'TAXES', label: 'Taxes', color: 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-100 dark:border-red-500/20' },
-  { value: 'OTHER', label: 'Other', color: 'bg-slate-50 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/[0.1]' },
-];
+const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
+  UTILITIES: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20',
+  SALARIES: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-100 dark:border-violet-500/20',
+  RENT: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+  SUPPLIES: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
+  SERVICES: 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-100 dark:border-cyan-500/20',
+  TAXES: 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-100 dark:border-red-500/20',
+  OTHER: 'bg-slate-50 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/[0.1]',
+};
 
-function categoryMeta(cat: ExpenseCategory) {
-  return CATEGORIES.find((c) => c.value === cat) ?? CATEGORIES[CATEGORIES.length - 1];
-}
 
 const emptyForm = {
   category: 'OTHER' as ExpenseCategory,
@@ -35,6 +33,22 @@ const emptyForm = {
 const fieldClass = 'w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition';
 
 export default function ExpensesPage() {
+  const { t } = useLanguage();
+
+  const CATEGORIES: { value: ExpenseCategory; label: string; color: string }[] = [
+    { value: 'UTILITIES', label: t.expenses.utilities, color: CATEGORY_COLORS.UTILITIES },
+    { value: 'SALARIES', label: t.expenses.salaries, color: CATEGORY_COLORS.SALARIES },
+    { value: 'RENT', label: t.expenses.rent, color: CATEGORY_COLORS.RENT },
+    { value: 'SUPPLIES', label: t.expenses.supplies, color: CATEGORY_COLORS.SUPPLIES },
+    { value: 'SERVICES', label: t.expenses.services, color: CATEGORY_COLORS.SERVICES },
+    { value: 'TAXES', label: t.expenses.taxes, color: CATEGORY_COLORS.TAXES },
+    { value: 'OTHER', label: t.expenses.other, color: CATEGORY_COLORS.OTHER },
+  ];
+
+  function categoryMeta(cat: ExpenseCategory) {
+    return CATEGORIES.find((c) => c.value === cat) ?? CATEGORIES[CATEGORIES.length - 1];
+  }
+
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -127,15 +141,15 @@ export default function ExpensesPage() {
   const totalAll = expenses.reduce((s, e) => s + Number(e.amount), 0);
 
   return (
-    <AppLayout title="Expenses">
+    <AppLayout title={t.expenses.title}>
       <div className="space-y-5">
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="col-span-2 bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] p-5 shadow-sm">
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Total Expenses</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t.expenses.totalExpenses}</p>
             <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{formatCompactCurrency(totalAll)}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{expenses.length} expense{expenses.length !== 1 ? 's' : ''} recorded</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{expenses.length} {t.expenses.expensesRecorded}</p>
           </div>
           {CATEGORIES.slice(0, 2).map((cat) => {
             const catTotal = expenses.filter((e) => e.category === cat.value).reduce((s, e) => s + Number(e.amount), 0);
@@ -155,7 +169,7 @@ export default function ExpensesPage() {
               onClick={() => setFilterCat('ALL')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${filterCat === 'ALL' ? 'bg-white dark:bg-blue-600/20 dark:border dark:border-blue-500/30 text-slate-900 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
             >
-              All
+              {t.common.all}
             </button>
             {CATEGORIES.map((cat) => (
               <button
@@ -171,13 +185,13 @@ export default function ExpensesPage() {
             onClick={openCreate}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap transition-colors"
           >
-            <Plus className="w-4 h-4" /> Add Expense
+            <Plus className="w-4 h-4" /> {t.expenses.addExpense}
           </button>
         </div>
 
         {/* Table */}
         <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm overflow-hidden">
-          {loading && <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">Loading expenses...</div>}
+          {loading && <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">{t.common.loading}</div>}
           {error && <div className="p-6 text-sm text-red-600 bg-red-50 dark:bg-red-500/10">{error}</div>}
           {!loading && !error && (
             <>
@@ -192,7 +206,7 @@ export default function ExpensesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/[0.06]">
-                      {['Category', 'Description', 'Supplier', 'Amount', 'Date', 'Reference', ''].map((h) => (
+                      {[t.expenses.category, t.common.description, t.expenses.supplier, t.common.amount, t.common.date, t.payments.reference, ''].map((h) => (
                         <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -224,7 +238,7 @@ export default function ExpensesPage() {
                       );
                     })}
                     {filtered.length === 0 && (
-                      <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-400 dark:text-slate-500 text-sm">No expenses found.</td></tr>
+                      <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-400 dark:text-slate-500 text-sm">{t.expenses.noExpenses}</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -257,7 +271,7 @@ export default function ExpensesPage() {
                     </div>
                   );
                 })}
-                {filtered.length === 0 && <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">No expenses found.</div>}
+                {filtered.length === 0 && <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">{t.expenses.noExpenses}</div>}
               </div>
             </>
           )}
@@ -265,7 +279,7 @@ export default function ExpensesPage() {
       </div>
 
       <Modal
-        title={editingId !== null ? 'Edit Expense' : 'Add Expense'}
+        title={editingId !== null ? t.expenses.addExpense : t.expenses.addExpense}
         open={modalOpen}
         onClose={closeModal}
       >
@@ -320,9 +334,9 @@ export default function ExpensesPage() {
           </div>
 
           <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
-            <button type="button" onClick={closeModal} className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-lg transition-colors">Cancel</button>
+            <button type="button" onClick={closeModal} className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-lg transition-colors">{t.common.cancel}</button>
             <button type="submit" disabled={submitting} className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors shadow-sm">
-              {submitting ? (editingId !== null ? 'Saving...' : 'Adding...') : (editingId !== null ? 'Save Changes' : 'Add Expense')}
+              {submitting ? t.common.loading : (editingId !== null ? t.common.save : t.expenses.addExpense)}
             </button>
           </div>
         </form>

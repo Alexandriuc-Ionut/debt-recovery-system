@@ -6,6 +6,7 @@ import { Menu, Bell, AlertCircle, ArrowRight, CheckCheck, Check } from 'lucide-r
 import { authService } from '@/services/auth.service';
 import { dashboardService } from '@/services/dashboard.service';
 import { formatCompactCurrency } from '@/utils/format';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { AuthUser } from '@/types';
 
 interface HeaderProps {
@@ -40,6 +41,7 @@ function saveReadIds(ids: Set<number>) {
 }
 
 export default function Header({ title, onMenuClick }: HeaderProps) {
+  const { lang, setLang } = useLanguage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [notifications, setNotifications] = useState<OverdueInvoice[]>([]);
   const [readIds, setReadIds] = useState<Set<number>>(new Set());
@@ -234,6 +236,22 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Language toggle */}
+          <div className="flex items-center rounded-lg border border-slate-200 dark:border-white/[0.1] overflow-hidden text-xs font-bold">
+            <button
+              onClick={() => setLang('ro')}
+              className={`px-2.5 py-1.5 transition-colors ${lang === 'ro' ? 'bg-blue-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.05]'}`}
+            >
+              RO
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`px-2.5 py-1.5 transition-colors ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.05]'}`}
+            >
+              EN
+            </button>
           </div>
 
           {/* User info */}

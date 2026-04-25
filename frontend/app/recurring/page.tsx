@@ -4,21 +4,18 @@ import { useEffect, useState } from 'react';
 import { Plus, Trash2, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import Modal from '@/components/ui/Modal';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { recurringService } from '@/services/recurring.service';
 import { clientsService } from '@/services/clients.service';
 import { formatCompactCurrency, formatDate } from '@/utils/format';
 import type { RecurringInvoice, RecurringInterval, Client } from '@/types';
 
-const INTERVALS: { value: RecurringInterval; label: string; color: string }[] = [
-  { value: 'WEEKLY', label: 'Weekly', color: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-100 dark:border-violet-500/20' },
-  { value: 'MONTHLY', label: 'Monthly', color: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20' },
-  { value: 'QUARTERLY', label: 'Quarterly', color: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20' },
-  { value: 'YEARLY', label: 'Yearly', color: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20' },
-];
-
-function intervalMeta(v: RecurringInterval) {
-  return INTERVALS.find((i) => i.value === v) ?? INTERVALS[1];
-}
+const INTERVAL_COLORS: Record<RecurringInterval, string> = {
+  WEEKLY: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-100 dark:border-violet-500/20',
+  MONTHLY: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20',
+  QUARTERLY: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+  YEARLY: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
+};
 
 const emptyForm = {
   clientId: '',
@@ -35,6 +32,19 @@ const emptyForm = {
 const fieldClass = 'w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition';
 
 export default function RecurringPage() {
+  const { t } = useLanguage();
+
+  const INTERVALS: { value: RecurringInterval; label: string; color: string }[] = [
+    { value: 'WEEKLY', label: t.recurring.weekly, color: INTERVAL_COLORS.WEEKLY },
+    { value: 'MONTHLY', label: t.recurring.monthly, color: INTERVAL_COLORS.MONTHLY },
+    { value: 'QUARTERLY', label: t.recurring.quarterly, color: INTERVAL_COLORS.QUARTERLY },
+    { value: 'YEARLY', label: t.recurring.yearly, color: INTERVAL_COLORS.YEARLY },
+  ];
+
+  function intervalMeta(v: RecurringInterval) {
+    return INTERVALS.find((i) => i.value === v) ?? INTERVALS[1];
+  }
+
   const [items, setItems] = useState<RecurringInvoice[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +115,7 @@ export default function RecurringPage() {
   const activeCount = items.filter((i) => i.isActive).length;
 
   return (
-    <AppLayout title="Recurring Billing">
+    <AppLayout title={t.recurring.title}>
       <div className="space-y-5">
 
         {/* Stats */}
