@@ -8,7 +8,7 @@ export class MailService {
   private readonly transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
 
   constructor() {
-    const options: SMTPTransport.Options = {
+    const options = {
       host: process.env.MAIL_HOST ?? 'smtp.gmail.com',
       port: Number(process.env.MAIL_PORT ?? 587),
       secure: false,
@@ -17,7 +17,7 @@ export class MailService {
         user: process.env.MAIL_USER ?? '',
         pass: process.env.MAIL_PASS ?? '',
       },
-    };
+    } as SMTPTransport.Options;
     this.transporter = nodemailer.createTransport(options);
   }
 
