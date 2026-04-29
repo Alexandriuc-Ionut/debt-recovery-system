@@ -16,6 +16,13 @@ export default function VerifyEmailContent() {
   const [resendEmail, setResendEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSent, setResendSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const verify = useCallback(async (t: string) => {
     try {
@@ -39,17 +46,19 @@ export default function VerifyEmailContent() {
   }, [verify]);
 
   async function handleResend() {
-    if (!resendEmail.trim()) return;
+    if (!resendEmail.trim() || cooldown > 0) return;
     setResendLoading(true);
     try {
       await authService.resendVerification(resendEmail);
-      setResendSent(true);
     } catch {
-      setResendSent(true);
+      // always show success to avoid email enumeration
     } finally {
       setResendLoading(false);
+      setResendSent(true);
+      setCooldown(120);
     }
   }
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
@@ -78,29 +87,28 @@ export default function VerifyEmailContent() {
                 <li>The link expires in 24 hours</li>
               </ul>
             </div>
-            {!resendSent ? (
-              <div className="space-y-3">
-                <input
-                  type="email"
-                  value={resendEmail}
-                  onChange={(e) => setResendEmail(e.target.value)}
-                  placeholder="Enter your email to resend"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleResend}
-                  disabled={resendLoading || !resendEmail.trim()}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-all duration-150"
-                >
-                  {resendLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                  {resendLoading ? 'Sending…' : 'Resend verification email'}
-                </button>
-              </div>
-            ) : (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">
-                If that email exists, a new link has been sent.
-              </div>
-            )}
+            <div className="space-y-3">
+              {resendSent && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">
+                  If that email exists, a new link has been sent.
+                </div>
+              )}
+              <input
+                type="email"
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                placeholder="Enter your email to resend"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleResend}
+                disabled={resendLoading || !resendEmail.trim() || cooldown > 0}
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-all duration-150"
+              >
+                {resendLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {resendLoading ? 'Sending…' : cooldown > 0 ? `Resend in ${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, '0')}` : 'Resend verification email'}
+              </button>
+            </div>
           </>
         )}
 
