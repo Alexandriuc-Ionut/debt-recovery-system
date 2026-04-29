@@ -90,10 +90,10 @@ export default function VerifyEmailContent() {
                 <button
                   onClick={handleResend}
                   disabled={resendLoading || !resendEmail.trim()}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-xl text-sm transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-all duration-150"
                 >
                   {resendLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                  Resend verification email
+                  {resendLoading ? 'Sending…' : 'Resend verification email'}
                 </button>
               </div>
             ) : (
