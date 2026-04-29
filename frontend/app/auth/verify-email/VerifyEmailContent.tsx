@@ -19,9 +19,11 @@ export default function VerifyEmailContent() {
 
   const verify = useCallback(async (t: string) => {
     try {
-      await apiFetch(`/auth/verify-email?token=${t}`);
+      const res = await apiFetch<{ accessToken: string; user: object }>(`/auth/verify-email?token=${t}`);
+      localStorage.setItem('accessToken', res.accessToken);
+      localStorage.setItem('user', JSON.stringify(res.user));
       setStatus('success');
-      setTimeout(() => router.replace('/auth/login'), 3000);
+      setTimeout(() => router.replace('/dashboard'), 2000);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Verification failed');
       setStatus('error');
@@ -118,9 +120,9 @@ export default function VerifyEmailContent() {
               <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             </div>
             <h1 className="text-xl font-bold text-slate-900 mb-2">Email verified!</h1>
-            <p className="text-slate-500 text-sm mb-6">Your account is now active. Redirecting you to login…</p>
-            <Link href="/auth/login" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors">
-              Go to Login
+            <p className="text-slate-500 text-sm mb-6">Your account is now active. Redirecting you to your dashboard…</p>
+            <Link href="/dashboard" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors">
+              Go to Dashboard
             </Link>
           </>
         )}

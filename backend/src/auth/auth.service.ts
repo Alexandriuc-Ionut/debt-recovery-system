@@ -162,7 +162,7 @@ export class AuthService {
       );
     }
 
-    await this.prisma.user.update({
+    const verified = await this.prisma.user.update({
       where: { id: user.id },
       data: {
         isEmailVerified: true,
@@ -177,7 +177,24 @@ export class AuthService {
       action: AuditAction.VERIFY_EMAIL,
     });
 
-    return { message: 'Email verified successfully' };
+    const payload: JwtPayload = {
+      sub: verified.id,
+      email: verified.email,
+      role: verified.role,
+      companyId: verified.companyId,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: {
+        id: verified.id,
+        email: verified.email,
+        fullName: verified.fullName,
+        role: verified.role,
+        companyId: verified.companyId,
+        isEmailVerified: true,
+      },
+    };
   }
 
   async resendVerification(email: string) {
