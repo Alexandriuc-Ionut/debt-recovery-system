@@ -1,35 +1,32 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
-
-  constructor() {
-    const options = {
-      host: process.env.MAIL_HOST ?? 'smtp.gmail.com',
-      port: Number(process.env.MAIL_PORT ?? 587),
-      secure: false,
-      family: 4,
-      auth: {
-        user: process.env.MAIL_USER ?? '',
-        pass: process.env.MAIL_PASS ?? '',
-      },
-    } as SMTPTransport.Options;
-    this.transporter = nodemailer.createTransport(options);
-  }
+  private readonly apiKey = process.env.BREVO_API_KEY ?? '';
+  private readonly fromEmail = process.env.MAIL_FROM ?? 'noreply@debtrecovery.app';
+  private readonly fromName = 'DebtRecovery';
 
   private async send(to: string, subject: string, html: string): Promise<void> {
     try {
-      const info = await this.transporter.sendMail({
-        from: `"DebtRecovery" <${process.env.MAIL_FROM}>`,
-        to,
-        subject,
-        html,
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey,
+        },
+        body: JSON.stringify({
+          sender: { name: this.fromName, email: this.fromEmail },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+        }),
       });
-      this.logger.log(`Email sent to ${to} — messageId: ${info.messageId}`);
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Brevo API ${res.status}: ${body}`);
+      }
+      this.logger.log(`Email sent to ${to}`);
     } catch (err) {
       this.logger.error(`Failed to send email to ${to}`, err);
     }
