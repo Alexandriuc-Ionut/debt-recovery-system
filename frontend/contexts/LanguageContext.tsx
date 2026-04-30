@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { en } from '@/locales/en';
 import { ro } from '@/locales/ro';
 
@@ -19,14 +19,15 @@ const LanguageContext = createContext<LanguageContextType>({
   t: en,
 });
 
-function getSavedLang(): Lang {
-  if (typeof window === 'undefined') return 'en';
-  const saved = localStorage.getItem('lang');
-  return saved === 'ro' || saved === 'en' ? saved : 'en';
-}
-
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(getSavedLang);
+  // Always start with 'en' — matches server render, preventing hydration mismatch
+  const [lang, setLangState] = useState<Lang>('en');
+
+  // After hydration, sync to localStorage without causing a hydration error
+  useEffect(() => {
+    const saved = localStorage.getItem('lang');
+    if (saved === 'ro') setLangState('ro');
+  }, []);
 
   function setLang(l: Lang) {
     setLangState(l);
