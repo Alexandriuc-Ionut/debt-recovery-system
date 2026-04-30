@@ -100,13 +100,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
       <div className="px-3 pb-4 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
         {/* Language toggle — visible only on mobile */}
         <div className="lg:hidden flex items-center px-3 py-1 mb-0.5">
-          <div className="relative flex items-center bg-white/[0.06] border border-white/[0.1] rounded-full p-0.5" style={{ width: 80 }}>
+          <div className="relative flex items-center bg-white/[0.06] border border-white/[0.1] rounded-full" style={{ width: 76, padding: 3 }}>
             <span
-              className="absolute top-0.5 bottom-0.5 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
-              style={{ width: 'calc(50% - 2px)', left: lang === 'en' ? 'calc(50% + 2px)' : 2 }}
+              className="absolute rounded-full bg-blue-600 transition-transform duration-300 ease-in-out"
+              style={{ width: 35, top: 3, bottom: 3, left: 3, transform: lang === 'en' ? 'translateX(35px)' : 'translateX(0)' }}
             />
-            <button onClick={() => setLang('ro')} className={`relative z-10 flex-1 py-1 text-[11px] font-bold rounded-full transition-colors duration-300 ${lang === 'ro' ? 'text-white' : 'text-slate-400'}`}>RO</button>
-            <button onClick={() => setLang('en')} className={`relative z-10 flex-1 py-1 text-[11px] font-bold rounded-full transition-colors duration-300 ${lang === 'en' ? 'text-white' : 'text-slate-400'}`}>EN</button>
+            <button onClick={() => setLang('ro')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'ro' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>RO</button>
+            <button onClick={() => setLang('en')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'en' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>EN</button>
           </div>
         </div>
 
