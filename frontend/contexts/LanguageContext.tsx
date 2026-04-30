@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { en } from '@/locales/en';
 import { ro } from '@/locales/ro';
 
@@ -19,22 +19,21 @@ const LanguageContext = createContext<LanguageContextType>({
   t: en,
 });
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('en');
-  const [mounted, setMounted] = useState(false);
+function getSavedLang(): Lang {
+  if (typeof window === 'undefined') return 'en';
+  const saved = localStorage.getItem('lang');
+  return saved === 'ro' || saved === 'en' ? saved : 'en';
+}
 
-  useEffect(() => {
-    const saved = localStorage.getItem('lang') as Lang | null;
-    if (saved === 'ro' || saved === 'en') setLangState(saved);
-    setMounted(true);
-  }, []);
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(getSavedLang);
 
   function setLang(l: Lang) {
     setLangState(l);
     localStorage.setItem('lang', l);
   }
 
-  const t = (mounted && lang === 'ro' ? ro : en) as typeof en;
+  const t = (lang === 'ro' ? ro : en) as typeof en;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

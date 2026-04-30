@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -21,7 +22,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
         {/* Logo */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
           <div className="w-9 h-9 rounded-xl bg-white p-0.5 flex-shrink-0 shadow-lg shadow-black/30">
-            <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-cover object-top rounded-lg" />
+            <Image src="/logo.png" alt="DebtRecovery" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
           </div>
           <span className="font-bold text-white text-[15px] tracking-tight">DebtRecovery</span>
         </div>
@@ -60,27 +61,43 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-[#080d14]/95 backdrop-blur-xl border-t border-white/[0.06] px-5 py-4 space-y-3">
-          {[
+        <div className="md:hidden bg-[#080d14] border-t border-white/[0.06]">
+          {/* Nav links */}
+          <div className="px-4 py-2">
+            {[
               { label: t.landing.nav.features, href: '#features' },
               { label: t.landing.nav.howItWorks, href: '#how-it-works' },
               { label: t.landing.nav.benefits, href: '#benefits' },
               { label: t.landing.nav.pricing, href: '#pricing' },
             ].map(({ label, href }) => (
-            <a key={label} href={href}
-              onClick={() => setOpen(false)}
-              className="block text-sm text-slate-300 font-medium py-2 hover:text-white">{label}</a>
-          ))}
-          <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.06]">
-            <div className="flex items-center justify-center rounded-lg border border-white/[0.15] overflow-hidden text-xs font-bold w-fit mx-auto">
-              <button onClick={() => setLang('ro')} className={`px-3 py-2 transition-colors ${lang === 'ro' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>RO</button>
-              <button onClick={() => setLang('en')} className={`px-3 py-2 transition-colors ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>EN</button>
+              <a key={label} href={href} onClick={() => setOpen(false)}
+                className="flex items-center justify-between px-3 py-3.5 text-sm font-medium text-slate-300 hover:text-white border-b border-white/[0.04] last:border-0 transition-colors">
+                {label}
+                <ChevronRight className="w-4 h-4 text-slate-600" />
+              </a>
+            ))}
+          </div>
+
+          {/* Bottom actions */}
+          <div className="px-4 pb-6 pt-2 space-y-3 border-t border-white/[0.06]">
+            {/* Language toggle */}
+            <div className="flex items-center justify-between px-1 py-1">
+              <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">Language</span>
+              <div className="relative flex items-center bg-white/[0.06] border border-white/[0.1] rounded-full" style={{ width: 76, padding: 3 }}>
+                <span className="absolute rounded-full bg-blue-600 transition-transform duration-300 ease-in-out"
+                  style={{ width: 35, top: 3, bottom: 3, left: 3, transform: lang === 'en' ? 'translateX(35px)' : 'translateX(0)' }} />
+                <button onClick={() => setLang('ro')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'ro' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>RO</button>
+                <button onClick={() => setLang('en')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'en' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>EN</button>
+              </div>
             </div>
+
             <Link href="/auth/login" onClick={() => setOpen(false)}
-              className="text-sm text-slate-400 hover:text-white font-medium py-2 text-center">{t.landing.nav.signIn}</Link>
+              className="flex items-center justify-center w-full py-3 rounded-xl border border-white/[0.1] text-sm font-semibold text-slate-300 hover:text-white hover:border-white/20 hover:bg-white/[0.04] transition-all">
+              {t.landing.nav.signIn}
+            </Link>
             <Link href="/auth/register" onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-1.5 bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl">
-              {t.landing.pricing.getStarted} <ArrowRight className="w-3.5 h-3.5" />
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-500/20">
+              {t.landing.pricing.getStarted} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -614,7 +631,7 @@ export default function LandingPage() {
           <div className="relative rounded-3xl bg-gradient-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/20 p-12 shadow-2xl">
             <div className="flex items-center justify-center mb-6">
               <div className="w-16 h-16 rounded-2xl bg-white p-1 shadow-2xl shadow-black/40 ring-1 ring-white/20">
-                <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-cover object-top rounded-xl" />
+                <Image src="/logo.png" alt="DebtRecovery" width={64} height={64} className="w-full h-full object-cover object-top rounded-xl" />
               </div>
             </div>
             <div className="flex items-center justify-center gap-1 mb-4">
@@ -645,7 +662,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-white p-0.5 flex-shrink-0 shadow-md shadow-black/30">
-                <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-cover object-top rounded-md" />
+                <Image src="/logo.png" alt="DebtRecovery" width={32} height={32} className="w-full h-full object-cover object-top rounded-md" />
               </div>
               <span className="font-bold text-white">DebtRecovery</span>
               <span className="text-slate-600 text-sm ml-1">· {t.landing.footer.tagline}</span>
