@@ -1,16 +1,25 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, FileText, CreditCard,
-  Bell, Brain, LogOut, Building2, Settings, X,
-  Receipt, RefreshCw, FileCode, Activity,
-} from 'lucide-react';
-import { authService } from '@/services/auth.service';
-import { useLanguage } from '@/contexts/LanguageContext';
-import type { AuthUser } from '@/types';
+  LayoutDashboard,
+  Users,
+  FileText,
+  CreditCard,
+  Bell,
+  Brain,
+  LogOut,
+  Building2,
+  Settings,
+  X,
+  Receipt,
+  RefreshCw,
+  FileCode,
+  Activity,
+} from "lucide-react";
+import { authService } from "@/services/auth.service";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SidebarProps {
   open: boolean;
@@ -19,29 +28,20 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { t } = useLanguage();
-  const [user, setUser] = useState<AuthUser | null>(null);
-
-  useEffect(() => {
-    setUser(authService.getUser());
-  }, []);
+  const { t, lang, setLang } = useLanguage();
 
   const navItems = [
-    { href: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
-    { href: '/clients', label: t.nav.clients, icon: Users },
-    { href: '/invoices', label: t.nav.invoices, icon: FileText },
-    { href: '/payments', label: t.nav.payments, icon: CreditCard },
-    { href: '/reminders', label: t.nav.reminders, icon: Bell },
-    { href: '/expenses', label: t.nav.expenses, icon: Receipt },
-    { href: '/recurring', label: t.nav.recurring, icon: RefreshCw },
-    { href: '/efactura', label: t.nav.efactura, icon: FileCode },
-    { href: '/ai', label: t.nav.aiScoring, icon: Brain },
-    { href: '/audit', label: t.nav.auditLog, icon: Activity },
+    { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
+    { href: "/clients", label: t.nav.clients, icon: Users },
+    { href: "/invoices", label: t.nav.invoices, icon: FileText },
+    { href: "/payments", label: t.nav.payments, icon: CreditCard },
+    { href: "/reminders", label: t.nav.reminders, icon: Bell },
+    { href: "/expenses", label: t.nav.expenses, icon: Receipt },
+    { href: "/recurring", label: t.nav.recurring, icon: RefreshCw },
+    { href: "/efactura", label: t.nav.efactura, icon: FileCode },
+    { href: "/ai", label: t.nav.aiScoring, icon: Brain },
+    { href: "/audit", label: t.nav.auditLog, icon: Activity },
   ];
-
-  const initials = user
-    ? (user.fullName ?? user.email).slice(0, 2).toUpperCase()
-    : '?';
 
   return (
     <aside className="w-64 h-full min-h-full bg-[#0f1623] text-white flex flex-col overflow-hidden">
@@ -52,19 +52,26 @@ export default function Sidebar({ onClose }: SidebarProps) {
             <Building2 className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="font-bold text-sm text-white leading-tight tracking-tight">DebtRecovery</p>
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">Management</p>
+            <p className="font-bold text-sm text-white leading-tight tracking-tight">
+              DebtRecovery
+            </p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">
+              Management
+            </p>
           </div>
         </div>
-        <button onClick={onClose} className="lg:hidden text-slate-500 hover:text-white transition-colors">
+        <button
+          onClick={onClose}
+          className="lg:hidden text-slate-500 hover:text-white transition-colors"
+        >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Nav — scrollable if needed */}
+      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || pathname.startsWith(href + '/');
+          const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
@@ -73,32 +80,56 @@ export default function Sidebar({ onClose }: SidebarProps) {
               data-nav={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all border ${
                 active
-                  ? 'bg-blue-600/20 text-blue-400 border-blue-500/20'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border-transparent'
+                  ? "bg-blue-600/20 text-blue-400 border-blue-500/20"
+                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200 border-transparent"
               }`}
             >
-              <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-blue-400' : 'text-slate-500'}`} />
+              <Icon
+                className={`w-4 h-4 flex-shrink-0 ${active ? "text-blue-400" : "text-slate-500"}`}
+              />
               {label}
-              {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
+              {active && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom — always visible */}
-      <div className="px-3 pb-3 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
+      {/* Bottom */}
+      <div className="px-3 pb-4 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
+        {/* Language toggle — visible only on mobile (lg:hidden) */}
+        <div className="lg:hidden flex items-center rounded-lg border border-white/[0.1] overflow-hidden text-xs font-bold mb-1">
+          <button
+            onClick={() => setLang("ro")}
+            className={`flex-1 py-2 transition-colors ${lang === "ro" ? "bg-blue-600 text-white" : "text-slate-400 hover:bg-white/[0.06] hover:text-white"}`}
+          >
+            RO
+          </button>
+          <button
+            onClick={() => setLang("en")}
+            className={`flex-1 py-2 transition-colors ${lang === "en" ? "bg-blue-600 text-white" : "text-slate-400 hover:bg-white/[0.06] hover:text-white"}`}
+          >
+            EN
+          </button>
+        </div>
+
         <Link
           href="/settings"
           onClick={onClose}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all border ${
-            pathname === '/settings'
-              ? 'bg-blue-600/20 text-blue-400 border-blue-500/20'
-              : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border-transparent'
+            pathname === "/settings"
+              ? "bg-blue-600/20 text-blue-400 border-blue-500/20"
+              : "text-slate-400 hover:bg-white/5 hover:text-slate-200 border-transparent"
           }`}
         >
-          <Settings className={`w-4 h-4 flex-shrink-0 ${pathname === '/settings' ? 'text-blue-400' : 'text-slate-500'}`} />
+          <Settings
+            className={`w-4 h-4 flex-shrink-0 ${pathname === "/settings" ? "text-blue-400" : "text-slate-500"}`}
+          />
           {t.nav.settings}
-          {pathname === '/settings' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
+          {pathname === "/settings" && (
+            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />
+          )}
         </Link>
 
         <button
@@ -108,29 +139,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <LogOut className="w-4 h-4 flex-shrink-0 text-slate-500" />
           {t.nav.signOut}
         </button>
-
-        {/* User profile card */}
-        <Link
-          href="/profile"
-          onClick={onClose}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all mt-1 ${
-            pathname === '/profile'
-              ? 'bg-blue-600/20 border-blue-500/20'
-              : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.07] hover:border-white/[0.12]'
-          }`}
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate leading-tight">
-              {user?.fullName ?? user?.email ?? '—'}
-            </p>
-            <p className="text-[11px] text-slate-500 truncate capitalize">
-              {user?.role?.toLowerCase() ?? ''}
-            </p>
-          </div>
-        </Link>
       </div>
     </aside>
   );
