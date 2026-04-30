@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   LayoutDashboard, Users, FileText, CreditCard,
   Bell, Brain, LogOut, Building2, Settings, X,
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { useLanguage } from '@/contexts/LanguageContext';
+import type { AuthUser } from '@/types';
 
 interface SidebarProps {
   open: boolean;
@@ -18,6 +20,11 @@ interface SidebarProps {
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const { t } = useLanguage();
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    setUser(authService.getUser());
+  }, []);
 
   const navItems = [
     { href: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
@@ -31,6 +38,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { href: '/ai', label: t.nav.aiScoring, icon: Brain },
     { href: '/audit', label: t.nav.auditLog, icon: Activity },
   ];
+
+  const initials = user
+    ? (user.fullName ?? user.email).slice(0, 2).toUpperCase()
+    : '?';
 
   return (
     <aside className="w-64 h-full min-h-full bg-[#0f1623] text-white flex flex-col overflow-hidden">
@@ -75,7 +86,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* Bottom — always visible */}
-      <div className="px-3 pb-4 space-y-0.5 border-t border-white/5 pt-3 flex-shrink-0">
+      <div className="px-3 pb-3 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
         <Link
           href="/settings"
           onClick={onClose}
@@ -89,23 +100,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           {t.nav.settings}
           {pathname === '/settings' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
         </Link>
-        <Link
-          href="/profile"
-          onClick={onClose}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all border ${
-            pathname === '/profile'
-              ? 'bg-blue-600/20 text-blue-400 border-blue-500/20'
-              : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border-transparent'
-          }`}
-        >
-          <span className={`w-4 h-4 flex-shrink-0 flex items-center justify-center ${pathname === '/profile' ? 'text-blue-400' : 'text-slate-500'}`}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-          </span>
-          {t.nav.myProfile}
-          {pathname === '/profile' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
-        </Link>
+
         <button
           onClick={() => authService.logout()}
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent transition-all"
@@ -113,6 +108,29 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <LogOut className="w-4 h-4 flex-shrink-0 text-slate-500" />
           {t.nav.signOut}
         </button>
+
+        {/* User profile card */}
+        <Link
+          href="/profile"
+          onClick={onClose}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all mt-1 ${
+            pathname === '/profile'
+              ? 'bg-blue-600/20 border-blue-500/20'
+              : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.07] hover:border-white/[0.12]'
+          }`}
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white truncate leading-tight">
+              {user?.fullName ?? user?.email ?? '—'}
+            </p>
+            <p className="text-[11px] text-slate-500 truncate capitalize">
+              {user?.role?.toLowerCase() ?? ''}
+            </p>
+          </div>
+        </Link>
       </div>
     </aside>
   );

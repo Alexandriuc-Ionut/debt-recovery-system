@@ -25,23 +25,25 @@ type OverdueInvoice = {
   overdueDays: number;
 };
 
-const STORAGE_KEY = 'readNotifications';
+function storageKey(userId: string) {
+  return `readNotifications_${userId}`;
+}
 
-function getReadIds(): Set<number> {
+function getReadIds(userId: string): Set<number> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey(userId));
     return new Set(raw ? (JSON.parse(raw) as number[]) : []);
   } catch {
     return new Set();
   }
 }
 
-function saveReadIds(ids: Set<number>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
+function saveReadIds(ids: Set<number>, userId: string) {
+  localStorage.setItem(storageKey(userId), JSON.stringify([...ids]));
 }
 
 export default function Header({ title, onMenuClick }: HeaderProps) {
-  const { lang, setLang } = useLanguage();
+  const { lang, setLang, t } = useLanguage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [notifications, setNotifications] = useState<OverdueInvoice[]>([]);
   const [readIds, setReadIds] = useState<Set<number>>(new Set());
@@ -49,33 +51,35 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
   const [loading, setLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
+  const userId = user?.email ?? 'guest';
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
-  const loadNotifications = useCallback(() => {
+  const loadNotifications = useCallback((uid: string) => {
     setLoading(true);
     dashboardService.getOverdueInvoices()
       .then((data) => {
         setNotifications(data);
-        // Purge read IDs that no longer exist in overdue list
-        const ids = getReadIds();
+        const ids = getReadIds(uid);
         const validIds = new Set([...ids].filter((id) => data.some((n) => n.id === id)));
         setReadIds(validIds);
-        saveReadIds(validIds);
+        saveReadIds(validIds, uid);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    setUser(authService.getUser());
-    setReadIds(getReadIds());
+    const u = authService.getUser();
+    setUser(u);
+    const uid = u?.email ?? 'guest';
+    setReadIds(getReadIds(uid));
     dashboardService.getOverdueCount().catch(() => {});
-    loadNotifications();
+    loadNotifications(uid);
   }, [loadNotifications]);
 
   useEffect(() => {
-    if (open) loadNotifications();
-  }, [open, loadNotifications]);
+    if (open) loadNotifications(userId);
+  }, [open, loadNotifications, userId]);
 
   // Close on outside click
   useEffect(() => {
@@ -91,13 +95,13 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
   function markRead(id: number) {
     const next = new Set(readIds).add(id);
     setReadIds(next);
-    saveReadIds(next);
+    saveReadIds(next, userId);
   }
 
   function markAllRead() {
     const next = new Set(notifications.map((n) => n.id));
     setReadIds(next);
-    saveReadIds(next);
+    saveReadIds(next, userId);
   }
 
   const initials = user
@@ -145,10 +149,10 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/[0.06]">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-red-500" />
-                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">Overdue Invoices</span>
+                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t.notifications.overdueInvoices}</span>
                     {unreadCount > 0 && (
                       <span className="text-xs font-bold bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full">
-                        {unreadCount} new
+                        {unreadCount} {t.notifications.newBadge}
                       </span>
                     )}
                   </div>
@@ -157,7 +161,7 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                       onClick={markAllRead}
                       className="flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                     >
-                      <CheckCheck className="w-3.5 h-3.5" /> Read all
+                      <CheckCheck className="w-3.5 h-3.5" /> {t.notifications.readAll}
                     </button>
                   )}
                 </div>
@@ -165,13 +169,13 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                 {/* List */}
                 <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.05]">
                   {loading && (
-                    <div className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">Loading...</div>
+                    <div className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">{t.notifications.loading}</div>
                   )}
                   {!loading && notifications.length === 0 && (
                     <div className="px-4 py-8 text-center">
                       <CheckCheck className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">All caught up!</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">No overdue invoices</p>
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.notifications.allCaughtUp}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{t.notifications.noOverdue}</p>
                     </div>
                   )}
                   {!loading && notifications.map((inv) => {
@@ -205,7 +209,7 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                           <div className="flex items-center justify-between gap-2 mt-1">
                             <span className="text-xs font-mono text-slate-400 dark:text-slate-500">{inv.number}</span>
                             <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${urgencyColor(inv.overdueDays)}`}>
-                              {inv.overdueDays}d overdue
+                              {inv.overdueDays}{t.notifications.daysOverdue}
                             </span>
                           </div>
                         </Link>
@@ -214,7 +218,7 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                         {!isRead && (
                           <button
                             onClick={() => markRead(inv.id)}
-                            title="Mark as read"
+                            title={t.notifications.markAsRead}
                             className="mt-1 p-1 text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors flex-shrink-0"
                           >
                             <Check className="w-3.5 h-3.5" />
@@ -231,7 +235,7 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                     href="/invoices"
                     className="flex items-center justify-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
-                    View all invoices <ArrowRight className="w-3.5 h-3.5" />
+                    {t.notifications.viewAllInvoices} <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
@@ -255,7 +259,7 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
           </div>
 
           {/* User info */}
-          <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-white/[0.08] ml-1">
+          <Link href="/profile" className="flex items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-white/[0.08] ml-1 hover:opacity-80 transition-opacity">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-slate-800 dark:text-white leading-tight">
                 {user.fullName ?? user.email}
@@ -265,7 +269,7 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-blue-900/30 flex-shrink-0">
               {initials}
             </div>
-          </div>
+          </Link>
         </div>
       )}
     </header>

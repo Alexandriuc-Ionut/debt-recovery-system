@@ -72,6 +72,10 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
               className="block text-sm text-slate-300 font-medium py-2 hover:text-white">{label}</a>
           ))}
           <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.06]">
+            <div className="flex items-center justify-center rounded-lg border border-white/[0.15] overflow-hidden text-xs font-bold w-fit mx-auto">
+              <button onClick={() => setLang('ro')} className={`px-3 py-2 transition-colors ${lang === 'ro' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>RO</button>
+              <button onClick={() => setLang('en')} className={`px-3 py-2 transition-colors ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>EN</button>
+            </div>
             <Link href="/auth/login" onClick={() => setOpen(false)}
               className="text-sm text-slate-400 hover:text-white font-medium py-2 text-center">{t.landing.nav.signIn}</Link>
             <Link href="/auth/register" onClick={() => setOpen(false)}
