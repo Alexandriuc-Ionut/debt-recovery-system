@@ -5,7 +5,7 @@ import { en } from '@/locales/en';
 import { ro } from '@/locales/ro';
 
 export type Lang = 'en' | 'ro';
-export type Translations = typeof en | typeof ro;
+export type Translations = typeof en;
 
 interface LanguageContextType {
   lang: Lang;
@@ -32,7 +32,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('lang', l);
   }
 
-  const t = lang === 'ro' ? ro : en;
+  const t = (lang === 'ro' ? ro : en) as typeof en;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>
