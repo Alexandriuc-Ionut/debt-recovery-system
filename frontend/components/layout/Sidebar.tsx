@@ -99,18 +99,25 @@ export default function Sidebar({ onClose }: SidebarProps) {
       {/* Bottom */}
       <div className="px-3 pb-4 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
         {/* Language toggle — visible only on mobile */}
-        <div className="lg:hidden flex items-center justify-between px-3 py-2 mb-1">
-          <span className={`text-xs font-bold transition-colors ${lang === 'ro' ? 'text-white' : 'text-slate-500'}`}>RO</span>
-          <button
-            onClick={() => setLang(lang === 'ro' ? 'en' : 'ro')}
-            className="relative w-14 h-7 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg shadow-blue-900/40 transition-all mx-3"
-            aria-label="Toggle language"
-          >
+        <div className="lg:hidden px-3 py-2 mb-1">
+          <div className="relative flex items-center bg-white/[0.06] rounded-full p-1 border border-white/[0.08]">
+            {/* sliding pill */}
             <span
-              className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${lang === 'en' ? 'left-8' : 'left-1'}`}
+              className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-blue-600 rounded-full transition-all duration-300 ${lang === 'en' ? 'left-[calc(50%+2px)]' : 'left-1'}`}
             />
-          </button>
-          <span className={`text-xs font-bold transition-colors ${lang === 'en' ? 'text-white' : 'text-slate-500'}`}>EN</span>
+            <button
+              onClick={() => setLang('ro')}
+              className={`relative z-10 flex-1 py-1.5 text-xs font-bold rounded-full transition-colors duration-300 ${lang === 'ro' ? 'text-white' : 'text-slate-400'}`}
+            >
+              RO
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`relative z-10 flex-1 py-1.5 text-xs font-bold rounded-full transition-colors duration-300 ${lang === 'en' ? 'text-white' : 'text-slate-400'}`}
+            >
+              EN
+            </button>
+          </div>
         </div>
 
         <Link
