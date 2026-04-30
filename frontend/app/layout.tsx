@@ -37,7 +37,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col"><LanguageProvider>{children}</LanguageProvider></body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning><LanguageProvider>{children}</LanguageProvider></body>
     </html>
   );
 }

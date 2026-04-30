@@ -98,8 +98,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       {/* Bottom */}
       <div className="px-3 pb-4 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
-        {/* Language toggle — visible only on mobile */}
-        <div className="lg:hidden flex items-center px-3 py-1 mb-0.5">
+        {/* Language toggle */}
+        <div className="flex items-center px-3 py-1 mb-0.5">
           <div className="relative flex items-center bg-white/[0.06] border border-white/[0.1] rounded-full" style={{ width: 76, padding: 3 }}>
             <span
               className="absolute rounded-full bg-blue-600 transition-transform duration-300 ease-in-out"
