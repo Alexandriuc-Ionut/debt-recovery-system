@@ -242,8 +242,8 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
             )}
           </div>
 
-          {/* Language toggle */}
-          <div className="flex items-center rounded-lg border border-slate-200 dark:border-white/[0.1] overflow-hidden text-xs font-bold">
+          {/* Language toggle — hidden on mobile (sidebar has it) */}
+          <div className="hidden md:flex items-center rounded-lg border border-slate-200 dark:border-white/[0.1] overflow-hidden text-xs font-bold">
             <button
               onClick={() => setLang('ro')}
               className={`px-2.5 py-1.5 transition-colors ${lang === 'ro' ? 'bg-blue-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.05]'}`}
