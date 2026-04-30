@@ -21,7 +21,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
         {/* Logo */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
           <div className="w-9 h-9 rounded-xl bg-white p-0.5 flex-shrink-0 shadow-lg shadow-black/30">
-            <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-contain rounded-lg" />
+            <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-cover object-top rounded-lg" />
           </div>
           <span className="font-bold text-white text-[15px] tracking-tight">DebtRecovery</span>
         </div>
@@ -614,7 +614,7 @@ export default function LandingPage() {
           <div className="relative rounded-3xl bg-gradient-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/20 p-12 shadow-2xl">
             <div className="flex items-center justify-center mb-6">
               <div className="w-16 h-16 rounded-2xl bg-white p-1 shadow-2xl shadow-black/40 ring-1 ring-white/20">
-                <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-contain rounded-xl" />
+                <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-cover object-top rounded-xl" />
               </div>
             </div>
             <div className="flex items-center justify-center gap-1 mb-4">
@@ -645,7 +645,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-white p-0.5 flex-shrink-0 shadow-md shadow-black/30">
-                <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-contain rounded-md" />
+                <img src="/logo.png" alt="DebtRecovery" className="w-full h-full object-cover object-top rounded-md" />
               </div>
               <span className="font-bold text-white">DebtRecovery</span>
               <span className="text-slate-600 text-sm ml-1">· {t.landing.footer.tagline}</span>
