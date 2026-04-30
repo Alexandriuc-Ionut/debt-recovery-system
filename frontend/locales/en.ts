@@ -469,6 +469,17 @@ export const en = {
     errPasswordRequirements: 'Password must meet all requirements',
     errPasswordsMismatch: 'Passwords do not match',
     errCompanyNameRequired: 'Company name is required',
+    panelBadge: 'B2B Debt Management',
+    panelHeadline: 'Recover debts.',
+    panelHighlight: 'Faster.',
+    panelSubtitle: 'AI-powered risk scoring, automated reminders, and real-time analytics — all in one platform.',
+    panelFeature1: 'Enterprise security',
+    panelFeature1Desc: 'JWT auth, encrypted storage',
+    panelFeature2: 'AI risk scoring',
+    panelFeature2Desc: 'Predict payment delays before they happen',
+    panelFeature3: 'Live cash flow',
+    panelFeature3Desc: 'Aging analysis & invoice tracking',
+    copyright: '© 2026 DebtRecovery. All rights reserved.',
   },
   landing: {
     nav: {

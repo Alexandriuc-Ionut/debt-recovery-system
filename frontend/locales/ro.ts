@@ -469,6 +469,17 @@ export const ro = {
     errPasswordRequirements: 'Parola trebuie să îndeplinească toate cerințele',
     errPasswordsMismatch: 'Parolele nu se potrivesc',
     errCompanyNameRequired: 'Numele companiei este obligatoriu',
+    panelBadge: 'Management Creanțe B2B',
+    panelHeadline: 'Recuperează datoriile.',
+    panelHighlight: 'Mai rapid.',
+    panelSubtitle: 'Scoring AI al riscului, notificări automate și analize în timp real — totul într-o singură platformă.',
+    panelFeature1: 'Securitate enterprise',
+    panelFeature1Desc: 'Autentificare JWT, stocare criptată',
+    panelFeature2: 'Scoring AI al riscului',
+    panelFeature2Desc: 'Anticipează întârzierile de plată înainte să apară',
+    panelFeature3: 'Flux numerar live',
+    panelFeature3Desc: 'Analiză vechime & urmărire facturi',
+    copyright: '© 2026 DebtRecovery. Toate drepturile rezervate.',
   },
   landing: {
     nav: {

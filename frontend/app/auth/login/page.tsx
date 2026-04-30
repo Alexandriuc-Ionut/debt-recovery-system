@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, BarChart3, ShieldCheck, Zap, TrendingUp, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, Zap, TrendingUp, ArrowRight } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { ToastContainer, toast } from '@/components/ui/Toast';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -65,29 +66,27 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-20">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/50">
-              <BarChart3 className="w-4.5 h-4.5 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-white p-0.5 flex-shrink-0 shadow-lg shadow-black/30 overflow-hidden">
+              <Image src="/logo.png" alt="DebtRecovery" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
             </div>
             <span className="text-white font-bold text-lg tracking-tight">DebtRecovery</span>
             <span className="text-[10px] text-blue-500 font-semibold uppercase tracking-widest bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full ml-1">Pro</span>
           </div>
 
           <div className="space-y-3 mb-12">
-            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest">B2B Debt Management</p>
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest">{t.auth.panelBadge}</p>
             <h1 className="text-4xl font-bold text-white leading-[1.15] tracking-tight">
-              Recover debts.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Faster.</span>
+              {t.auth.panelHeadline}<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">{t.auth.panelHighlight}</span>
             </h1>
-            <p className="text-slate-400 text-base leading-relaxed max-w-sm">
-              AI-powered risk scoring, automated reminders, and real-time analytics — all in one platform.
-            </p>
+            <p className="text-slate-400 text-base leading-relaxed max-w-sm">{t.auth.panelSubtitle}</p>
           </div>
 
           <div className="space-y-3">
             {[
-              { icon: ShieldCheck, label: 'Enterprise security', desc: 'JWT auth, encrypted storage' },
-              { icon: Zap, label: 'AI risk scoring', desc: 'Predict payment delays before they happen' },
-              { icon: TrendingUp, label: 'Live cash flow', desc: 'Aging analysis & invoice tracking' },
+              { icon: ShieldCheck, label: t.auth.panelFeature1, desc: t.auth.panelFeature1Desc },
+              { icon: Zap,         label: t.auth.panelFeature2, desc: t.auth.panelFeature2Desc },
+              { icon: TrendingUp,  label: t.auth.panelFeature3, desc: t.auth.panelFeature3Desc },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="flex items-center gap-4 p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-colors">
                 <div className="w-9 h-9 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -102,9 +101,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="relative z-10 text-slate-600 text-xs">
-          © 2026 DebtRecovery. All rights reserved.
-        </p>
+        <p className="relative z-10 text-slate-600 text-xs">{t.auth.copyright}</p>
       </div>
 
       {/* Right — form */}
@@ -113,8 +110,8 @@ export default function LoginPage() {
 
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-12 lg:hidden">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
-              <BarChart3 className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-white p-0.5 overflow-hidden shadow-lg shadow-black/30">
+              <Image src="/logo.png" alt="DebtRecovery" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
             </div>
             <span className="font-bold text-white text-lg">DebtRecovery</span>
           </div>
