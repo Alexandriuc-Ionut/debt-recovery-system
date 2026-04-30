@@ -186,9 +186,9 @@ function ChatPanel({
       style={{
         position: "fixed",
         bottom: "100px",
-        right: "60px",
+        right: "16px",
         width: "340px",
-        maxWidth: "calc(100vw - 16px)",
+        maxWidth: "calc(100vw - 32px)",
         zIndex: 9990,
         borderRadius: "20px",
         overflow: "hidden",
