@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   DollarSign, TrendingDown, AlertTriangle, FileText, ArrowRight,
   Clock, TrendingUp, Activity, ChevronLeft, ChevronRight,
@@ -346,9 +347,9 @@ export default function DashboardPage() {
                 <p className="text-[10px] text-slate-500">{data.invoices.length} {t.dashboard.invoicesTracked}</p>
               </div>
             </div>
-            <a href="/invoices" className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">
+            <Link href="/invoices" className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">
               {t.common.viewAll} <ArrowRight className="w-3.5 h-3.5" />
-            </a>
+            </Link>
           </div>
 
           {/* Desktop table */}
