@@ -38,10 +38,12 @@ function SubmitModal({
   invoices,
   onClose,
   onSubmit,
+  t,
 }: {
   invoices: (Invoice & { client: { name: string } })[];
   onClose: () => void;
   onSubmit: (id: number) => Promise<void>;
+  t: ReturnType<typeof useLanguage>['t']['efactura'];
 }) {
   const [selected, setSelected] = useState<number | ''>('');
   const [loading, setLoading] = useState(false);
@@ -66,7 +68,7 @@ function SubmitModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#0d1829] border border-slate-200 dark:border-white/[0.08] shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
-          <h2 className="font-semibold text-slate-900 dark:text-white text-base">Submit Invoice to ANAF</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-white text-base">{t.submitModalTitle}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200 transition-colors">
             <X className="w-5 h-5" />
           </button>
@@ -78,14 +80,14 @@ function SubmitModal({
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Select Invoice</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t.selectInvoice}</label>
             <select
               required
               value={selected}
               onChange={(e) => setSelected(e.target.value === '' ? '' : Number(e.target.value))}
               className="w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition"
             >
-              <option value="">— choose an invoice —</option>
+              <option value="">{t.chooseInvoice}</option>
               {invoices.map((inv) => (
                 <option key={inv.id} value={inv.id}>
                   {inv.series ? `${inv.series}-${inv.number}` : inv.number} · {inv.client.name} · {formatCompactCurrency(Number(inv.totalAmount))}
@@ -93,23 +95,23 @@ function SubmitModal({
               ))}
             </select>
             {invoices.length === 0 && (
-              <p className="text-xs text-slate-400 mt-2">All invoices have already been submitted.</p>
+              <p className="text-xs text-slate-400 mt-2">{t.allSubmitted}</p>
             )}
           </div>
 
           <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-lg px-4 py-3 space-y-1">
-            <p className="text-xs font-semibold text-blue-800 dark:text-blue-200">What happens next:</p>
+            <p className="text-xs font-semibold text-blue-800 dark:text-blue-200">{t.whatHappensNext}</p>
             <ol className="list-decimal list-inside space-y-0.5 text-xs text-blue-700 dark:text-blue-400">
-              <li>UBL 2.1 XML is generated from invoice data</li>
-              <li>XML is submitted to ANAF SPV (Sandbox)</li>
-              <li>ANAF returns an Execution ID (index number)</li>
-              <li>Poll to get the Recipisa (validation receipt)</li>
+              <li>{t.step1XmlGen}</li>
+              <li>{t.step2Upload}</li>
+              <li>{t.step3ExecutionId}</li>
+              <li>{t.step4Poll}</li>
             </ol>
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
-              Cancel
+              {t.cancel}
             </button>
             <button
               type="submit"
@@ -117,8 +119,8 @@ function SubmitModal({
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-lg transition-colors"
             >
               {loading
-                ? <><RefreshCw className="w-4 h-4 animate-spin" /> Submitting…</>
-                : <><Send className="w-4 h-4" /> Submit to ANAF</>}
+                ? <><RefreshCw className="w-4 h-4 animate-spin" /> {t.submitting}</>
+                : <><Send className="w-4 h-4" /> {t.submitToAnaf}</>}
             </button>
           </div>
         </form>
@@ -245,23 +247,23 @@ export default function EFacturaPage() {
 
           {/* SPV Status card */}
           <div className="bg-white dark:bg-[#0d1117]/80 rounded-xl border border-slate-200 dark:border-white/[0.06] p-5 shadow-sm">
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">ANAF SPV Status</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">{t.efactura.anafSpvStatus}</p>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500 absolute inset-0 animate-ping opacity-40" />
               </div>
               <div>
-                <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">Mock Mode Active</p>
+                <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{t.efactura.mockModeActive}</p>
                 <p className="text-xs text-slate-500">Sandbox · UBL 2.1 · CIUS-RO</p>
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/[0.05] space-y-2">
               {[
-                { label: 'Total submitted', value: submissions.length, color: 'text-slate-800 dark:text-white' },
-                { label: 'Validated',        value: validated,          color: 'text-emerald-600 dark:text-emerald-400' },
-                { label: 'Pending',          value: pending,            color: 'text-amber-600 dark:text-amber-400' },
-                { label: 'With errors',      value: errors,             color: 'text-red-600 dark:text-red-400' },
+                { label: t.efactura.totalSubmitted, value: submissions.length, color: 'text-slate-800 dark:text-white' },
+                { label: t.efactura.validated,      value: validated,          color: 'text-emerald-600 dark:text-emerald-400' },
+                { label: t.efactura.pending,        value: pending,            color: 'text-amber-600 dark:text-amber-400' },
+                { label: t.efactura.withErrors,     value: errors,             color: 'text-red-600 dark:text-red-400' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="flex justify-between text-xs">
                   <span className="text-slate-500">{label}</span>
@@ -275,11 +277,8 @@ export default function EFacturaPage() {
           <div className="lg:col-span-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl p-5 flex gap-4">
             <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">RO e-Factura — CIUS-RO / UBL 2.1</p>
-              <p className="text-sm text-blue-800 dark:text-blue-300">
-                Starting <strong>January 2024</strong>, all B2B invoices in Romania must be submitted via <strong>ANAF SPV</strong> in <strong>UBL 2.1 XML</strong> format.
-                The system generates the XML from your invoice data, submits it, and stores the <strong>Execution ID + Recipisa</strong> for audit.
-              </p>
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">{t.efactura.infoTitle}</p>
+              <p className="text-sm text-blue-800 dark:text-blue-300">{t.efactura.infoText}</p>
               <div className="flex gap-2 flex-wrap pt-1">
                 {['UBL 2.1', 'CIUS-RO 1.0.1', 'B2B Mandatory', 'Sandbox Mode'].map((tag) => (
                   <span key={tag} className="text-xs bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 rounded-full font-medium border border-blue-200 dark:border-blue-500/30">
@@ -294,14 +293,14 @@ export default function EFacturaPage() {
         {/* ── Toolbar ──────────────────────────────────────────────────────── */}
         <div className="flex justify-between items-center">
           <p className="text-sm text-slate-500">
-            {eligible.length} invoice{eligible.length !== 1 ? 's' : ''} not yet submitted
+            {eligible.length} {t.efactura.notYetSubmitted}
           </p>
           <button
             onClick={() => setSubmitModalOpen(true)}
             disabled={eligible.length === 0}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors"
           >
-            <Upload className="w-4 h-4" /> Submit Invoice to ANAF
+            <Upload className="w-4 h-4" /> {t.efactura.submitInvoiceToAnaf}
           </button>
         </div>
 
@@ -312,7 +311,7 @@ export default function EFacturaPage() {
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
                 <FileCode className="w-3.5 h-3.5 text-white" />
               </div>
-              <p className="text-sm font-semibold text-slate-800 dark:text-white">Submissions</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-white">{t.efactura.submissions}</p>
             </div>
             <span className="text-xs text-slate-400">{submissions.length} total</span>
           </div>
@@ -320,13 +319,13 @@ export default function EFacturaPage() {
           {loading && (
             <div className="flex items-center justify-center gap-3 py-16 text-slate-400 text-sm">
               <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              Loading…
+              {t.efactura.loading}
             </div>
           )}
 
           {!loading && submissions.length === 0 && (
             <div className="py-16 text-center text-slate-400 text-sm">
-              No submissions yet — submit your first invoice above.
+              {t.efactura.noSubmissionsYet}
             </div>
           )}
 
@@ -335,7 +334,7 @@ export default function EFacturaPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/[0.06]">
-                    {['Invoice', 'Client', 'Amount', 'Execution ID', 'Submitted', 'Status', ''].map((h) => (
+                    {[t.efactura.invoice, t.efactura.client, t.efactura.amount, t.efactura.executionId, t.efactura.submitted, t.efactura.status, ''].map((h) => (
                       <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -397,7 +396,7 @@ export default function EFacturaPage() {
 
         {/* ── Integration Architecture ──────────────────────────────────────── */}
         <div className="bg-white dark:bg-[#0d1117]/80 rounded-xl border border-slate-200 dark:border-white/[0.06] p-5 shadow-sm">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">Integration Architecture</p>
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">{t.efactura.integrationArchitecture}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { step: '1', title: 'XML Generation',  desc: 'Invoice data → UBL 2.1 (CIUS-RO 1.0.1)',      color: 'border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/5',         num: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300',       title_c: 'text-blue-800 dark:text-blue-300',  desc_c: 'text-blue-600 dark:text-blue-500' },
@@ -423,6 +422,7 @@ export default function EFacturaPage() {
           invoices={eligible}
           onClose={() => setSubmitModalOpen(false)}
           onSubmit={handleSubmit}
+          t={t.efactura}
         />
       )}
       {detailSub && (

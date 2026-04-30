@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -20,16 +21,20 @@ export class NoticesController {
   @Get('somatie/:invoiceId')
   async downloadSomatie(
     @Param('invoiceId', ParseIntPipe) invoiceId: number,
+    @Query('lang') lang: string,
     @CurrentUser() user: JwtPayload,
     @Res() res: Response,
   ) {
+    const language = lang === 'en' ? 'en' : 'ro';
     const pdf = await this.noticesService.generateSomatie(
       invoiceId,
       user.companyId,
+      language,
     );
+    const filename = language === 'en' ? `payment-notice-${invoiceId}.pdf` : `somatie-${invoiceId}.pdf`;
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="somatie-${invoiceId}.pdf"`,
+      'Content-Disposition': `attachment; filename="${filename}"`,
       'Content-Length': pdf.length,
     });
     res.end(pdf);

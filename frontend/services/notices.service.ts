@@ -1,12 +1,8 @@
 export const noticesService = {
-  /**
-   * Downloads the somație PDF for a given invoice.
-   * Returns a Blob that can be used to trigger a browser download.
-   */
-  async downloadSomatie(invoiceId: number): Promise<Blob> {
+  async downloadSomatie(invoiceId: number, lang: 'ro' | 'en' = 'ro'): Promise<Blob> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'}/notices/somatie/${invoiceId}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'}/notices/somatie/${invoiceId}?lang=${lang}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       },

@@ -6,9 +6,11 @@ import Link from 'next/link';
 import { Eye, EyeOff, BarChart3, ShieldCheck, Zap, TrendingUp, ArrowRight } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { ToastContainer, toast } from '@/components/ui/Toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -17,9 +19,9 @@ export default function LoginPage() {
 
   function validate() {
     const errors: typeof fieldErrors = {};
-    if (!email) errors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address';
-    if (!password) errors.password = 'Password is required';
+    if (!email) errors.email = t.auth.errEmailRequired;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = t.auth.errEmailInvalid;
+    if (!password) errors.password = t.auth.errPasswordRequired;
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -118,13 +120,13 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-10">
-            <h2 className="text-2xl font-bold text-white tracking-tight">Welcome back</h2>
-            <p className="text-slate-500 mt-1 text-sm">Sign in to your account to continue</p>
+            <h2 className="text-2xl font-bold text-white tracking-tight">{t.auth.welcomeBack}</h2>
+            <p className="text-slate-500 mt-1 text-sm">{t.auth.signInSubtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.emailAddress}</label>
               <input
                 type="email"
                 value={email}
@@ -136,7 +138,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.password}</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -167,18 +169,18 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Signing in…
+                  {t.auth.loggingIn}
                 </>
               ) : (
-                <>Sign in <ArrowRight className="w-4 h-4" /></>
+                <>{t.auth.signIn} <ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>
 
           <p className="text-center text-sm text-slate-600 mt-8">
-            Don&apos;t have an account?{' '}
+            {t.auth.noAccount}{' '}
             <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
-              Create one free
+              {t.auth.createOneFree}
             </Link>
           </p>
         </div>

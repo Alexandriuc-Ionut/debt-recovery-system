@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { authService } from "@/services/auth.service";
 import { ToastContainer, toast } from "@/components/ui/Toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
@@ -47,6 +48,7 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [anafLoading, setAnafLoading] = useState(false);
@@ -69,19 +71,19 @@ export default function RegisterPage() {
 
   function validateStep1() {
     const e: Record<string, string> = {};
-    if (!fullName.trim()) e.fullName = "Full name is required";
-    if (!email.trim()) e.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "Invalid email format";
-    if (!password) e.password = "Password is required";
-    else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(password)) e.password = "Password must meet all requirements";
-    if (password !== confirmPassword) e.confirmPassword = "Passwords do not match";
+    if (!fullName.trim()) e.fullName = t.auth.errFullNameRequired;
+    if (!email.trim()) e.email = t.auth.errEmailRequired;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = t.auth.errEmailFormatInvalid;
+    if (!password) e.password = t.auth.errPasswordRequired;
+    else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(password)) e.password = t.auth.errPasswordRequirements;
+    if (password !== confirmPassword) e.confirmPassword = t.auth.errPasswordsMismatch;
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
   function validateStep2() {
     const e: Record<string, string> = {};
-    if (!companyName.trim()) e.companyName = "Company name is required";
+    if (!companyName.trim()) e.companyName = t.auth.errCompanyNameRequired;
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -170,8 +172,8 @@ export default function RegisterPage() {
           {/* Step cards */}
           <div className="space-y-3">
             {[
-              { num: 1, label: "Your account details", icon: User },
-              { num: 2, label: "Company information", icon: Building2 },
+              { num: 1, label: t.auth.accountDetails, icon: User },
+              { num: 2, label: t.auth.companyInfo, icon: Building2 },
             ].map(({ num, label, icon: Icon }) => (
               <div
                 key={num}
@@ -191,7 +193,7 @@ export default function RegisterPage() {
                     : <Icon className={`w-4 h-4 ${step === num ? "text-blue-400" : "text-slate-600"}`} />}
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 font-medium">Step {num} of 2</p>
+                  <p className="text-xs text-slate-600 font-medium">{num === 1 ? t.auth.step1of2 : t.auth.step2of2}</p>
                   <p className={`text-sm font-semibold ${step === num ? "text-white" : step > num ? "text-emerald-400" : "text-slate-600"}`}>{label}</p>
                 </div>
               </div>
@@ -224,32 +226,32 @@ export default function RegisterPage() {
             <>
               <div className="mb-8">
                 <div className="flex items-center gap-2 text-blue-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                  <User className="w-3.5 h-3.5" /> Step 1 of 2
+                  <User className="w-3.5 h-3.5" /> {t.auth.step1of2}
                 </div>
-                <h2 className="text-2xl font-bold text-white tracking-tight">Your account details</h2>
-                <p className="text-slate-500 text-sm mt-1">Tell us about yourself to get started</p>
+                <h2 className="text-2xl font-bold text-white tracking-tight">{t.auth.accountDetails}</h2>
+                <p className="text-slate-500 text-sm mt-1">{t.auth.accountDetailsSubtitle}</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Full name <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.fullName} <span className="text-red-400">*</span></label>
                   <input type="text" value={fullName} onChange={(e) => { setFullName(e.target.value); setErrors((p) => ({ ...p, fullName: "" })); }} placeholder="Ion Popescu" className={inputBase("fullName")} />
                   {errors.fullName && <p className="mt-1.5 text-xs text-red-400">{errors.fullName}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Email address <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.emailAddress} <span className="text-red-400">*</span></label>
                   <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: "" })); }} placeholder="you@company.com" className={inputBase("email")} />
                   {errors.email && <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Phone <span className="text-slate-600 text-xs font-normal">(optional)</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.phone} <span className="text-slate-600 text-xs font-normal">({t.auth.optional})</span></label>
                   <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+40 700 000 000" className={inputBase("phone")} />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Password <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.password} <span className="text-red-400">*</span></label>
                   <div className="relative">
                     <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "" })); }} placeholder="••••••••" className={`${inputBase("password")} pr-11`} />
                     <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
@@ -261,13 +263,13 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Confirm password <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.confirmPassword} <span className="text-red-400">*</span></label>
                   <input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: "" })); }} placeholder="••••••••" className={inputBase("confirmPassword")} />
                   {errors.confirmPassword && <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword}</p>}
                 </div>
 
                 <button type="button" onClick={() => { if (validateStep1()) setStep(2); }} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/30 mt-2">
-                  Continue <ChevronRight className="w-4 h-4" />
+                  {t.auth.continue} <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </>
@@ -275,15 +277,15 @@ export default function RegisterPage() {
             <>
               <div className="mb-8">
                 <div className="flex items-center gap-2 text-blue-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                  <Building2 className="w-3.5 h-3.5" /> Step 2 of 2
+                  <Building2 className="w-3.5 h-3.5" /> {t.auth.step2of2}
                 </div>
-                <h2 className="text-2xl font-bold text-white tracking-tight">Company information</h2>
-                <p className="text-slate-500 text-sm mt-1">Enter your company details or look them up via ANAF</p>
+                <h2 className="text-2xl font-bold text-white tracking-tight">{t.auth.companyInfo}</h2>
+                <p className="text-slate-500 text-sm mt-1">{t.auth.companyInfoSubtitle}</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">CUI / CIF <span className="text-slate-600 text-xs font-normal">(fiscal number)</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.cui} <span className="text-slate-600 text-xs font-normal">({t.auth.cuiHelper})</span></label>
                   <div className="flex gap-2">
                     <input type="text" value={companyCui} onChange={(e) => setCompanyCui(e.target.value)} placeholder="RO12345678" className={`${inputBase("companyCui")} flex-1`} />
                     <button type="button" onClick={lookupAnaf} disabled={anafLoading} className="flex items-center gap-1.5 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 disabled:opacity-40 text-slate-300 text-sm font-medium rounded-xl transition-all flex-shrink-0">
@@ -294,44 +296,44 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Company name <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.companyName} <span className="text-red-400">*</span></label>
                   <input type="text" value={companyName} onChange={(e) => { setCompanyName(e.target.value); setErrors((p) => ({ ...p, companyName: "" })); }} placeholder="Acme SRL" className={inputBase("companyName")} />
                   {errors.companyName && <p className="mt-1.5 text-xs text-red-400">{errors.companyName}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.address}</label>
                   <input type="text" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Str. Victoriei nr. 1" className={inputBase("companyAddress")} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">City</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.city}</label>
                     <input type="text" value={companyCity} onChange={(e) => setCompanyCity(e.target.value)} placeholder="București" className={inputBase("companyCity")} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">County</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.county}</label>
                     <input type="text" value={companyCounty} onChange={(e) => setCompanyCounty(e.target.value)} placeholder="Ilfov" className={inputBase("companyCounty")} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Company phone</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.companyPhone}</label>
                     <input type="tel" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="+40 21 000 0000" className={inputBase("companyPhone")} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Company email</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">{t.auth.companyEmail}</label>
                     <input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="office@acme.ro" className={inputBase("companyEmail")} />
                   </div>
                 </div>
 
                 <div className="flex gap-3 mt-2">
                   <button type="button" onClick={() => setStep(1)} className="flex items-center gap-1.5 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium rounded-xl text-sm transition-all">
-                    <ChevronLeft className="w-4 h-4" /> Back
+                    <ChevronLeft className="w-4 h-4" /> {t.auth.back}
                   </button>
                   <button type="button" onClick={handleSubmit} disabled={loading} className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900 disabled:text-blue-500 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/30">
-                    {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : <>Create account <ArrowRight className="w-4 h-4" /></>}
+                    {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t.auth.registering}</> : <>{t.auth.register} <ArrowRight className="w-4 h-4" /></>}
                   </button>
                 </div>
               </div>
@@ -339,8 +341,8 @@ export default function RegisterPage() {
           )}
 
           <p className="text-center text-sm text-slate-600 mt-8">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Sign in</Link>
+            {t.auth.hasAccount}{" "}
+            <Link href="/auth/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">{t.auth.signIn}</Link>
           </p>
         </div>
       </div>

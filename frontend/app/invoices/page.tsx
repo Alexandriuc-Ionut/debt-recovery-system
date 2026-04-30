@@ -50,7 +50,7 @@ const emptyForm = {
 };
 
 export default function InvoicesPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const statusFilters: { label: string; value: InvoiceStatus | 'ALL' }[] = [
     { label: t.common.all, value: 'ALL' },
@@ -122,9 +122,10 @@ export default function InvoicesPage() {
   async function handleDownloadSomatie(inv: Invoice) {
     setDownloadingId(inv.id);
     try {
-      const blob = await noticesService.downloadSomatie(inv.id);
+      const blob = await noticesService.downloadSomatie(inv.id, lang);
       const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
-      triggerPdfDownload(blob, `somatie-${ref}.pdf`);
+      const filename = lang === 'en' ? `payment-notice-${ref}.pdf` : `somatie-${ref}.pdf`;
+      triggerPdfDownload(blob, filename);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Failed to generate notice');
     } finally {

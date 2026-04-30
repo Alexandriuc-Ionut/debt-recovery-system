@@ -7,7 +7,8 @@ const PDFDocument = require('pdfkit') as typeof import('pdfkit');
 export class NoticesService {
   constructor(private prisma: PrismaService) {}
 
-  async generateSomatie(invoiceId: number, companyId: number): Promise<Buffer> {
+  async generateSomatie(invoiceId: number, companyId: number, lang: 'ro' | 'en' = 'ro'): Promise<Buffer> {
+    const isEn = lang === 'en';
     const invoice = await this.prisma.invoice.findFirst({
       where: { id: invoiceId, companyId },
       include: {
@@ -29,8 +30,9 @@ export class NoticesService {
       (Date.now() - new Date(invoice.dueDate).getTime()) / 86_400_000,
     );
 
-    const dueStr = new Date(invoice.dueDate).toLocaleDateString('ro-RO');
-    const todayStr = new Date().toLocaleDateString('ro-RO');
+    const locale = isEn ? 'en-GB' : 'ro-RO';
+    const dueStr = new Date(invoice.dueDate).toLocaleDateString(locale);
+    const todayStr = new Date().toLocaleDateString(locale);
     const invoiceRef = invoice.series
       ? `${invoice.series}-${invoice.number}`
       : invoice.number;
@@ -86,14 +88,19 @@ export class NoticesService {
         .fontSize(20)
         .fillColor('#0f172a')
         .font('Bold')
-        .text('SOMAȚIE DE PLATĂ', { align: 'center' })
+        .text(isEn ? 'PAYMENT DEMAND NOTICE' : 'SOMAȚIE DE PLATĂ', { align: 'center' })
         .moveDown(0.3);
 
       doc
         .fontSize(10)
         .fillColor('#64748b')
         .font('Regular')
-        .text(`Nr. ${invoiceRef} — Data: ${todayStr}`, { align: 'center' })
+        .text(
+          isEn
+            ? `No. ${invoiceRef} — Date: ${todayStr}`
+            : `Nr. ${invoiceRef} — Data: ${todayStr}`,
+          { align: 'center' },
+        )
         .moveDown(1.5);
 
       // ── Parties ─────────────────────────────────────────────────────
@@ -106,7 +113,7 @@ export class NoticesService {
         .fontSize(8)
         .fillColor('#94a3b8')
         .font('Bold')
-        .text('CREDITOR', 60, startY, { width: colW });
+        .text(isEn ? 'CREDITOR' : 'CREDITOR', 60, startY, { width: colW });
       doc
         .fontSize(10)
         .fillColor('#0f172a')
@@ -130,7 +137,7 @@ export class NoticesService {
         .fontSize(8)
         .fillColor('#94a3b8')
         .font('Bold')
-        .text('DEBITOR', col2X, startY, { width: colW });
+        .text(isEn ? 'DEBTOR' : 'DEBITOR', col2X, startY, { width: colW });
       doc
         .fontSize(10)
         .fillColor('#0f172a')
@@ -162,17 +169,16 @@ export class NoticesService {
       doc.y += 14;
 
       // ── Body text ───────────────────────────────────────────────────
+      const bodyText = isEn
+        ? `By means of this notice, ${company.name} hereby demands that debtor ${client.name} pay the outstanding amount ` +
+          `for invoice no. ${invoiceRef}, with payment due ${dueStr}, now overdue by ${daysOverdue} day${daysOverdue !== 1 ? 's' : ''}.`
+        : `Prin prezenta, ${company.name} somează pe debitorul ${client.name} să achite suma restantă aferentă ` +
+          `facturii fiscale nr. ${invoiceRef}, cu termen de plată ${dueStr}, aflată în întârziere de ${daysOverdue} zile.`;
       doc
         .fontSize(11)
         .fillColor('#0f172a')
         .font('Regular')
-        .text(
-          `Prin prezenta, ${company.name} somează pe debitorul ${client.name} să achite suma restantă aferentă ` +
-            `facturii fiscale nr. ${invoiceRef}, cu termen de plată ${dueStr}, aflată în întârziere de ${daysOverdue} zile.`,
-          60,
-          doc.y,
-          { align: 'justify', lineGap: 2, width: 475 },
-        );
+        .text(bodyText, 60, doc.y, { align: 'justify', lineGap: 2, width: 475 });
       doc.y += 16;
 
       // ── Invoice table ────────────────────────────────────────────────
@@ -185,10 +191,10 @@ export class NoticesService {
         .fontSize(9)
         .fillColor('#475569')
         .font('Bold')
-        .text('Factură', cols[0] + 4, tableTop + 6)
-        .text('Scadentă la', cols[1] + 4, tableTop + 6)
-        .text('Valoare totală', cols[2] + 4, tableTop + 6)
-        .text('Sumă restantă', cols[3] + 4, tableTop + 6);
+        .text(isEn ? 'Invoice' : 'Factură', cols[0] + 4, tableTop + 6)
+        .text(isEn ? 'Due date' : 'Scadentă la', cols[1] + 4, tableTop + 6)
+        .text(isEn ? 'Total amount' : 'Valoare totală', cols[2] + 4, tableTop + 6)
+        .text(isEn ? 'Amount due' : 'Sumă restantă', cols[3] + 4, tableTop + 6);
 
       const rowY = tableTop + 22;
       doc.rect(60, rowY, 475, 22).strokeColor('#e2e8f0').stroke();
@@ -221,27 +227,29 @@ export class NoticesService {
         .fontSize(10.5)
         .fillColor('#0f172a')
         .font('Bold')
-        .text('Suma totală de achitat imediat: ', 60, doc.y, {
-          continued: true,
-          width: 475,
-        })
+        .text(
+          isEn ? 'Total amount due immediately: ' : 'Suma totală de achitat imediat: ',
+          60,
+          doc.y,
+          { continued: true, width: 475 },
+        )
         .font('Regular')
         .fillColor('#dc2626')
         .text(`${remainingAmount.toFixed(2)} ${invoice.currency}`);
       doc.y += 14;
 
+      const legalText = isEn
+        ? `You are hereby demanded to pay the above amount within 5 business days of receipt of this notice. ` +
+          `Failure to comply will result in the initiation of legal proceedings for debt recovery, including litigation ` +
+          `and enforcement, with all court and enforcement costs borne by the debtor.`
+        : `Vă somăm să achitați suma menționată mai sus în termen de 5 zile lucrătoare de la data primirii prezentei somații. ` +
+          `În caz contrar, vom proceda la declanșarea procedurilor legale de recuperare a creanței, inclusiv acționarea în instanță ` +
+          `și executare silită, cu suportarea de către debitor a tuturor cheltuielilor de judecată și executare.`;
       doc
         .fontSize(10.5)
         .font('Regular')
         .fillColor('#334155')
-        .text(
-          `Vă somăm să achitați suma menționată mai sus în termen de 5 zile lucrătoare de la data primirii prezentei somații. ` +
-            `În caz contrar, vom proceda la declanșarea procedurilor legale de recuperare a creanței, inclusiv acționarea în instanță ` +
-            `și executare silită, cu suportarea de către debitor a tuturor cheltuielilor de judecată și executare.`,
-          60,
-          doc.y,
-          { align: 'justify', lineGap: 2, width: 475 },
-        );
+        .text(legalText, 60, doc.y, { align: 'justify', lineGap: 2, width: 475 });
       doc.y += 28;
 
       // ── Signature ────────────────────────────────────────────────────
@@ -253,15 +261,15 @@ export class NoticesService {
         .fontSize(9)
         .fillColor('#64748b')
         .font('Bold')
-        .text('Reprezentant legal / Semnătură', 60, sigY, { width: 220 })
-        .text('Ștampila societății', 335, sigY, { width: 200 });
+        .text(isEn ? 'Legal Representative / Signature' : 'Reprezentant legal / Semnătură', 60, sigY, { width: 220 })
+        .text(isEn ? 'Company Stamp' : 'Ștampila societății', 335, sigY, { width: 200 });
 
       doc
         .fontSize(8)
         .fillColor('#94a3b8')
         .font('Regular')
         .text(`${company.name}`, 60, sigY + 14, { width: 220 })
-        .text(`Data: ${todayStr}`, 60, sigY + 26, { width: 220 });
+        .text(`${isEn ? 'Date' : 'Data'}: ${todayStr}`, 60, sigY + 26, { width: 220 });
 
       doc.flushPages();
       doc.end();
