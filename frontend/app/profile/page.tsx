@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   User,
@@ -20,6 +20,7 @@ import {
 import AppLayout from "@/components/layout/AppLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { authService } from "@/services/auth.service";
+import { settingsService } from "@/services/settings.service";
 import type { AuthUser } from "@/types";
 
 const roleColors: Record<string, string> = {
@@ -89,7 +90,14 @@ function getNotifPrefs() {
 export default function ProfilePage() {
   const { t } = useLanguage();
   const [user] = useState<AuthUser | null>(() => authService.getUser());
+  const [companyName, setCompanyName] = useState<string>('');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+  useEffect(() => {
+    settingsService.getCompany()
+      .then((c) => setCompanyName(c.name))
+      .catch(() => {});
+  }, []);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -186,7 +194,7 @@ export default function ProfilePage() {
                 {user.role}
               </span>
               <span className="text-xs text-slate-400">
-                Company #{user.companyId}
+                {companyName || `Company #${user.companyId}`}
               </span>
             </div>
           </div>
@@ -198,7 +206,7 @@ export default function ProfilePage() {
             <Field label={t.landing.profile.fullname} value={user.fullName ?? ""} />
             <Field label={t.landing.profile.EmailAddress} value={user.email} hint={t.landing.profile.subEmail} />
             <Field label={t.landing.profile.Role} value={user.role} hint={t.landing.profile.subRol} />
-            <Field label={t.landing.profile.CompanyID} value={String(user.companyId)} />
+            <Field label={t.landing.profile.Company} value={companyName || '—'} />
           </div>
         </SectionCard>
 
@@ -449,7 +457,7 @@ export default function ProfilePage() {
         <SectionCard title={t.landing.profile.ContactDetails} icon={Phone}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Field label={t.landing.profile.Phone} value="" hint="—" />
-            <Field label={t.landing.profile.Company} value={`Company #${user.companyId}`} hint="Manage company details in Settings" />
+            <Field label={t.landing.profile.Company} value={companyName || '—'} hint="Manage company details in Settings" />
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
             <Link
