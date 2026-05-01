@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -10,6 +11,12 @@ interface ModalProps {
 }
 
 export default function Modal({ title, open, onClose, children }: ModalProps) {
+  useEffect(() => {
+    if (open) document.body.classList.add('modal-open');
+    else document.body.classList.remove('modal-open');
+    return () => document.body.classList.remove('modal-open');
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -21,7 +28,6 @@ export default function Modal({ title, open, onClose, children }: ModalProps) {
       />
       {/* Panel */}
       <div className="relative bg-white dark:bg-[#0d1117] rounded-2xl shadow-2xl dark:shadow-black/60 border border-slate-200 dark:border-white/[0.08] w-full max-w-lg z-10">
-        {/* Subtle top glow in dark mode */}
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent rounded-t-2xl pointer-events-none" />
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
           <h2 className="text-base font-semibold text-slate-800 dark:text-white tracking-tight">{title}</h2>
