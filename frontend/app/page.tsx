@@ -423,33 +423,21 @@ export default function LandingPage() {
             <p className="text-slate-500 text-lg max-w-xl mx-auto">{t.landing.features.subtitle}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FeatureCard icon={Brain} color="bg-gradient-to-br from-purple-500 to-violet-700"
-              title="AI Risk Scoring"
-              desc="Rule-based AI engine analyzes payment history and assigns a trust score (0–100) and risk level (Low/Medium/High) to every client automatically." />
-            <FeatureCard icon={FileText} color="bg-gradient-to-br from-blue-500 to-blue-700"
-              title="Smart Invoicing"
-              desc="Create, manage, and track invoices with custom series, automatic numbering, VAT calculation, and real-time status tracking." />
-            <FeatureCard icon={CreditCard} color="bg-gradient-to-br from-emerald-500 to-teal-600"
-              title="Payment Tracking"
-              desc="Record partial and full payments, track remaining balances, and get a clear picture of cash flow across all clients." />
-            <FeatureCard icon={Search} color="bg-gradient-to-br from-amber-500 to-orange-500"
-              title="ANAF Integration"
-              desc="Instantly auto-populate company details from the Romanian fiscal registry — CUI, trade register number, address, and contact info." />
-            <FeatureCard icon={Bell} color="bg-gradient-to-br from-rose-500 to-pink-600"
-              title="Automated Reminders"
-              desc="Set up intelligent reminder rules that automatically send overdue notices via email, escalating based on days past due." />
-            <FeatureCard icon={Shield} color="bg-gradient-to-br from-slate-500 to-slate-700"
-              title="Legal PDF Documents"
-              desc="Generate professional payment notices (somații) as PDF documents with Romanian diacritics, ready for immediate use." />
-            <FeatureCard icon={RefreshCw} color="bg-gradient-to-br from-cyan-500 to-blue-600"
-              title="Recurring Invoices"
-              desc="Schedule recurring invoices on weekly, monthly, or custom intervals. Auto-generation keeps your billing consistent and on-time." />
-            <FeatureCard icon={BarChart3} color="bg-gradient-to-br from-indigo-500 to-blue-700"
-              title="Analytics Dashboard"
-              desc="Real-time overview of total invoiced, collected, outstanding amounts, cash flow forecast, and aging analysis by bucket." />
-            <FeatureCard icon={Users} color="bg-gradient-to-br from-teal-500 to-emerald-600"
-              title="Client Management"
-              desc="Centralized database of all B2B clients with financial history, risk profiles, contact details, and interaction logs." />
+            {[
+              { icon: Brain,     color: 'bg-gradient-to-br from-purple-500 to-violet-700' },
+              { icon: FileText,  color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
+              { icon: CreditCard,color: 'bg-gradient-to-br from-emerald-500 to-teal-600' },
+              { icon: Search,    color: 'bg-gradient-to-br from-amber-500 to-orange-500' },
+              { icon: Bell,      color: 'bg-gradient-to-br from-rose-500 to-pink-600' },
+              { icon: Shield,    color: 'bg-gradient-to-br from-slate-500 to-slate-700' },
+              { icon: RefreshCw, color: 'bg-gradient-to-br from-cyan-500 to-blue-600' },
+              { icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-blue-700' },
+              { icon: Users,     color: 'bg-gradient-to-br from-teal-500 to-emerald-600' },
+            ].map(({ icon, color }, i) => (
+              <FeatureCard key={i} icon={icon} color={color}
+                title={t.landing.features.cards[i].title}
+                desc={t.landing.features.cards[i].desc} />
+            ))}
           </div>
         </div>
       </section>

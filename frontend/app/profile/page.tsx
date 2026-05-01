@@ -193,25 +193,17 @@ export default function ProfilePage() {
         </div>
 
         {/* Account info */}
-        <SectionCard title="Account Information" icon={User}>
+        <SectionCard title={t.landing.profile.AccountInfo} icon={User}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Field label="Full Name" value={user.fullName ?? ""} />
-            <Field
-              label="Email Address"
-              value={user.email}
-              hint="Used to log in to your account"
-            />
-            <Field
-              label="Role"
-              value={user.role}
-              hint="Contact your admin to change your role"
-            />
-            <Field label="Company ID" value={String(user.companyId)} />
+            <Field label={t.landing.profile.fullname} value={user.fullName ?? ""} />
+            <Field label={t.landing.profile.EmailAddress} value={user.email} hint={t.landing.profile.subEmail} />
+            <Field label={t.landing.profile.Role} value={user.role} hint={t.landing.profile.subRol} />
+            <Field label={t.landing.profile.CompanyID} value={String(user.companyId)} />
           </div>
         </SectionCard>
 
         {/* Security */}
-        <SectionCard title="Security" icon={Lock}>
+        <SectionCard title={t.landing.profile.Security} icon={Lock}>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -220,10 +212,10 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                    Password
+                    {t.landing.profile.Password}
                   </p>
                   <p className="text-xs text-slate-400">
-                    Last changed: unknown
+                    {t.landing.profile.lastChanged}
                   </p>
                 </div>
               </div>
@@ -234,7 +226,7 @@ export default function ProfilePage() {
                 }}
                 className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
-                {showPasswordForm ? "Cancel" : "Change"}
+                {showPasswordForm ? t.landing.profile.cancel : t.landing.profile.change}
               </button>
             </div>
 
@@ -255,7 +247,7 @@ export default function ProfilePage() {
                     type={showCurrent ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Current password"
+                    placeholder={t.landing.profile.currentPassword}
                     className={`${inputCls} pr-10`}
                   />
                   <button
@@ -275,7 +267,7 @@ export default function ProfilePage() {
                     type={showNew ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="New password"
+                    placeholder={t.landing.profile.newPassword}
                     className={`${inputCls} pr-10`}
                   />
                   <button
@@ -294,7 +286,7 @@ export default function ProfilePage() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
+                  placeholder={t.landing.profile.confirmNewPassword}
                   className={inputCls}
                 />
                 <div className="flex justify-end">
@@ -303,7 +295,7 @@ export default function ProfilePage() {
                     disabled={savingPassword}
                     className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors"
                   >
-                    {savingPassword ? "Saving…" : "Update Password"}
+                    {savingPassword ? t.landing.profile.saving : t.landing.profile.updatePassword}
                   </button>
                 </div>
               </form>
@@ -316,10 +308,10 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                    Email Verification
+                    {t.landing.profile.EmailVerification}
                   </p>
                   <p className="text-xs text-emerald-600 flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Verified
+                    <Check className="w-3 h-3" /> {t.landing.profile.verified}
                   </p>
                 </div>
               </div>
@@ -328,17 +320,15 @@ export default function ProfilePage() {
         </SectionCard>
 
         {/* Notifications */}
-        <SectionCard title="Notification Preferences" icon={Bell}>
+        <SectionCard title={t.landing.profile.NotificationPref} icon={Bell}>
           <div className="space-y-1">
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
-              These control in-app alerts. Email reminders to clients are
-              managed separately in the{" "}
-              <strong className="text-slate-600">Reminders</strong> section.
+              {t.landing.profile.NotifParagraf}
             </p>
             {[
               {
-                label: "Overdue invoice alerts",
-                desc: "Get notified when invoices pass their due date",
+                label: t.landing.profile.notifSetings1,
+                desc: t.landing.profile.notifSettingsP1,
                 value: notifOverdue,
                 set: (v: boolean) => {
                   setNotifOverdue(v);
@@ -346,8 +336,8 @@ export default function ProfilePage() {
                 },
               },
               {
-                label: "Payment received",
-                desc: "Get notified when a payment is recorded",
+                label: t.landing.profile.notifSettings2,
+                desc: t.landing.profile.notifSettingsP2,
                 value: notifPayment,
                 set: (v: boolean) => {
                   setNotifPayment(v);
@@ -355,8 +345,8 @@ export default function ProfilePage() {
                 },
               },
               {
-                label: "Reminder sent confirmations",
-                desc: "Get notified each time a reminder email is sent",
+                label: t.landing.profile.notifSettings3,
+                desc: t.landing.profile.notifSettingsP3,
                 value: notifReminder,
                 set: (v: boolean) => {
                   setNotifReminder(v);
@@ -390,11 +380,10 @@ export default function ProfilePage() {
         </SectionCard>
 
         {/* Appearance */}
-        <SectionCard title="Appearance" icon={Palette}>
+        <SectionCard title={t.landing.profile.Appearance} icon={Palette}>
           <div className="space-y-4">
             <p className="text-xs text-slate-400 dark:text-slate-500">
-              Choose how the interface looks. Your preference is saved and
-              applies across all pages.
+              {t.landing.profile.Appearance}
             </p>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -412,15 +401,15 @@ export default function ProfilePage() {
                   <p
                     className={`text-sm font-semibold ${!isDark ? "text-blue-700 dark:text-blue-400" : "text-slate-700 dark:text-slate-300"}`}
                   >
-                    Light
+                    {t.landing.profile.lightMode}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                    Bright & clean
+                    {t.landing.profile.lightDesc}
                   </p>
                 </div>
                 {!isDark && (
                   <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/20 px-2 py-0.5 rounded-full">
-                    Active
+                    {t.landing.profile.active}
                   </span>
                 )}
               </button>
@@ -440,15 +429,15 @@ export default function ProfilePage() {
                   <p
                     className={`text-sm font-semibold ${isDark ? "text-blue-700 dark:text-blue-400" : "text-slate-700 dark:text-slate-300"}`}
                   >
-                    Dark
+                    {t.landing.profile.darkMode}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                    Easy on the eyes
+                    {t.landing.profile.darkDesc}
                   </p>
                 </div>
                 {isDark && (
                   <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/20 px-2 py-0.5 rounded-full">
-                    Active
+                    {t.landing.profile.active}
                   </span>
                 )}
               </button>
@@ -457,25 +446,17 @@ export default function ProfilePage() {
         </SectionCard>
 
         {/* Contact info placeholders */}
-        <SectionCard title="Contact Details" icon={Phone}>
+        <SectionCard title={t.landing.profile.ContactDetails} icon={Phone}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Field
-              label="Phone"
-              value=""
-              hint="Not set — edit your profile to add a phone number"
-            />
-            <Field
-              label="Company"
-              value={`Company #${user.companyId}`}
-              hint="Manage company details in Settings"
-            />
+            <Field label={t.landing.profile.Phone} value="" hint="—" />
+            <Field label={t.landing.profile.Company} value={`Company #${user.companyId}`} hint="Manage company details in Settings" />
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
             <Link
               href="/settings"
               className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors"
             >
-              <Building2 className="w-4 h-4" /> Go to Company Settings →
+              <Building2 className="w-4 h-4" /> {t.landing.profile.goToSettings} →
             </Link>
           </div>
         </SectionCard>

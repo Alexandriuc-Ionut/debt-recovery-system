@@ -82,11 +82,11 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
 
   useEffect(() => {
     dashboardService.getOverdueCount().catch(() => {});
-    loadNotifications(userId);
+    void Promise.resolve().then(() => loadNotifications(userId));
   }, [loadNotifications, userId]);
 
   useEffect(() => {
-    if (open) loadNotifications(userId);
+    if (open) void Promise.resolve().then(() => loadNotifications(userId));
   }, [open, loadNotifications, userId]);
 
   // Close on outside click
