@@ -118,10 +118,11 @@ export default function ProfilePage() {
   const [notifPayment, setNotifPayment] = useState(() => getNotifPrefs()?.payment ?? true);
   const [notifReminder, setNotifReminder] = useState(() => getNotifPrefs()?.reminder ?? false);
 
-  // Theme
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-  );
+  // Theme — initialized after mount to read actual DOM state
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
 
   function setTheme(dark: boolean) {
     if (dark) {

@@ -30,10 +30,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Prevent flash of wrong theme */}
+        {/* Prevent flash of wrong theme — runs before React hydration */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.classList.add('dark');}else if(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');localStorage.setItem('theme','dark');}}catch(e){}})();`,
           }}
         />
       </head>
