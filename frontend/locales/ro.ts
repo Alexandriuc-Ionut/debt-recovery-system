@@ -481,6 +481,8 @@ export const ro = {
     errPasswordRequirements: "Parola trebuie să îndeplinească toate cerințele",
     errPasswordsMismatch: "Parolele nu se potrivesc",
     errCompanyNameRequired: "Numele companiei este obligatoriu",
+    errEmailNotFound: "Nu există niciun cont cu această adresă de email",
+    errPasswordWrong: "Parolă incorectă",
     panelBadge: "Management Creanțe B2B",
     panelHeadline: "Recuperează datoriile.",
     panelHighlight: "Mai rapid.",

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, ShieldCheck, Zap, TrendingUp, ArrowRight } from 'lucide-react';
 import { authService } from '@/services/auth.service';
-import { ToastContainer, toast } from '@/components/ui/Toast';
+import { ToastContainer } from '@/components/ui/Toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LoginPage() {
@@ -37,7 +37,14 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(res.user));
       router.replace('/dashboard');
     } catch (err: unknown) {
-      toast(err instanceof Error ? err.message : 'Login failed. Check your credentials.', 'error');
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('email_not_found')) {
+        setFieldErrors({ email: t.auth.errEmailNotFound });
+      } else if (msg.includes('invalid_password')) {
+        setFieldErrors({ password: t.auth.errPasswordWrong });
+      } else {
+        setFieldErrors({ password: t.auth.errPasswordWrong });
+      }
     } finally {
       setLoading(false);
     }

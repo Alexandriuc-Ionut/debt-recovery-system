@@ -106,12 +106,12 @@ export class AuthService {
     });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('email_not_found');
     }
 
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('invalid_password');
     }
 
     const payload: JwtPayload = {

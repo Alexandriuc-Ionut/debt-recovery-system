@@ -469,6 +469,8 @@ export const en = {
     errPasswordRequirements: 'Password must meet all requirements',
     errPasswordsMismatch: 'Passwords do not match',
     errCompanyNameRequired: 'Company name is required',
+    errEmailNotFound: 'No account found with this email address',
+    errPasswordWrong: 'Incorrect password',
     panelBadge: 'B2B Debt Management',
     panelHeadline: 'Recover debts.',
     panelHighlight: 'Faster.',
