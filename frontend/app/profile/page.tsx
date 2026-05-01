@@ -91,11 +91,15 @@ export default function ProfilePage() {
   const { t } = useLanguage();
   const [user] = useState<AuthUser | null>(() => authService.getUser());
   const [companyName, setCompanyName] = useState<string>('');
+  const [companyPhone, setCompanyPhone] = useState<string>('');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   useEffect(() => {
     settingsService.getCompany()
-      .then((c) => setCompanyName(c.name))
+      .then((c) => {
+        setCompanyName(c.name);
+        setCompanyPhone(c.phone ?? '');
+      })
       .catch(() => {});
   }, []);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -456,7 +460,7 @@ export default function ProfilePage() {
         {/* Contact info placeholders */}
         <SectionCard title={t.landing.profile.ContactDetails} icon={Phone}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Field label={t.landing.profile.Phone} value="" hint="—" />
+            <Field label={t.landing.profile.Phone} value={companyPhone || '—'} />
             <Field label={t.landing.profile.Company} value={companyName || '—'} hint="Manage company details in Settings" />
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
