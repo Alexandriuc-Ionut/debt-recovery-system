@@ -23,11 +23,15 @@ export async function apiFetch<T>(
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
   if (res.status === 401) {
-    // Token expired or invalid — redirect to login
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
-    window.location.href = '/auth/login';
-    throw new Error('Unauthorized');
+    const error = await res.json().catch(() => ({ message: 'Unauthorized' }));
+    const msg = error.message ?? 'Unauthorized';
+    // Only redirect to login if this is NOT an auth endpoint (login/register calls return 401 on bad credentials)
+    if (!path.startsWith('/auth/')) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      window.location.href = '/auth/login';
+    }
+    throw new Error(msg);
   }
 
   if (!res.ok) {
