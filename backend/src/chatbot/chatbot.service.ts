@@ -49,7 +49,8 @@ Rules:
 - Answer using the COMPANY DATA below when the user asks about their invoices, clients, payments, or finances.
 - Keep answers concise and practical. Max 4 sentences.
 - If the user wants to navigate somewhere, end your reply with <<<NAVIGATE:/path>>>.
-- You only know about this app — politely decline unrelated questions.`;
+- You only know about this app — politely decline unrelated questions.
+- If asked who created or built the application, always answer: "Creator of the application is Alexandriuc Ionut from USV FIESC."`;
 
 function fmt(amount: number, currency = 'RON') {
   return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
@@ -84,7 +85,10 @@ export class ChatbotService {
     // Wrap each invoice with computed balance fields without spreading (preserves included relations)
     const withBalance = invoices.map((inv) => {
       const total = Number(inv.totalAmount);
-      const paid = inv.payments.reduce((s: number, p) => s + Number(p.amount), 0);
+      const paid = inv.payments.reduce(
+        (s: number, p) => s + Number(p.amount),
+        0,
+      );
       const remaining = total - paid;
       const daysOverdue =
         inv.dueDate < today
@@ -98,7 +102,12 @@ export class ChatbotService {
       .sort((a, b) => b.daysOverdue - a.daysOverdue);
 
     const upcoming = withBalance
-      .filter((i) => i.inv.dueDate >= today && i.inv.dueDate <= in30Days && i.remaining > 0)
+      .filter(
+        (i) =>
+          i.inv.dueDate >= today &&
+          i.inv.dueDate <= in30Days &&
+          i.remaining > 0,
+      )
       .sort((a, b) => a.inv.dueDate.getTime() - b.inv.dueDate.getTime());
 
     const totalReceivables = withBalance.reduce((s, i) => s + i.remaining, 0);
@@ -113,7 +122,10 @@ export class ChatbotService {
     const clientBalances = clients
       .map((c) => {
         const outstanding = c.invoices.reduce((s, inv) => {
-          const paid = inv.payments.reduce((ps: number, p) => ps + Number(p.amount), 0);
+          const paid = inv.payments.reduce(
+            (ps: number, p) => ps + Number(p.amount),
+            0,
+          );
           return s + Math.max(0, Number(inv.totalAmount) - paid);
         }, 0);
         return { name: c.name, cui: c.cui, outstanding };
@@ -134,7 +146,9 @@ export class ChatbotService {
       lines.push('', 'OVERDUE INVOICES (most urgent first):');
       overdue.slice(0, 8).forEach(({ inv, remaining, daysOverdue }) => {
         const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
-        lines.push(`- ${inv.client.name} | Invoice ${ref} | ${fmt(remaining, inv.currency)} | ${daysOverdue} days overdue`);
+        lines.push(
+          `- ${inv.client.name} | Invoice ${ref} | ${fmt(remaining, inv.currency)} | ${daysOverdue} days overdue`,
+        );
       });
     }
 
@@ -142,7 +156,9 @@ export class ChatbotService {
       lines.push('', 'UPCOMING DUE (next 30 days):');
       upcoming.slice(0, 5).forEach(({ inv, remaining }) => {
         const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
-        lines.push(`- ${inv.client.name} | Invoice ${ref} | ${fmt(remaining, inv.currency)} | due ${inv.dueDate.toLocaleDateString('ro-RO')}`);
+        lines.push(
+          `- ${inv.client.name} | Invoice ${ref} | ${fmt(remaining, inv.currency)} | due ${inv.dueDate.toLocaleDateString('ro-RO')}`,
+        );
       });
     }
 
@@ -150,14 +166,18 @@ export class ChatbotService {
       lines.push('', 'RECENT PAYMENTS:');
       payments.forEach((p) => {
         const date = new Date(p.paidAt).toLocaleDateString('ro-RO');
-        lines.push(`- ${p.invoice.client?.name ?? '—'} | ${fmt(Number(p.amount), p.invoice.currency)} | ${p.method} | ${date}`);
+        lines.push(
+          `- ${p.invoice.client?.name ?? '—'} | ${fmt(Number(p.amount), p.invoice.currency)} | ${p.method} | ${date}`,
+        );
       });
     }
 
     if (clientBalances.length > 0) {
       lines.push('', 'CLIENTS WITH OUTSTANDING BALANCE:');
       clientBalances.slice(0, 8).forEach((c) => {
-        lines.push(`- ${c.name}${c.cui ? ` (CUI ${c.cui})` : ''} | Outstanding: ${fmt(c.outstanding)}`);
+        lines.push(
+          `- ${c.name}${c.cui ? ` (CUI ${c.cui})` : ''} | Outstanding: ${fmt(c.outstanding)}`,
+        );
       });
     }
 
@@ -172,7 +192,8 @@ export class ChatbotService {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey || apiKey === 'your_groq_api_key_here') {
       return {
-        reply: "I'm not configured yet. Please add a GROQ_API_KEY to the backend .env file (free at console.groq.com).",
+        reply:
+          "I'm not configured yet. Please add a GROQ_API_KEY to the backend .env file (free at console.groq.com).",
       };
     }
 
