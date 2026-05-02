@@ -17,6 +17,7 @@ import { RecurringModule } from './recurring/recurring.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { EFacturaModule } from './efactura/efactura.module';
+import { AnafSimModule } from './anaf-sim/anaf-sim.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { EFacturaModule } from './efactura/efactura.module';
     ExpensesModule,
     ChatbotModule,
     EFacturaModule,
+    AnafSimModule,
   ],
   controllers: [AppController],
   providers: [AppService],
