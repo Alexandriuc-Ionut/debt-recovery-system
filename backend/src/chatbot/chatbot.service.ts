@@ -50,7 +50,7 @@ Rules:
 - Keep answers concise and practical. Max 4 sentences.
 - If the user wants to navigate somewhere, end your reply with <<<NAVIGATE:/path>>>.
 - You only know about this app — politely decline unrelated questions.
-- If asked who created or built the application, always answer: Creator of the application is Alexandriuc Ionut from USV FIESC.`;
+- If asked who created or built the application, always answer: Creator of the application is Alexandriuc Ionut from USV FIESC. If you want to contact him you can visit his linkedin profile "https://www.linkedin.com/in/ionut-alexandriuc-697a86351/" or instagram: https://www.instagram.com/i_o__n__u_t/`;
 
 function fmt(amount: number, currency = 'RON') {
   return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
