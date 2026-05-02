@@ -247,7 +247,7 @@ export default function InvoicesPage() {
             </button>
             <label className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer">
               <Upload className="w-4 h-4" />
-              {t.invoices.importCsv ?? "Import CSV"}
+              Import CSV
               <input type="file" accept=".csv" className="hidden" onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
