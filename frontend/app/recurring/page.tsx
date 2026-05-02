@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Trash2, Pencil, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import Modal from '@/components/ui/Modal';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -50,9 +50,26 @@ export default function RecurringPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+
+  function openEdit(item: RecurringInvoice) {
+    setEditId(item.id);
+    setForm({
+      clientId: String(item.clientId),
+      templateName: item.templateName,
+      series: item.series ?? '',
+      amount: String(item.amount),
+      currency: item.currency,
+      notes: item.notes ?? '',
+      interval: item.interval,
+      dayOfMonth: String(item.dayOfMonth),
+      nextRunAt: item.nextRunAt.slice(0, 10),
+    });
+    setModalOpen(true);
+  }
 
   function load() {
     setLoading(true);
@@ -67,27 +84,41 @@ export default function RecurringPage() {
     clientsService.getAll().then(setClients).catch(() => {});
   }, []);
 
-  async function handleCreate(e: React.FormEvent) {
+  async function handleCreate(e: { preventDefault(): void }) {
     e.preventDefault();
     setFormError('');
     setSubmitting(true);
     try {
-      await recurringService.create({
-        clientId: Number(form.clientId),
-        templateName: form.templateName,
-        series: form.series || undefined,
-        amount: Number(form.amount),
-        currency: form.currency,
-        notes: form.notes || undefined,
-        interval: form.interval,
-        dayOfMonth: Number(form.dayOfMonth),
-        nextRunAt: form.nextRunAt,
-      });
+      if (editId) {
+        await recurringService.update(editId, {
+          templateName: form.templateName,
+          series: form.series || undefined,
+          amount: Number(form.amount),
+          currency: form.currency,
+          notes: form.notes || undefined,
+          interval: form.interval,
+          dayOfMonth: Number(form.dayOfMonth),
+          nextRunAt: form.nextRunAt,
+        });
+      } else {
+        await recurringService.create({
+          clientId: Number(form.clientId),
+          templateName: form.templateName,
+          series: form.series || undefined,
+          amount: Number(form.amount),
+          currency: form.currency,
+          notes: form.notes || undefined,
+          interval: form.interval,
+          dayOfMonth: Number(form.dayOfMonth),
+          nextRunAt: form.nextRunAt,
+        });
+      }
       setModalOpen(false);
+      setEditId(null);
       setForm(emptyForm);
       load();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : 'Failed to create');
+      setFormError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSubmitting(false);
     }
@@ -188,6 +219,9 @@ export default function RecurringPage() {
 
                   {/* Actions */}
                   <div className="flex items-center gap-3 flex-shrink-0">
+                    <button onClick={() => openEdit(item)} className="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" title="Edit">
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button onClick={() => handleToggle(item.id)} className="transition-colors" title={item.isActive ? 'Pause' : 'Activate'}>
                       {item.isActive
                         ? <ToggleRight className="w-7 h-7 text-emerald-500" />
@@ -204,7 +238,7 @@ export default function RecurringPage() {
         </div>
       </div>
 
-      <Modal title="New Recurring Invoice" open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}>
+      <Modal title={editId ? 'Edit Recurring Invoice' : 'New Recurring Invoice'} open={modalOpen} onClose={() => { setModalOpen(false); setEditId(null); setForm(emptyForm); setFormError(''); }}>
         <form onSubmit={handleCreate} className="space-y-4">
           {formError && <div className="text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 rounded-lg">{formError}</div>}
 

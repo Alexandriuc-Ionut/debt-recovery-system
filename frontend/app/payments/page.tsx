@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, CreditCard, Banknote, Building2, MoreHorizontal, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Pencil, CreditCard, Banknote, Building2, MoreHorizontal, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PAGE_SIZE = 15;
 
@@ -72,9 +72,22 @@ export default function PaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+
+  function openEdit(p: Payment) {
+    setEditId(p.id);
+    setForm({
+      invoiceId: String(p.invoiceId),
+      amount: String(p.amount),
+      paidAt: p.paidAt.slice(0, 10),
+      method: p.method,
+      reference: p.reference ?? '',
+    });
+    setModalOpen(true);
+  }
 
   function load() {
     setLoading(true);
@@ -96,18 +109,28 @@ export default function PaymentsPage() {
     setFormError('');
     setSubmitting(true);
     try {
-      await paymentsService.create({
-        invoiceId: Number(form.invoiceId),
-        amount: Number(form.amount),
-        paidAt: form.paidAt,
-        method: form.method,
-        reference: form.reference || undefined,
-      });
+      if (editId) {
+        await paymentsService.update(editId, {
+          amount: Number(form.amount),
+          paidAt: form.paidAt,
+          method: form.method,
+          reference: form.reference || undefined,
+        });
+      } else {
+        await paymentsService.create({
+          invoiceId: Number(form.invoiceId),
+          amount: Number(form.amount),
+          paidAt: form.paidAt,
+          method: form.method,
+          reference: form.reference || undefined,
+        });
+      }
       setModalOpen(false);
+      setEditId(null);
       setForm(emptyForm);
       load();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : 'Failed to record payment');
+      setFormError(err instanceof Error ? err.message : 'Failed to save payment');
     } finally {
       setSubmitting(false);
     }
@@ -195,13 +218,14 @@ export default function PaymentsPage() {
                         <td className="px-5 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs">{p.reference ?? <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
                         <td className="px-5 py-4 text-slate-400 dark:text-slate-500 text-xs whitespace-nowrap">{formatDate(p.paidAt)}</td>
                         <td className="px-5 py-4">
-                          <button
-                            onClick={() => handleDelete(p.id)}
-                            className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"
-                            title="Delete payment"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                            <button onClick={() => openEdit(p)} className="text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" title="Edit">
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDelete(p.id)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="Delete">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -229,12 +253,14 @@ export default function PaymentsPage() {
                           {p.invoice ? `${p.invoice.series ?? ''}${p.invoice.number}` : `#${p.invoiceId}`}
                         </p>
                       </div>
-                      <button
-                        onClick={() => handleDelete(p.id)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors mt-0.5"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <button onClick={() => openEdit(p)} className="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(p.id)} className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{formatCompactCurrency(p.amount)}</p>
                     <div className="flex items-center gap-3 flex-wrap">
@@ -260,7 +286,7 @@ export default function PaymentsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal title={t.payments.addPayment} open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}>
+      <Modal title={editId ? t.common.edit + ' ' + t.payments.title : t.payments.addPayment} open={modalOpen} onClose={() => { setModalOpen(false); setEditId(null); setForm(emptyForm); setFormError(''); }}>
         <form onSubmit={handleCreate} className="space-y-4">
           {formError && (
             <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">{formError}</div>

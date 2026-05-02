@@ -29,6 +29,15 @@ export class RecurringController {
     return this.recurringService.create(dto, user.companyId);
   }
 
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateRecurringDto>,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.recurringService.update(id, dto, user.companyId);
+  }
+
   @Patch(':id/toggle')
   toggle(
     @Param('id', ParseIntPipe) id: number,

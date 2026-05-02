@@ -1,121 +1,197 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Plus, Ban, Calendar, DollarSign, FileDown, Download, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from "react";
+import {
+  Plus,
+  Ban,
+  Pencil,
+  Calendar,
+  DollarSign,
+  FileDown,
+  Download,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 const PAGE_SIZE = 15;
 
-function Pagination({ page, totalPages, onPage }: { page: number; totalPages: number; onPage: (p: number) => void }) {
+function Pagination({
+  page,
+  totalPages,
+  onPage,
+}: {
+  page: number;
+  totalPages: number;
+  onPage: (p: number) => void;
+}) {
   if (totalPages <= 1) return null;
-  const pages: (number | '…')[] = [];
+  const pages: (number | "…")[] = [];
   for (let i = 1; i <= totalPages; i++) {
     if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) pages.push(i);
-    else if (pages[pages.length - 1] !== '…') pages.push('…');
+    else if (pages[pages.length - 1] !== "…") pages.push("…");
   }
   return (
     <div className="flex items-center justify-center gap-1 py-4 border-t border-slate-100 dark:border-white/[0.06]">
-      <button onClick={() => onPage(page - 1)} disabled={page === 1} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 transition-colors">
+      <button
+        onClick={() => onPage(page - 1)}
+        disabled={page === 1}
+        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 transition-colors"
+      >
         <ChevronLeft className="w-4 h-4" />
       </button>
-      {pages.map((p, i) => p === '…' ? (
-        <span key={`e${i}`} className="px-2 text-slate-400 text-sm">…</span>
-      ) : (
-        <button key={p} onClick={() => onPage(p as number)} className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${page === p ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'}`}>{p}</button>
-      ))}
-      <button onClick={() => onPage(page + 1)} disabled={page === totalPages} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 transition-colors">
+      {pages.map((p, i) =>
+        p === "…" ? (
+          <span key={`e${i}`} className="px-2 text-slate-400 text-sm">
+            …
+          </span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPage(p as number)}
+            className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${page === p ? "bg-blue-600 text-white" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]"}`}
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        onClick={() => onPage(page + 1)}
+        disabled={page === totalPages}
+        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 transition-colors"
+      >
         <ChevronRight className="w-4 h-4" />
       </button>
     </div>
   );
 }
-import AppLayout from '@/components/layout/AppLayout';
-import Modal from '@/components/ui/Modal';
-import { useLanguage } from '@/contexts/LanguageContext';
-import Badge, { invoiceStatusBadge } from '@/components/ui/Badge';
-import { invoicesService } from '@/services/invoices.service';
-import { clientsService } from '@/services/clients.service';
-import { noticesService, triggerPdfDownload } from '@/services/notices.service';
-import { formatCompactCurrency, formatDate } from '@/utils/format';
-import type { Client, Invoice, InvoiceStatus } from '@/types';
+import AppLayout from "@/components/layout/AppLayout";
+import Modal from "@/components/ui/Modal";
+import { useLanguage } from "@/contexts/LanguageContext";
+import Badge, { invoiceStatusBadge } from "@/components/ui/Badge";
+import { invoicesService } from "@/services/invoices.service";
+import { clientsService } from "@/services/clients.service";
+import { noticesService, triggerPdfDownload } from "@/services/notices.service";
+import { formatCompactCurrency, formatDate } from "@/utils/format";
+import type { Client, Invoice, InvoiceStatus } from "@/types";
 
 const emptyForm = {
-  clientId: '',
-  series: '',
-  number: '',
-  issueDate: '',
-  dueDate: '',
-  totalAmount: '',
-  currency: 'RON',
-  notes: '',
+  clientId: "",
+  series: "",
+  number: "",
+  issueDate: "",
+  dueDate: "",
+  totalAmount: "",
+  currency: "RON",
+  notes: "",
 };
 
 export default function InvoicesPage() {
   const { t, lang } = useLanguage();
 
-  const statusFilters: { label: string; value: InvoiceStatus | 'ALL' }[] = [
-    { label: t.common.all, value: 'ALL' },
-    { label: t.invoices.open, value: 'OPEN' },
-    { label: t.invoices.partial, value: 'PARTIAL' },
-    { label: t.invoices.paid, value: 'PAID' },
-    { label: t.invoices.canceled, value: 'CANCELED' },
+  const statusFilters: { label: string; value: InvoiceStatus | "ALL" }[] = [
+    { label: t.common.all, value: "ALL" },
+    { label: t.invoices.open, value: "OPEN" },
+    { label: t.invoices.partial, value: "PARTIAL" },
+    { label: t.invoices.paid, value: "PAID" },
+    { label: t.invoices.canceled, value: "CANCELED" },
   ];
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "ALL">(
+    "ALL",
+  );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
-  const [search, setSearch] = useState('');
+
+  function openEdit(inv: Invoice) {
+    setEditId(inv.id);
+    setForm({
+      clientId: String(inv.clientId),
+      series: inv.series ?? "",
+      number: inv.number,
+      issueDate: inv.issueDate.slice(0, 10),
+      dueDate: inv.dueDate.slice(0, 10),
+      totalAmount: String(inv.totalAmount),
+      currency: inv.currency,
+      notes: inv.notes ?? "",
+    });
+    setModalOpen(true);
+  }
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
   function load() {
     setLoading(true);
-    invoicesService.getAll(statusFilter === 'ALL' ? undefined : statusFilter)
+    invoicesService
+      .getAll(statusFilter === "ALL" ? undefined : statusFilter)
       .then(setInvoices)
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { load(); setPage(1); }, [statusFilter]);
-  useEffect(() => { clientsService.getAll().then(setClients).catch(() => {}); }, []);
+  useEffect(() => {
+    load();
+    setPage(1);
+  }, [statusFilter]);
+  useEffect(() => {
+    clientsService
+      .getAll()
+      .then(setClients)
+      .catch(() => {});
+  }, []);
 
   async function handleCreate(e: { preventDefault(): void }) {
     e.preventDefault();
-    setFormError('');
+    setFormError("");
     setSubmitting(true);
     try {
-      await invoicesService.create({
-        clientId: Number(form.clientId),
-        series: form.series || undefined,
-        number: form.number,
-        issueDate: form.issueDate,
-        dueDate: form.dueDate,
-        totalAmount: Number(form.totalAmount),
-        currency: form.currency || 'RON',
-        notes: form.notes || undefined,
-      });
+      if (editId) {
+        await invoicesService.update(editId, {
+          dueDate: form.dueDate,
+          totalAmount: Number(form.totalAmount),
+          currency: form.currency || "RON",
+          notes: form.notes || undefined,
+        });
+      } else {
+        await invoicesService.create({
+          clientId: Number(form.clientId),
+          series: form.series || undefined,
+          number: form.number,
+          issueDate: form.issueDate,
+          dueDate: form.dueDate,
+          totalAmount: Number(form.totalAmount),
+          currency: form.currency || "RON",
+          notes: form.notes || undefined,
+        });
+      }
       setModalOpen(false);
+      setEditId(null);
       setForm(emptyForm);
       load();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : 'Failed to create invoice');
+      setFormError(
+        err instanceof Error ? err.message : "Failed to save invoice",
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleCancel(id: number) {
-    if (!confirm('Cancel this invoice?')) return;
+    if (!confirm("Cancel this invoice?")) return;
     try {
       await invoicesService.cancel(id);
       load();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to cancel invoice');
+      alert(err instanceof Error ? err.message : "Failed to cancel invoice");
     }
   }
 
@@ -124,30 +200,39 @@ export default function InvoicesPage() {
     try {
       const blob = await noticesService.downloadSomatie(inv.id, lang);
       const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
-      const filename = lang === 'en' ? `payment-notice-${ref}.pdf` : `somatie-${ref}.pdf`;
+      const filename =
+        lang === "en" ? `payment-notice-${ref}.pdf` : `somatie-${ref}.pdf`;
       triggerPdfDownload(blob, filename);
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to generate notice');
+      alert(err instanceof Error ? err.message : "Failed to generate notice");
     } finally {
       setDownloadingId(null);
     }
   }
 
-  const fieldClass = 'w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 dark:focus:border-blue-500/40 transition';
+  const fieldClass =
+    "w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 dark:focus:border-blue-500/40 transition";
 
   const filteredInvoices = invoices.filter((inv) => {
     const q = search.toLowerCase();
-    return !q || (inv.client?.name ?? '').toLowerCase().includes(q) ||
-      inv.number.includes(q) || (inv.series ?? '').toLowerCase().includes(q) ||
-      inv.issueDate.slice(0, 10).includes(q) || inv.dueDate.slice(0, 10).includes(q);
+    return (
+      !q ||
+      (inv.client?.name ?? "").toLowerCase().includes(q) ||
+      inv.number.includes(q) ||
+      (inv.series ?? "").toLowerCase().includes(q) ||
+      inv.issueDate.slice(0, 10).includes(q) ||
+      inv.dueDate.slice(0, 10).includes(q)
+    );
   });
   const invTotalPages = Math.ceil(filteredInvoices.length / PAGE_SIZE);
-  const paginatedInvoices = filteredInvoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paginatedInvoices = filteredInvoices.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
 
   return (
     <AppLayout title={t.invoices.title}>
       <div className="space-y-5">
-
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
@@ -158,8 +243,8 @@ export default function InvoicesPage() {
                   onClick={() => setStatusFilter(value)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                     statusFilter === value
-                      ? 'bg-white dark:bg-blue-600/20 dark:border dark:border-blue-500/30 text-slate-900 dark:text-blue-300 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-white/[0.04]'
+                      ? "bg-white dark:bg-blue-600/20 dark:border dark:border-blue-500/30 text-slate-900 dark:text-blue-300 shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-white/[0.04]"
                   }`}
                 >
                   {label}
@@ -170,7 +255,10 @@ export default function InvoicesPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 placeholder="Search client or date…"
                 className="pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#070b11] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition w-48"
               />
@@ -178,7 +266,11 @@ export default function InvoicesPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => invoicesService.exportSaga().catch((e: Error) => alert(e.message))}
+              onClick={() =>
+                invoicesService
+                  .exportSaga()
+                  .catch((e: Error) => alert(e.message))
+              }
               className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
               title="Export to SAGA CSV"
             >
@@ -197,8 +289,14 @@ export default function InvoicesPage() {
 
         {/* Table */}
         <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-sm overflow-hidden">
-          {loading && <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">{t.common.loading}</div>}
-          {error && <div className="p-6 text-sm text-red-600 bg-red-50">{error}</div>}
+          {loading && (
+            <div className="p-10 text-center text-slate-400 dark:text-slate-500 text-sm">
+              {t.common.loading}
+            </div>
+          )}
+          {error && (
+            <div className="p-6 text-sm text-red-600 bg-red-50">{error}</div>
+          )}
           {!loading && !error && (
             <>
               {/* Desktop */}
@@ -206,8 +304,19 @@ export default function InvoicesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/[0.06]">
-                      {[t.invoices.invoiceNumber, t.invoices.client, t.invoices.issueDate, t.invoices.dueDate, t.common.amount, t.common.status, ''].map((h) => (
-                        <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      {[
+                        t.invoices.invoiceNumber,
+                        t.invoices.client,
+                        t.invoices.issueDate,
+                        t.invoices.dueDate,
+                        t.common.amount,
+                        t.common.status,
+                        "",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                        >
                           {h}
                         </th>
                       ))}
@@ -216,24 +325,43 @@ export default function InvoicesPage() {
                   <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
                     {paginatedInvoices.map((inv) => {
                       const { label, variant } = invoiceStatusBadge(inv.status);
-                      const isOverdue = inv.status === 'OPEN' && new Date(inv.dueDate) < new Date();
+                      const isOverdue =
+                        inv.status === "OPEN" &&
+                        new Date(inv.dueDate) < new Date();
                       return (
-                        <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors group">
+                        <tr
+                          key={inv.id}
+                          className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors group"
+                        >
                           <td className="px-5 py-4 font-mono font-semibold text-slate-800 dark:text-slate-200 text-xs">
-                            {inv.series ?? ''}{inv.number}
+                            {inv.series ?? ""}
+                            {inv.number}
                           </td>
                           <td className="px-5 py-4 font-medium text-slate-900 dark:text-slate-100">
                             {inv.client?.name ?? `Client #${inv.clientId}`}
                           </td>
-                          <td className="px-5 py-4 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{formatDate(inv.issueDate)}</td>
-                          <td className={`px-5 py-4 text-xs whitespace-nowrap font-medium ${isOverdue ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                          <td className="px-5 py-4 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
+                            {formatDate(inv.issueDate)}
+                          </td>
+                          <td
+                            className={`px-5 py-4 text-xs whitespace-nowrap font-medium ${isOverdue ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"}`}
+                          >
                             {formatDate(inv.dueDate)}
-                            {isOverdue && <span className="ml-1.5 text-[10px] bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-full font-semibold">Overdue</span>}
+                            {isOverdue && (
+                              <span className="ml-1.5 text-[10px] bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-full font-semibold">
+                                Overdue
+                              </span>
+                            )}
                           </td>
                           <td className="px-5 py-4 font-bold text-slate-900 dark:text-slate-100">
-                            {formatCompactCurrency(inv.totalAmount, inv.currency)}
+                            {formatCompactCurrency(
+                              inv.totalAmount,
+                              inv.currency,
+                            )}
                           </td>
-                          <td className="px-5 py-4"><Badge label={label} variant={variant} /></td>
+                          <td className="px-5 py-4">
+                            <Badge label={label} variant={variant} />
+                          </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                               {isOverdue && (
@@ -244,18 +372,28 @@ export default function InvoicesPage() {
                                   title="Download somație PDF"
                                 >
                                   <FileDown className="w-3.5 h-3.5" />
-                                  {downloadingId === inv.id ? '…' : 'Somație'}
+                                  {downloadingId === inv.id ? "…" : "Somație"}
                                 </button>
                               )}
-                              {inv.status !== 'CANCELED' && inv.status !== 'PAID' && (
-                                <button
-                                  onClick={() => handleCancel(inv.id)}
-                                  className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                                  title="Cancel invoice"
-                                >
-                                  <Ban className="w-4 h-4" />
-                                </button>
-                              )}
+                              {inv.status !== "CANCELED" &&
+                                inv.status !== "PAID" && (
+                                  <>
+                                    <button
+                                      onClick={() => openEdit(inv)}
+                                      className="text-slate-400 hover:text-blue-500 transition-colors p-1"
+                                      title="Edit"
+                                    >
+                                      <Pencil className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleCancel(inv.id)}
+                                      className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                      title="Cancel invoice"
+                                    >
+                                      <Ban className="w-4 h-4" />
+                                    </button>
+                                  </>
+                                )}
                             </div>
                           </td>
                         </tr>
@@ -263,8 +401,13 @@ export default function InvoicesPage() {
                     })}
                     {paginatedInvoices.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="px-5 py-12 text-center text-slate-400 text-sm">
-                          {search ? 'No invoices match your search.' : 'No invoices found.'}
+                        <td
+                          colSpan={7}
+                          className="px-5 py-12 text-center text-slate-400 text-sm"
+                        >
+                          {search
+                            ? "No invoices match your search."
+                            : "No invoices found."}
                         </td>
                       </tr>
                     )}
@@ -276,24 +419,36 @@ export default function InvoicesPage() {
               <div className="md:hidden divide-y divide-slate-100 dark:divide-white/[0.05]">
                 {invoices.map((inv) => {
                   const { label, variant } = invoiceStatusBadge(inv.status);
-                  const isOverdue = inv.status === 'OPEN' && new Date(inv.dueDate) < new Date();
+                  const isOverdue =
+                    inv.status === "OPEN" && new Date(inv.dueDate) < new Date();
                   return (
                     <div key={inv.id} className="px-4 py-4 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-semibold text-slate-900 dark:text-slate-100">{inv.client?.name ?? `Client #${inv.clientId}`}</p>
-                          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">{inv.series ?? ''}{inv.number}</p>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">
+                            {inv.client?.name ?? `Client #${inv.clientId}`}
+                          </p>
+                          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                            {inv.series ?? ""}
+                            {inv.number}
+                          </p>
                         </div>
                         <Badge label={label} variant={variant} />
                       </div>
-                      <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{formatCompactCurrency(inv.totalAmount, inv.currency)}</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                        {formatCompactCurrency(inv.totalAmount, inv.currency)}
+                      </p>
                       <div className="flex gap-4 text-xs text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" /> Issued {formatDate(inv.issueDate)}
+                          <Calendar className="w-3.5 h-3.5" /> Issued{" "}
+                          {formatDate(inv.issueDate)}
                         </span>
-                        <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-600 font-semibold' : ''}`}>
-                          <Calendar className="w-3.5 h-3.5" /> Due {formatDate(inv.dueDate)}
-                          {isOverdue && ' (Overdue)'}
+                        <span
+                          className={`flex items-center gap-1 ${isOverdue ? "text-red-600 font-semibold" : ""}`}
+                        >
+                          <Calendar className="w-3.5 h-3.5" /> Due{" "}
+                          {formatDate(inv.dueDate)}
+                          {isOverdue && " (Overdue)"}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 pt-1">
@@ -304,36 +459,65 @@ export default function InvoicesPage() {
                             className="text-xs text-violet-600 dark:text-violet-400 flex items-center gap-1 font-semibold disabled:opacity-40"
                           >
                             <FileDown className="w-3.5 h-3.5" />
-                            {downloadingId === inv.id ? 'Generating…' : 'Download Somație'}
+                            {downloadingId === inv.id
+                              ? "Generating…"
+                              : "Download Somație"}
                           </button>
                         )}
-                        {inv.status !== 'CANCELED' && inv.status !== 'PAID' && (
-                          <button
-                            onClick={() => handleCancel(inv.id)}
-                            className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 flex items-center gap-1 font-medium"
-                          >
-                            <Ban className="w-3.5 h-3.5" /> Cancel Invoice
-                          </button>
+                        {inv.status !== "CANCELED" && inv.status !== "PAID" && (
+                          <>
+                            <button
+                              onClick={() => openEdit(inv)}
+                              className="text-xs text-blue-500 dark:text-blue-400 flex items-center gap-1 font-medium"
+                            >
+                              <Pencil className="w-3.5 h-3.5" /> Edit
+                            </button>
+                            <button
+                              onClick={() => handleCancel(inv.id)}
+                              className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 flex items-center gap-1 font-medium"
+                            >
+                              <Ban className="w-3.5 h-3.5" /> Cancel Invoice
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
                   );
                 })}
                 {paginatedInvoices.length === 0 && (
-                  <div className="px-4 py-12 text-center text-slate-400 text-sm">{search ? 'No invoices match your search.' : 'No invoices found.'}</div>
+                  <div className="px-4 py-12 text-center text-slate-400 text-sm">
+                    {search
+                      ? "No invoices match your search."
+                      : "No invoices found."}
+                  </div>
                 )}
               </div>
-              <Pagination page={page} totalPages={invTotalPages} onPage={setPage} />
+              <Pagination
+                page={page}
+                totalPages={invTotalPages}
+                onPage={setPage}
+              />
             </>
           )}
         </div>
       </div>
 
       {/* Create Modal */}
-      <Modal title={t.invoices.addInvoice} open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}>
+      <Modal
+        title={editId ? t.invoices.editInvoice : t.invoices.addInvoice}
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditId(null);
+          setForm(emptyForm);
+          setFormError("");
+        }}
+      >
         <form onSubmit={handleCreate} className="space-y-4">
           {formError && (
-            <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">{formError}</div>
+            <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
+              {formError}
+            </div>
           )}
 
           <div>
@@ -343,22 +527,30 @@ export default function InvoicesPage() {
             <select
               required
               value={form.clientId}
-              onChange={(e) => setForm((f) => ({ ...f, clientId: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, clientId: e.target.value }))
+              }
               className={fieldClass}
             >
               <option value="">Select a client...</option>
               {clients.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Series</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                Series
+              </label>
               <input
                 value={form.series}
-                onChange={(e) => setForm((f) => ({ ...f, series: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, series: e.target.value }))
+                }
                 placeholder="e.g. FCT"
                 className={fieldClass}
               />
@@ -370,7 +562,9 @@ export default function InvoicesPage() {
               <input
                 required
                 value={form.number}
-                onChange={(e) => setForm((f) => ({ ...f, number: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, number: e.target.value }))
+                }
                 placeholder="001"
                 className={fieldClass}
               />
@@ -386,7 +580,9 @@ export default function InvoicesPage() {
                 type="date"
                 required
                 value={form.issueDate}
-                onChange={(e) => setForm((f) => ({ ...f, issueDate: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, issueDate: e.target.value }))
+                }
                 className={fieldClass}
               />
             </div>
@@ -398,7 +594,9 @@ export default function InvoicesPage() {
                 type="date"
                 required
                 value={form.dueDate}
-                onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, dueDate: e.target.value }))
+                }
                 className={fieldClass}
               />
             </div>
@@ -417,17 +615,23 @@ export default function InvoicesPage() {
                   min="0.01"
                   step="0.01"
                   value={form.totalAmount}
-                  onChange={(e) => setForm((f) => ({ ...f, totalAmount: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, totalAmount: e.target.value }))
+                  }
                   placeholder="1000.00"
                   className={`${fieldClass} pl-9`}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Currency</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                Currency
+              </label>
               <select
                 value={form.currency}
-                onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, currency: e.target.value }))
+                }
                 className={fieldClass}
               >
                 <option>RON</option>
@@ -438,10 +642,14 @@ export default function InvoicesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Notes</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+              Notes
+            </label>
             <textarea
               value={form.notes}
-              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, notes: e.target.value }))
+              }
               rows={2}
               placeholder="Optional notes..."
               className={`${fieldClass} resize-none`}
@@ -451,7 +659,11 @@ export default function InvoicesPage() {
           <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
             <button
               type="button"
-              onClick={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); }}
+              onClick={() => {
+                setModalOpen(false);
+                setForm(emptyForm);
+                setFormError("");
+              }}
               className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
             >
               {t.common.cancel}

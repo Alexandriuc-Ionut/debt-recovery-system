@@ -23,6 +23,13 @@ export const recurringService = {
     });
   },
 
+  update(id: number, data: Partial<{
+    clientId: number; templateName: string; series: string; amount: number;
+    currency: string; notes: string; interval: RecurringInterval; dayOfMonth: number; nextRunAt: string;
+  }>): Promise<RecurringInvoice> {
+    return apiFetch<RecurringInvoice>(`/recurring/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+  },
+
   toggle(id: number): Promise<RecurringInvoice> {
     return apiFetch<RecurringInvoice>(`/recurring/${id}/toggle`, {
       method: 'PATCH',

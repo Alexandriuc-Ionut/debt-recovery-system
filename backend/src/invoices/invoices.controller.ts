@@ -65,6 +65,15 @@ export class InvoicesController {
     return this.invoicesService.create(dto, user.companyId, user.sub);
   }
 
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: { dueDate?: string; notes?: string; totalAmount?: number; currency?: string },
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.invoicesService.update(id, dto, user.companyId);
+  }
+
   @Patch(':id/cancel')
   async cancel(
     @Param('id', ParseIntPipe) id: number,

@@ -23,6 +23,10 @@ export const paymentsService = {
     });
   },
 
+  update(id: number, data: { amount?: number; paidAt?: string; method?: PaymentMethod; reference?: string }): Promise<Payment> {
+    return apiFetch<Payment>(`/payments/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+  },
+
   remove(id: number): Promise<{ message: string }> {
     return apiFetch<{ message: string }>(`/payments/${id}`, {
       method: 'DELETE',

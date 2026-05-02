@@ -87,6 +87,21 @@ export class InvoicesService {
     return invoice;
   }
 
+  async update(id: number, dto: { dueDate?: string; notes?: string; totalAmount?: number; currency?: string }, companyId: number) {
+    const invoice = await this.prisma.invoice.findFirst({ where: { id, companyId } });
+    if (!invoice) throw new NotFoundException('Factura nu a fost gasita');
+    return this.prisma.invoice.update({
+      where: { id },
+      data: {
+        ...(dto.dueDate && { dueDate: new Date(dto.dueDate) }),
+        ...(dto.notes !== undefined && { notes: dto.notes }),
+        ...(dto.totalAmount !== undefined && { totalAmount: dto.totalAmount }),
+        ...(dto.currency && { currency: dto.currency }),
+      },
+      include: { client: true },
+    });
+  }
+
   async exportSaga(companyId: number): Promise<string> {
     const invoices = await this.prisma.invoice.findMany({
       where: { companyId },

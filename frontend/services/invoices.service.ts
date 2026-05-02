@@ -31,6 +31,10 @@ export const invoicesService = {
     });
   },
 
+  update(id: number, data: { dueDate?: string; notes?: string; totalAmount?: number; currency?: string }): Promise<Invoice> {
+    return apiFetch<Invoice>(`/invoices/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+  },
+
   cancel(id: number): Promise<Invoice> {
     return apiFetch<Invoice>(`/invoices/${id}/cancel`, { method: 'PATCH' });
   },

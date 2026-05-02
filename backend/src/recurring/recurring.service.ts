@@ -75,6 +75,25 @@ export class RecurringService {
     });
   }
 
+  async update(id: number, dto: Partial<CreateRecurringDto>, companyId: number) {
+    const existing = await this.prisma.recurringInvoice.findFirst({ where: { id, companyId } });
+    if (!existing) throw new NotFoundException('Recurring invoice not found');
+    return this.prisma.recurringInvoice.update({
+      where: { id },
+      data: {
+        ...(dto.templateName && { templateName: dto.templateName }),
+        ...(dto.amount !== undefined && { amount: dto.amount }),
+        ...(dto.currency && { currency: dto.currency }),
+        ...(dto.interval && { interval: dto.interval }),
+        ...(dto.dayOfMonth !== undefined && { dayOfMonth: dto.dayOfMonth }),
+        ...(dto.nextRunAt && { nextRunAt: new Date(dto.nextRunAt) }),
+        ...(dto.notes !== undefined && { notes: dto.notes }),
+        ...(dto.series !== undefined && { series: dto.series }),
+      },
+      include: { client: true },
+    });
+  }
+
   async toggleActive(id: number, companyId: number) {
     const existing = await this.prisma.recurringInvoice.findFirst({
       where: { id, companyId },

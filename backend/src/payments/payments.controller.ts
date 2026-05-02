@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -35,6 +36,15 @@ export class PaymentsController {
   @Post()
   async create(@Body() dto: CreatePaymentDto, @CurrentUser() user: JwtPayload) {
     return this.paymentsService.create(dto, user.companyId, user.sub);
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreatePaymentDto>,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.paymentsService.update(id, dto, user.companyId);
   }
 
   @Delete(':id')

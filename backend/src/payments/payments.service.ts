@@ -100,6 +100,23 @@ export class PaymentsService {
     return payment;
   }
 
+  async update(id: number, dto: Partial<CreatePaymentDto>, companyId: number) {
+    const payment = await this.prisma.payment.findFirst({
+      where: { id, invoice: { companyId } },
+    });
+    if (!payment) throw new NotFoundException('Plata nu a fost gasita');
+    return this.prisma.payment.update({
+      where: { id },
+      data: {
+        ...(dto.amount !== undefined && { amount: dto.amount }),
+        ...(dto.paidAt && { paidAt: new Date(dto.paidAt) }),
+        ...(dto.method && { method: dto.method }),
+        ...(dto.reference !== undefined && { reference: dto.reference }),
+      },
+      include: { invoice: { include: { client: true } } },
+    });
+  }
+
   async remove(paymentId: number, companyId: number, userId: number) {
     const payment = await this.prisma.payment.findFirst({
       where: { id: paymentId, invoice: { companyId } },

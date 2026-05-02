@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Users, Search, Mail, Phone, MapPin, Hash, Bell, Loader2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Pencil, Users, Search, Mail, Phone, MapPin, Hash, Bell, Loader2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PAGE_SIZE = 15;
 
@@ -46,9 +46,17 @@ export default function ClientsPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+
+  function openEdit(c: Client) {
+    setEditId(c.id);
+    setForm({ cui: c.cui ?? '', name: c.name, email: c.email ?? '', phone: c.phone ?? '', address: c.address ?? '' });
+    setLookupMsg(null);
+    setModalOpen(true);
+  }
   const [sendingReminder, setSendingReminder] = useState<number | null>(null);
   const [reminderMsg, setReminderMsg] = useState<{ id: number; text: string } | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
@@ -69,12 +77,17 @@ export default function ClientsPage() {
     setFormError('');
     setSubmitting(true);
     try {
-      await clientsService.create(form);
+      if (editId) {
+        await clientsService.update(editId, form);
+      } else {
+        await clientsService.create(form);
+      }
       setModalOpen(false);
+      setEditId(null);
       setForm(emptyForm);
       load();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : 'Failed to create client');
+      setFormError(err instanceof Error ? err.message : 'Failed to save client');
     } finally {
       setSubmitting(false);
     }
@@ -212,11 +225,10 @@ export default function ClientsPage() {
                               </button>
                             )}
                             <span className="text-slate-200">|</span>
-                            <button
-                              onClick={() => handleDelete(c.id)}
-                              className="text-slate-300 hover:text-red-500 transition-colors"
-                              title="Delete client"
-                            >
+                            <button onClick={() => openEdit(c)} className="text-slate-300 hover:text-blue-500 transition-colors" title="Edit">
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDelete(c.id)} className="text-slate-300 hover:text-red-500 transition-colors" title="Delete">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
@@ -240,12 +252,14 @@ export default function ClientsPage() {
                   <div key={c.id} className="px-4 py-4 space-y-2">
                     <div className="flex items-start justify-between">
                       <p className="font-semibold text-slate-900 dark:text-slate-100 text-base">{c.name}</p>
-                      <button
-                        onClick={() => handleDelete(c.id)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors ml-2 mt-0.5"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-2 ml-2 mt-0.5">
+                        <button onClick={() => openEdit(c)} className="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(c.id)} className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                       {c.cui && (
@@ -299,7 +313,7 @@ export default function ClientsPage() {
       </div>
 
       {/* Create Modal */}
-      <Modal title={t.clients.addClient} open={modalOpen} onClose={() => { setModalOpen(false); setForm(emptyForm); setFormError(''); setLookupMsg(null); }}>
+      <Modal title={editId ? t.clients.editClient : t.clients.addClient} open={modalOpen} onClose={() => { setModalOpen(false); setEditId(null); setForm(emptyForm); setFormError(''); setLookupMsg(null); }}>
         <form onSubmit={handleCreate} className="space-y-4">
           {formError && <div className="text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 rounded-lg">{formError}</div>}
 
