@@ -116,14 +116,6 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
     ? (user.fullName ?? user.email).slice(0, 2).toUpperCase()
     : "?";
 
-  function urgencyColor(days: number) {
-    if (days > 60)
-      return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20";
-    if (days > 30)
-      return "text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20";
-    return "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20";
-  }
-
   return (
     <header className="h-16 bg-white/80 dark:bg-[#080d14]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/[0.06] flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
       <div className="flex items-center gap-3">
@@ -155,101 +147,104 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
             </button>
 
             {open && (
-              <div className="absolute right-0 top-11 w-80 bg-white dark:bg-[#0d1117] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-xl dark:shadow-black/50 overflow-hidden z-50">
+              <div className="absolute right-0 top-12 w-[360px] bg-white dark:bg-[#0f1623] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl shadow-2xl dark:shadow-black/60 overflow-hidden z-50 ring-1 ring-black/5 dark:ring-white/[0.04]">
                 {/* Panel header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-500" />
-                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                      {t.notifications.overdueInvoices}
-                    </span>
+                <div className="px-4 pt-4 pb-3 bg-gradient-to-br from-slate-50 to-white dark:from-[#141c2b] dark:to-[#0f1623] border-b border-slate-100 dark:border-white/[0.06]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                        <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800 dark:text-white leading-tight">
+                          {t.notifications.overdueInvoices}
+                        </p>
+                        {unreadCount > 0 ? (
+                          <p className="text-xs text-slate-400 dark:text-slate-500 leading-tight mt-0.5">
+                            {unreadCount} {t.notifications.newBadge}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-slate-400 dark:text-slate-500 leading-tight mt-0.5">
+                            {notifications.length} {notifications.length === 1 ? "factură" : "facturi"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                     {unreadCount > 0 && (
-                      <span className="text-xs font-bold bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full">
-                        {unreadCount} {t.notifications.newBadge}
-                      </span>
+                      <button
+                        onClick={markAllRead}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 px-2.5 py-1.5 rounded-lg transition-colors"
+                      >
+                        <CheckCheck className="w-3.5 h-3.5" />
+                        {t.notifications.readAll}
+                      </button>
                     )}
                   </div>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={markAllRead}
-                      className="flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                    >
-                      <CheckCheck className="w-3.5 h-3.5" />{" "}
-                      {t.notifications.readAll}
-                    </button>
-                  )}
                 </div>
 
                 {/* List */}
-                <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.05]">
+                <div className="max-h-[320px] overflow-y-auto">
                   {loading && (
-                    <div className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">
+                    <div className="px-4 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
                       {t.notifications.loading}
                     </div>
                   )}
                   {!loading && notifications.length === 0 && (
-                    <div className="px-4 py-8 text-center">
-                      <CheckCheck className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <div className="px-4 py-10 text-center">
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-3">
+                        <CheckCheck className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
+                      </div>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                         {t.notifications.allCaughtUp}
                       </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                         {t.notifications.noOverdue}
                       </p>
                     </div>
                   )}
                   {!loading &&
-                    notifications.map((inv) => {
+                    notifications.map((inv, idx) => {
                       const isRead = readIds.has(inv.id);
                       return (
                         <div
                           key={inv.id}
-                          className={`flex items-start gap-3 px-4 py-3 transition-colors ${isRead ? "opacity-50" : "hover:bg-slate-50 dark:hover:bg-white/[0.04]"}`}
+                          className={`group relative flex items-center gap-3 px-4 py-3.5 transition-colors ${idx > 0 ? "border-t border-slate-100 dark:border-white/[0.04]" : ""} ${isRead ? "opacity-40" : "hover:bg-slate-50 dark:hover:bg-white/[0.03]"}`}
                         >
-                          {/* Unread dot */}
-                          <div className="mt-1.5 flex-shrink-0">
-                            {isRead ? (
-                              <div className="w-2 h-2 rounded-full bg-transparent" />
-                            ) : (
-                              <div className="w-2 h-2 rounded-full bg-red-500" />
-                            )}
-                          </div>
+                          {/* Urgency stripe */}
+                          {!isRead && (
+                            <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-r-full ${inv.overdueDays > 60 ? "bg-red-500" : inv.overdueDays > 30 ? "bg-orange-400" : "bg-amber-400"}`} />
+                          )}
 
                           <Link
                             href="/invoices"
                             onClick={() => markRead(inv.id)}
-                            className="flex-1 min-w-0"
+                            className="flex-1 min-w-0 pl-1"
                           >
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">
-                                {inv.clientName}
-                              </span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 text-sm whitespace-nowrap">
-                                {formatCompactCurrency(
-                                  Number(inv.totalAmount),
-                                  inv.currency,
-                                )}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-2 mt-1">
-                              <span className="text-xs font-mono text-slate-400 dark:text-slate-500">
-                                {inv.number}
-                              </span>
-                              <span
-                                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${urgencyColor(inv.overdueDays)}`}
-                              >
-                                {inv.overdueDays}
-                                {t.notifications.daysOverdue}
-                              </span>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate leading-tight">
+                                  {inv.clientName}
+                                </p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-mono">
+                                  {inv.number}
+                                </p>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                                  {formatCompactCurrency(Number(inv.totalAmount), inv.currency)}
+                                </p>
+                                <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-0.5 ${inv.overdueDays > 60 ? "bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400" : inv.overdueDays > 30 ? "bg-orange-100 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400" : "bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}>
+                                  +{inv.overdueDays}{t.notifications.daysOverdue}
+                                </span>
+                              </div>
                             </div>
                           </Link>
 
-                          {/* Mark single as read */}
                           {!isRead && (
                             <button
                               onClick={() => markRead(inv.id)}
                               title={t.notifications.markAsRead}
-                              className="mt-1 p-1 text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors flex-shrink-0"
+                              className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors opacity-0 group-hover:opacity-100"
                             >
                               <Check className="w-3.5 h-3.5" />
                             </button>
@@ -260,13 +255,14 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 py-3 border-t border-slate-100 dark:border-white/[0.06]">
+                <div className="px-4 py-3 border-t border-slate-100 dark:border-white/[0.06] bg-slate-50/50 dark:bg-white/[0.02]">
                   <Link
                     href="/invoices"
-                    className="flex items-center justify-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-0.5"
                   >
-                    {t.notifications.viewAllInvoices}{" "}
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    {t.notifications.viewAllInvoices}
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
