@@ -2,9 +2,10 @@ import { apiFetch } from './api';
 import type { Invoice, InvoiceStatus } from '@/types';
 
 export const invoicesService = {
-  getAll(status?: InvoiceStatus): Promise<Invoice[]> {
-    const query = status ? `?status=${status}` : '';
-    return apiFetch<Invoice[]>(`/invoices${query}`);
+  getAll(status?: InvoiceStatus, page = 1, limit = 20): Promise<{ data: Invoice[]; total: number }> {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (status) params.set('status', status);
+    return apiFetch<{ data: Invoice[]; total: number }>(`/invoices?${params}`);
   },
 
   getById(id: number): Promise<Invoice> {

@@ -18,12 +18,20 @@ export class InvoicesService {
     private mailService: MailService,
   ) {}
 
-  async findAll(companyId: number, status?: InvoiceStatus) {
-    return this.prisma.invoice.findMany({
-      where: { companyId, ...(status && { status }) },
-      include: { client: true, payments: true },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(companyId: number, status?: InvoiceStatus, page = 1, limit = 20) {
+    const where = { companyId, ...(status && { status }) };
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where,
+        include: { client: true, payments: true },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.invoice.count({ where }),
+    ]);
+    return { data, total };
   }
 
   async findById(id: number, companyId: number) {

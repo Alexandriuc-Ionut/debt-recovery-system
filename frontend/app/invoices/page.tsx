@@ -10,61 +10,10 @@ import {
   FileDown,
   Download,
   Search,
-  ChevronLeft,
-  ChevronRight,
+  RefreshCw,
 } from "lucide-react";
 
-const PAGE_SIZE = 15;
-
-function Pagination({
-  page,
-  totalPages,
-  onPage,
-}: {
-  page: number;
-  totalPages: number;
-  onPage: (p: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-  const pages: (number | "…")[] = [];
-  for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) pages.push(i);
-    else if (pages[pages.length - 1] !== "…") pages.push("…");
-  }
-  return (
-    <div className="flex items-center justify-center gap-1 py-4 border-t border-slate-100 dark:border-white/[0.06]">
-      <button
-        onClick={() => onPage(page - 1)}
-        disabled={page === 1}
-        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 transition-colors"
-      >
-        <ChevronLeft className="w-4 h-4" />
-      </button>
-      {pages.map((p, i) =>
-        p === "…" ? (
-          <span key={`e${i}`} className="px-2 text-slate-400 text-sm">
-            …
-          </span>
-        ) : (
-          <button
-            key={p}
-            onClick={() => onPage(p as number)}
-            className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${page === p ? "bg-blue-600 text-white" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]"}`}
-          >
-            {p}
-          </button>
-        ),
-      )}
-      <button
-        onClick={() => onPage(page + 1)}
-        disabled={page === totalPages}
-        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 transition-colors"
-      >
-        <ChevronRight className="w-4 h-4" />
-      </button>
-    </div>
-  );
-}
+const LIMIT = 20;
 import AppLayout from "@/components/layout/AppLayout";
 import Modal from "@/components/ui/Modal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -98,11 +47,14 @@ export default function InvoicesPage() {
   ];
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [total, setTotal] = useState(0);
+  const [nextPage, setNextPage] = useState(2);
   const [clients, setClients] = useState<Client[]>([]);
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "ALL">(
     "ALL",
   );
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -126,20 +78,26 @@ export default function InvoicesPage() {
     setModalOpen(true);
   }
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
 
-  function load() {
-    setLoading(true);
+  const status = statusFilter === "ALL" ? undefined : statusFilter;
+
+  function load(reset = false) {
+    if (reset) setLoading(true);
+    else setLoadingMore(true);
     invoicesService
-      .getAll(statusFilter === "ALL" ? undefined : statusFilter)
-      .then(setInvoices)
+      .getAll(status, reset ? 1 : nextPage, LIMIT)
+      .then(({ data, total: t }) => {
+        setTotal(t);
+        setInvoices((prev) => (reset ? data : [...prev, ...data]));
+        setNextPage(reset ? 2 : (p) => p + 1);
+      })
       .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false));
+      .finally(() => { setLoading(false); setLoadingMore(false); });
   }
 
   useEffect(() => {
-    load();
-    setPage(1);
+    load(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
   useEffect(() => {
     clientsService
@@ -175,7 +133,7 @@ export default function InvoicesPage() {
       setModalOpen(false);
       setEditId(null);
       setForm(emptyForm);
-      load();
+      load(true);
     } catch (err: unknown) {
       setFormError(
         err instanceof Error ? err.message : "Failed to save invoice",
@@ -189,7 +147,7 @@ export default function InvoicesPage() {
     if (!confirm("Cancel this invoice?")) return;
     try {
       await invoicesService.cancel(id);
-      load();
+      load(true);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to cancel invoice");
     }
@@ -224,11 +182,7 @@ export default function InvoicesPage() {
       inv.dueDate.slice(0, 10).includes(q)
     );
   });
-  const invTotalPages = Math.ceil(filteredInvoices.length / PAGE_SIZE);
-  const paginatedInvoices = filteredInvoices.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
-  );
+  const hasMore = invoices.length < total;
 
   return (
     <AppLayout title={t.invoices.title}>
@@ -323,7 +277,7 @@ export default function InvoicesPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
-                    {paginatedInvoices.map((inv) => {
+                    {filteredInvoices.map((inv) => {
                       const { label, variant } = invoiceStatusBadge(inv.status);
                       const isOverdue =
                         inv.status === "OPEN" &&
@@ -399,7 +353,7 @@ export default function InvoicesPage() {
                         </tr>
                       );
                     })}
-                    {paginatedInvoices.length === 0 && (
+                    {filteredInvoices.length === 0 && (
                       <tr>
                         <td
                           colSpan={7}
@@ -417,7 +371,7 @@ export default function InvoicesPage() {
 
               {/* Mobile card view */}
               <div className="md:hidden divide-y divide-slate-100 dark:divide-white/[0.05]">
-                {invoices.map((inv) => {
+                {filteredInvoices.map((inv) => {
                   const { label, variant } = invoiceStatusBadge(inv.status);
                   const isOverdue =
                     inv.status === "OPEN" && new Date(inv.dueDate) < new Date();
@@ -484,7 +438,7 @@ export default function InvoicesPage() {
                     </div>
                   );
                 })}
-                {paginatedInvoices.length === 0 && (
+                {filteredInvoices.length === 0 && (
                   <div className="px-4 py-12 text-center text-slate-400 text-sm">
                     {search
                       ? "No invoices match your search."
@@ -492,11 +446,26 @@ export default function InvoicesPage() {
                   </div>
                 )}
               </div>
-              <Pagination
-                page={page}
-                totalPages={invTotalPages}
-                onPage={setPage}
-              />
+
+              {/* Load more */}
+              {hasMore && !search && (
+                <div className="flex flex-col items-center gap-1 py-4 border-t border-slate-100 dark:border-white/[0.06]">
+                  <button
+                    onClick={() => load(false)}
+                    disabled={loadingMore}
+                    className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${loadingMore ? "animate-spin" : ""}`} />
+                    {loadingMore ? "Loading…" : `Load more (${total - invoices.length} remaining)`}
+                  </button>
+                  <p className="text-xs text-slate-400">{invoices.length} of {total} invoices loaded</p>
+                </div>
+              )}
+              {!hasMore && total > LIMIT && (
+                <p className="text-center text-xs text-slate-400 py-3 border-t border-slate-100 dark:border-white/[0.06]">
+                  All {total} invoices loaded
+                </p>
+              )}
             </>
           )}
         </div>

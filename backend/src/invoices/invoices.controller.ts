@@ -28,7 +28,7 @@ export class InvoicesController {
     @Query() query: FilterInvoicesDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.invoicesService.findAll(user.companyId, query.status);
+    return this.invoicesService.findAll(user.companyId, query.status, query.page ?? 1, query.limit ?? 20);
   }
 
   // Must be before GET /:id
