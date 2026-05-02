@@ -18,6 +18,28 @@ type Message = {
 type HistoryItem = { role: "user" | "assistant"; content: string };
 
 let msgId = 0;
+
+/* Splits text into plain-text and URL parts so URLs render as clickable links */
+function renderText(text: string) {
+  const urlRegex = /(https?:\/\/[^\s"]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) =>
+    urlRegex.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: "#38bdf8", textDecoration: "underline", wordBreak: "break-all" }}
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    ),
+  );
+}
+
 const GREETING =
   "Hey there! I'm DebtBot, your app guide. Ask me how anything works — or say something like \"take me to invoices\" and I'll go there!";
 const SS_KEY = "debtbot_session";
@@ -304,7 +326,7 @@ function ChatPanel({
                 color: "#e2e8f0",
               }}
             >
-              {msg.text}
+              {msg.role === "bot" ? renderText(msg.text) : msg.text}
             </span>
           </div>
         ))}
@@ -350,7 +372,7 @@ function ChatPanel({
                   ))}
                 </span>
               ) : typingDone[lastBotMsg.id] ? (
-                lastBotMsg.text
+                renderText(lastBotMsg.text)
               ) : (
                 <Typewriter
                   text={lastBotMsg.text}
