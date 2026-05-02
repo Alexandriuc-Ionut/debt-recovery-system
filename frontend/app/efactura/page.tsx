@@ -214,7 +214,8 @@ export default function EFacturaPage() {
 
   async function handleDownloadXml(sub: EFacturaSubmission) {
     const token = localStorage.getItem('accessToken') ?? '';
-    const res = await fetch(`http://localhost:3000/efactura/xml/${sub.id}`, {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+    const res = await fetch(`${base}/efactura/xml/${sub.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) { alert('Failed to download XML'); return; }

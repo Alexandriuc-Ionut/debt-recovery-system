@@ -50,7 +50,8 @@ export const invoicesService = {
 
   async exportSaga(): Promise<void> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    const res = await fetch('http://localhost:3000/invoices/export/saga', {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+    const res = await fetch(`${base}/invoices/export/saga`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!res.ok) throw new Error('Export failed');

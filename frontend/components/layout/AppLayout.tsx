@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth.service";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import ChatbotWidget from "@/components/ui/ChatbotWidget";
+import dynamic from "next/dynamic";
+const ChatbotWidget = dynamic(() => import("@/components/ui/ChatbotWidget"), { ssr: false });
 
 interface AppLayoutProps {
   title: string;

@@ -93,7 +93,8 @@ export default function RegisterPage() {
     if (!companyCui.trim()) { toast("Enter a CUI first", "warning"); return; }
     setAnafLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/settings/anaf/${companyCui.replace(/\D/g, "")}`);
+      const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+      const res = await fetch(`${base}/settings/anaf/${companyCui.replace(/\D/g, "")}`);
       const data = (await res.json()) as { found: boolean; name?: string; address?: string };
       if (data.found && data.name) {
         setCompanyName(data.name);
