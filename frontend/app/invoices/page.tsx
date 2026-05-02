@@ -13,7 +13,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-const LIMIT = 20;
+const LIMIT = 10;
 import AppLayout from "@/components/layout/AppLayout";
 import Modal from "@/components/ui/Modal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -446,18 +446,24 @@ export default function InvoicesPage() {
                 )}
               </div>
 
-              {/* Load more */}
+              {/* Load all */}
               {hasMore && !search && (
                 <div className="flex flex-col items-center gap-1 py-4 border-t border-slate-100 dark:border-white/[0.06]">
+                  <p className="text-xs text-slate-400 mb-1">{invoices.length} of {total} invoices loaded</p>
                   <button
-                    onClick={() => load(false)}
+                    onClick={() => {
+                      setLoadingMore(true);
+                      invoicesService.getAll(status, 1, total)
+                        .then(({ data, total: t }) => { setInvoices(data); setTotal(t); setNextPage(Infinity); })
+                        .catch(() => {})
+                        .finally(() => setLoadingMore(false));
+                    }}
                     disabled={loadingMore}
                     className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors disabled:opacity-50"
                   >
                     <RefreshCw className={`w-4 h-4 ${loadingMore ? "animate-spin" : ""}`} />
-                    {loadingMore ? "Loading…" : `Load more (${total - invoices.length} remaining)`}
+                    {loadingMore ? "Loading…" : `Load all (${total - invoices.length} more)`}
                   </button>
-                  <p className="text-xs text-slate-400">{invoices.length} of {total} invoices loaded</p>
                 </div>
               )}
               {!hasMore && total > LIMIT && (
