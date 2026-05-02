@@ -99,8 +99,8 @@ export default function PaymentsPage() {
 
   useEffect(() => { load(); }, []);
   useEffect(() => {
-    invoicesService.getAll('OPEN')
-      .then((open) => invoicesService.getAll('PARTIAL').then((partial) => setInvoices([...open, ...partial])))
+    Promise.all([invoicesService.getAll('OPEN', 1, 500), invoicesService.getAll('PARTIAL', 1, 500)])
+      .then(([open, partial]) => setInvoices([...open.data, ...partial.data]))
       .catch(() => {});
   }, []);
 
