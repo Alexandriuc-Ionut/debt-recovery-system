@@ -32,19 +32,51 @@ type CsvRow = {
   clientId?: number; error?: string;
 };
 
+function toIsoDate(d: string): string {
+  if (d.includes('.')) {
+    const [dd, mm, yyyy] = d.split('.');
+    return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+  }
+  return d;
+}
+
 function parseCsv(text: string, clients: { id: number; name: string }[]): CsvRow[] {
   const lines = text.trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return [];
-  const rows = lines.slice(1); // skip header
+  const header = lines[0].toLowerCase();
+  const isSaga = header.includes('serie') || header.includes('data emitere');
+  const rows = lines.slice(1);
+
   return rows.map((line) => {
     const cols = line.split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
-    const [series = '', number = '', clientName = '', issueDate = '', dueDate = '', totalAmount = '', currency = 'RON', notes = ''] = cols;
+    let series = '', number = '', clientName = '', issueDate = '', dueDate = '', totalAmount = '', currency = 'RON', notes = '';
+    let canceled = false;
+
+    if (isSaga) {
+      // Nr, Serie, Numar, Data emitere, Data scadenta, Client, CUI Client, Valoare totala, Moneda, Status
+      series      = cols[1] ?? '';
+      number      = cols[2] ?? '';
+      issueDate   = toIsoDate(cols[3] ?? '');
+      dueDate     = toIsoDate(cols[4] ?? '');
+      clientName  = cols[5] ?? '';
+      totalAmount = cols[7] ?? '';
+      currency    = cols[8] ?? 'RON';
+      canceled    = (cols[9] ?? '').toUpperCase() === 'CANCELED';
+    } else {
+      [series = '', number = '', clientName = '', issueDate = '', dueDate = '', totalAmount = '', currency = 'RON', notes = ''] = cols;
+    }
+
     const matched = clients.find((c) => c.name.toLowerCase() === clientName.toLowerCase());
-    return {
-      series, number, clientName, issueDate, dueDate, totalAmount, currency, notes,
-      clientId: matched?.id,
-      error: !number ? 'Missing number' : !clientName ? 'Missing client' : !matched ? `Client "${clientName}" not found` : !issueDate ? 'Missing issue date' : !dueDate ? 'Missing due date' : !totalAmount ? 'Missing amount' : undefined,
-    };
+    const error = canceled ? 'Canceled invoices are skipped'
+      : !number ? 'Missing number'
+      : !clientName ? 'Missing client'
+      : !matched ? `Client "${clientName}" not found`
+      : !issueDate ? 'Missing issue date'
+      : !dueDate ? 'Missing due date'
+      : !totalAmount ? 'Missing amount'
+      : undefined;
+
+    return { series, number, clientName, issueDate, dueDate, totalAmount, currency, notes, clientId: matched?.id, error };
   });
 }
 
