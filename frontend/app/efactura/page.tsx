@@ -184,9 +184,7 @@ export default function EFacturaPage() {
   const [loading, setLoading] = useState(true);
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [detailSub, setDetailSub] = useState<EFacturaSubmission | null>(null);
-  const [polling, setPolling] = useState<Record<number, boolean>>({});
-
-  const load = useCallback(async () => {
+  const load = useCallback(async (quiet = false) => {
     try {
       const [subs, elig] = await Promise.all([
         efacturaService.getAll(),
@@ -195,25 +193,23 @@ export default function EFacturaPage() {
       setSubmissions(subs);
       setEligible(elig);
     } finally {
-      setLoading(false);
+      if (!quiet) setLoading(false);
     }
   }, []);
 
   useEffect(() => { void load(); }, [load]);
 
+  // Auto-poll every 5s while any submission is PENDING
+  useEffect(() => {
+    const hasPending = submissions.some((s) => s.status === 'PENDING');
+    if (!hasPending) return;
+    const id = setInterval(() => void load(true), 5000);
+    return () => clearInterval(id);
+  }, [submissions, load]);
+
   async function handleSubmit(invoiceId: number) {
     await efacturaService.submit(invoiceId);
     await load();
-  }
-
-  async function handlePoll(sub: EFacturaSubmission) {
-    setPolling((p) => ({ ...p, [sub.id]: true }));
-    try {
-      const updated = await efacturaService.poll(sub.id);
-      setSubmissions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-    } finally {
-      setPolling((p) => ({ ...p, [sub.id]: false }));
-    }
   }
 
   async function handleDownloadXml(sub: EFacturaSubmission) {
@@ -358,14 +354,9 @@ export default function EFacturaPage() {
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2.5">
                             {sub.status === 'PENDING' && (
-                              <button
-                                onClick={() => handlePoll(sub)}
-                                disabled={polling[sub.id]}
-                                title="Poll ANAF for result"
-                                className="text-slate-400 hover:text-amber-500 transition-colors disabled:opacity-40"
-                              >
-                                <RefreshCw className={`w-3.5 h-3.5 ${polling[sub.id] ? 'animate-spin' : ''}`} />
-                              </button>
+                              <span title="Waiting for ANAF simulator response..." className="flex items-center gap-1 text-[11px] text-amber-500 font-medium">
+                                <RefreshCw className="w-3 h-3 animate-spin" /> waiting...
+                              </span>
                             )}
                             {(sub.recipisa || sub.errorMsg) && (
                               <button
