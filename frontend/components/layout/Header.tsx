@@ -131,23 +131,22 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
       </div>
 
       {user && (
-        <div className="flex items-center gap-2">
-          {/* Bell + dropdown */}
-          <div className="relative" ref={panelRef}>
-            <button
-              onClick={() => setOpen((v) => !v)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors relative"
-            >
-              <Bell className="w-4 h-4" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
-            </button>
+        <div className="flex items-center gap-2 relative" ref={panelRef}>
+          {/* Bell */}
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors relative"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
 
-            {open && (
-              <div className="absolute right-0 top-12 w-[360px] bg-white dark:bg-[#0f1623] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl shadow-2xl dark:shadow-black/60 overflow-hidden z-50 ring-1 ring-black/5 dark:ring-white/[0.04]">
+          {open && (
+            <div className="absolute right-0 top-12 w-[360px] max-w-[calc(100vw-1rem)] bg-white dark:bg-[#0f1623] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl shadow-2xl dark:shadow-black/60 overflow-hidden z-50 ring-1 ring-black/5 dark:ring-white/[0.04]">
                 {/* Panel header */}
                 <div className="px-4 pt-4 pb-3 bg-gradient-to-br from-slate-50 to-white dark:from-[#141c2b] dark:to-[#0f1623] border-b border-slate-100 dark:border-white/[0.06]">
                   <div className="flex items-center justify-between">
@@ -267,7 +266,6 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                 </div>
               </div>
             )}
-          </div>
 
           {/* User info */}
           <Link
