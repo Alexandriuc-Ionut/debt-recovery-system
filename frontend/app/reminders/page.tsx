@@ -449,46 +449,36 @@ export default function RemindersPage() {
 
           {/* ── Specific client panel ──────────────────────────────────── */}
           {showClientPanel && (
-            <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm border border-slate-200 dark:border-white/[0.06] rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center shadow-sm">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  {t.reminders.selectClient}
-                </p>
-                <select
-                  value={selectedClientId}
-                  onChange={(e) => setSelectedClientId(e.target.value)}
-                  className="w-full text-sm text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-[#070b11] border border-slate-200 dark:border-white/[0.1] rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 [&>option]:bg-white dark:[&>option]:bg-[#0d1117] transition"
-                >
-                  <option value="">{t.reminders.chooseClient}</option>
-                  {unremindedClients.length > 0 && (
-                    <optgroup label={t.reminders.neverReminded}>
-                      {unremindedClients.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                          {!c.email ? ` (${t.reminders.noEmail})` : ""}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {groups.length > 0 && (
-                    <optgroup label={t.reminders.previouslyReminded}>
-                      {groups.map((g) => (
-                        <option key={g.clientId} value={g.clientId}>
-                          {g.clientName}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-              </div>
+            <div className="bg-white dark:bg-[#0d1117]/80 dark:backdrop-blur-sm border border-slate-200 dark:border-white/[0.06] rounded-xl p-4 flex items-center gap-3 shadow-sm">
+              <select
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+                className="flex-1 min-w-0 text-sm text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-[#070b11] border border-slate-200 dark:border-white/[0.1] rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 [&>option]:bg-white dark:[&>option]:bg-[#0d1117] transition"
+              >
+                <option value="">{t.reminders.chooseClient}</option>
+                {unremindedClients.length > 0 && (
+                  <optgroup label={t.reminders.neverReminded}>
+                    {unremindedClients.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}{!c.email ? ` (${t.reminders.noEmail})` : ""}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {groups.length > 0 && (
+                  <optgroup label={t.reminders.previouslyReminded}>
+                    {groups.map((g) => (
+                      <option key={g.clientId} value={g.clientId}>{g.clientName}</option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
               <button
                 onClick={handleSendToNewClient}
                 disabled={!selectedClientId || sendingToClient}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap shadow-sm"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap shadow-sm flex-shrink-0"
               >
-                <Send
-                  className={`w-4 h-4 ${sendingToClient ? "animate-pulse" : ""}`}
-                />
+                <Send className={`w-4 h-4 ${sendingToClient ? "animate-pulse" : ""}`} />
                 {sendingToClient ? t.reminders.sending : t.reminders.sendReminder}
               </button>
             </div>
