@@ -3,6 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const PDFDocument = require('pdfkit') as typeof import('pdfkit');
 
+// PDFKit built-in fonts only cover WinAnsi (no ș/ț), so transliterate.
+function ro(text: string): string {
+  return text
+    .replace(/[ăâ]/g, 'a').replace(/[ĂÂ]/g, 'A')
+    .replace(/î/g, 'i').replace(/Î/g, 'I')
+    .replace(/[șş]/g, 's').replace(/[ȘŞ]/g, 'S')
+    .replace(/[țţ]/g, 't').replace(/[ȚŢ]/g, 'T');
+}
+
 @Injectable()
 export class NoticesService {
   constructor(private prisma: PrismaService) {}
@@ -52,24 +61,19 @@ export class NoticesService {
         bufferPages: true,
       });
 
-      // Register Windows system fonts for full Romanian diacritics support
-      doc.registerFont('Regular', 'C:/Windows/Fonts/arial.ttf');
-      doc.registerFont('Bold', 'C:/Windows/Fonts/arialbd.ttf');
-      doc.registerFont('Italic', 'C:/Windows/Fonts/ariali.ttf');
-
       const chunks: Buffer[] = [];
       doc.on('data', (chunk: Buffer) => chunks.push(chunk));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      const company = invoice.company;
-      const client = invoice.client;
+      const company = { ...invoice.company, name: ro(invoice.company.name), address: invoice.company.address ? ro(invoice.company.address) : invoice.company.address };
+      const client = { ...invoice.client, name: ro(invoice.client.name), address: invoice.client.address ? ro(invoice.client.address) : invoice.client.address };
 
       // ── Header ──────────────────────────────────────────────────────
       doc
         .fontSize(9)
         .fillColor('#64748b')
-        .font('Regular')
+        .font('Helvetica')
         .text(
           `${company.name}${company.cui ? ' | CUI: ' + company.cui : ''}${company.address ? ' | ' + company.address : ''}`,
           { align: 'right' },
@@ -87,14 +91,14 @@ export class NoticesService {
       doc
         .fontSize(20)
         .fillColor('#0f172a')
-        .font('Bold')
-        .text(isEn ? 'PAYMENT DEMAND NOTICE' : 'SOMAȚIE DE PLATĂ', { align: 'center' })
+        .font('Helvetica-Bold')
+        .text(isEn ? 'PAYMENT DEMAND NOTICE' : ro('SOMAȚIE DE PLATĂ'), { align: 'center' })
         .moveDown(0.3);
 
       doc
         .fontSize(10)
         .fillColor('#64748b')
-        .font('Regular')
+        .font('Helvetica')
         .text(
           isEn
             ? `No. ${invoiceRef} — Date: ${todayStr}`
@@ -112,17 +116,17 @@ export class NoticesService {
       doc
         .fontSize(8)
         .fillColor('#94a3b8')
-        .font('Bold')
+        .font('Helvetica-Bold')
         .text(isEn ? 'CREDITOR' : 'CREDITOR', 60, startY, { width: colW });
       doc
         .fontSize(10)
         .fillColor('#0f172a')
-        .font('Bold')
+        .font('Helvetica-Bold')
         .text(company.name, 60, startY + 14, { width: colW });
       doc
         .fontSize(9)
         .fillColor('#475569')
-        .font('Regular')
+        .font('Helvetica')
         .text(
           [company.cui ? `CUI: ${company.cui}` : '', company.address ?? '']
             .filter(Boolean)
@@ -136,17 +140,17 @@ export class NoticesService {
       doc
         .fontSize(8)
         .fillColor('#94a3b8')
-        .font('Bold')
+        .font('Helvetica-Bold')
         .text(isEn ? 'DEBTOR' : 'DEBITOR', col2X, startY, { width: colW });
       doc
         .fontSize(10)
         .fillColor('#0f172a')
-        .font('Bold')
+        .font('Helvetica-Bold')
         .text(client.name, col2X, startY + 14, { width: colW });
       doc
         .fontSize(9)
         .fillColor('#475569')
-        .font('Regular')
+        .font('Helvetica')
         .text(
           [
             client.cui ? `CUI: ${client.cui}` : '',
@@ -172,12 +176,12 @@ export class NoticesService {
       const bodyText = isEn
         ? `By means of this notice, ${company.name} hereby demands that debtor ${client.name} pay the outstanding amount ` +
           `for invoice no. ${invoiceRef}, with payment due ${dueStr}, now overdue by ${daysOverdue} day${daysOverdue !== 1 ? 's' : ''}.`
-        : `Prin prezenta, ${company.name} somează pe debitorul ${client.name} să achite suma restantă aferentă ` +
-          `facturii fiscale nr. ${invoiceRef}, cu termen de plată ${dueStr}, aflată în întârziere de ${daysOverdue} zile.`;
+        : ro(`Prin prezenta, ${company.name} someaza pe debitorul ${client.name} sa achite suma restanta aferenta` +
+          ` facturii fiscale nr. ${invoiceRef}, cu termen de plata ${dueStr}, aflata in intarziere de ${daysOverdue} zile.`);
       doc
         .fontSize(11)
         .fillColor('#0f172a')
-        .font('Regular')
+        .font('Helvetica')
         .text(bodyText, 60, doc.y, { align: 'justify', lineGap: 2, width: 475 });
       doc.y += 16;
 
@@ -190,11 +194,11 @@ export class NoticesService {
       doc
         .fontSize(9)
         .fillColor('#475569')
-        .font('Bold')
-        .text(isEn ? 'Invoice' : 'Factură', cols[0] + 4, tableTop + 6)
-        .text(isEn ? 'Due date' : 'Scadentă la', cols[1] + 4, tableTop + 6)
-        .text(isEn ? 'Total amount' : 'Valoare totală', cols[2] + 4, tableTop + 6)
-        .text(isEn ? 'Amount due' : 'Sumă restantă', cols[3] + 4, tableTop + 6);
+        .font('Helvetica-Bold')
+        .text(isEn ? 'Invoice' : 'Factura', cols[0] + 4, tableTop + 6)
+        .text(isEn ? 'Due date' : 'Scadenta la', cols[1] + 4, tableTop + 6)
+        .text(isEn ? 'Total amount' : 'Valoare totala', cols[2] + 4, tableTop + 6)
+        .text(isEn ? 'Amount due' : 'Suma restanta', cols[3] + 4, tableTop + 6);
 
       const rowY = tableTop + 22;
       doc.rect(60, rowY, 475, 22).strokeColor('#e2e8f0').stroke();
@@ -202,12 +206,12 @@ export class NoticesService {
       doc
         .fontSize(10)
         .fillColor('#0f172a')
-        .font('Regular')
+        .font('Helvetica')
         .text(invoiceRef, cols[0] + 4, rowY + 6)
         .text(dueStr, cols[1] + 4, rowY + 6);
 
       doc
-        .font('Bold')
+        .font('Helvetica-Bold')
         .text(
           `${totalAmount.toFixed(2)} ${invoice.currency}`,
           cols[2] + 4,
@@ -226,14 +230,14 @@ export class NoticesService {
       doc
         .fontSize(10.5)
         .fillColor('#0f172a')
-        .font('Bold')
+        .font('Helvetica-Bold')
         .text(
-          isEn ? 'Total amount due immediately: ' : 'Suma totală de achitat imediat: ',
+          isEn ? 'Total amount due immediately: ' : 'Suma totala de achitat imediat: ',
           60,
           doc.y,
           { continued: true, width: 475 },
         )
-        .font('Regular')
+        .font('Helvetica')
         .fillColor('#dc2626')
         .text(`${remainingAmount.toFixed(2)} ${invoice.currency}`);
       doc.y += 14;
@@ -242,12 +246,12 @@ export class NoticesService {
         ? `You are hereby demanded to pay the above amount within 5 business days of receipt of this notice. ` +
           `Failure to comply will result in the initiation of legal proceedings for debt recovery, including litigation ` +
           `and enforcement, with all court and enforcement costs borne by the debtor.`
-        : `Vă somăm să achitați suma menționată mai sus în termen de 5 zile lucrătoare de la data primirii prezentei somații. ` +
-          `În caz contrar, vom proceda la declanșarea procedurilor legale de recuperare a creanței, inclusiv acționarea în instanță ` +
-          `și executare silită, cu suportarea de către debitor a tuturor cheltuielilor de judecată și executare.`;
+        : `Va somam sa achitati suma mentionata mai sus in termen de 5 zile lucratoare de la data primirii prezentei somatii. ` +
+          `In caz contrar, vom proceda la declansarea procedurilor legale de recuperare a creantei, inclusiv actionarea in instanta ` +
+          `si executare silita, cu suportarea de catre debitor a tuturor cheltuielilor de judecata si executare.`;
       doc
         .fontSize(10.5)
-        .font('Regular')
+        .font('Helvetica')
         .fillColor('#334155')
         .text(legalText, 60, doc.y, { align: 'justify', lineGap: 2, width: 475 });
       doc.y += 28;
@@ -260,14 +264,14 @@ export class NoticesService {
       doc
         .fontSize(9)
         .fillColor('#64748b')
-        .font('Bold')
-        .text(isEn ? 'Legal Representative / Signature' : 'Reprezentant legal / Semnătură', 60, sigY, { width: 220 })
-        .text(isEn ? 'Company Stamp' : 'Ștampila societății', 335, sigY, { width: 200 });
+        .font('Helvetica-Bold')
+        .text(isEn ? 'Legal Representative / Signature' : 'Reprezentant legal / Semnatura', 60, sigY, { width: 220 })
+        .text(isEn ? 'Company Stamp' : 'Stampila societatii', 335, sigY, { width: 200 });
 
       doc
         .fontSize(8)
         .fillColor('#94a3b8')
-        .font('Regular')
+        .font('Helvetica')
         .text(`${company.name}`, 60, sigY + 14, { width: 220 })
         .text(`${isEn ? 'Date' : 'Data'}: ${todayStr}`, 60, sigY + 26, { width: 220 });
 
