@@ -95,6 +95,24 @@ export class InvoicesService {
     return invoice;
   }
 
+  async createBulk(
+    rows: CreateInvoiceDto[],
+    companyId: number,
+    userId: number,
+  ): Promise<{ created: number; errors: { row: number; message: string }[] }> {
+    let created = 0;
+    const errors: { row: number; message: string }[] = [];
+    for (let i = 0; i < rows.length; i++) {
+      try {
+        await this.create(rows[i], companyId, userId);
+        created++;
+      } catch (e) {
+        errors.push({ row: i + 1, message: e instanceof Error ? e.message : 'Unknown error' });
+      }
+    }
+    return { created, errors };
+  }
+
   async update(id: number, dto: { dueDate?: string; notes?: string; totalAmount?: number; currency?: string }, companyId: number) {
     const invoice = await this.prisma.invoice.findFirst({ where: { id, companyId } });
     if (!invoice) throw new NotFoundException('Factura nu a fost gasita');

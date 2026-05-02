@@ -65,6 +65,14 @@ export class InvoicesController {
     return this.invoicesService.create(dto, user.companyId, user.sub);
   }
 
+  @Post('bulk')
+  async createBulk(
+    @Body() body: { rows: CreateInvoiceDto[] },
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.invoicesService.createBulk(body.rows, user.companyId, user.sub);
+  }
+
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,

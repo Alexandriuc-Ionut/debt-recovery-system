@@ -36,6 +36,14 @@ export const invoicesService = {
     return apiFetch<Invoice>(`/invoices/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
   },
 
+  createBulk(rows: {
+    clientId: number; series?: string; number: string;
+    issueDate: string; dueDate: string; totalAmount: number;
+    currency?: string; notes?: string;
+  }[]): Promise<{ created: number; errors: { row: number; message: string }[] }> {
+    return apiFetch('/invoices/bulk', { method: 'POST', body: JSON.stringify({ rows }) });
+  },
+
   cancel(id: number): Promise<Invoice> {
     return apiFetch<Invoice>(`/invoices/${id}/cancel`, { method: 'PATCH' });
   },
