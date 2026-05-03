@@ -162,7 +162,7 @@ export class SettingsService {
   // ── ANAF Lookup ───────────────────────────────────────────────────────────
 
   async lookupAnaf(cui: string) {
-    const cleanCui = cui.replace(/\D/g, '');
+    const cleanCui = cui.replaceAll(/\D/g, '');
     const today = new Date().toISOString().split('T')[0];
 
     type AnafResult = {
@@ -340,7 +340,7 @@ function parseRomanianAddress(adresa: string): {
   for (const part of parts) {
     const lower = part.toLowerCase();
     if (lower.startsWith('jud.') || lower.startsWith('judet')) {
-      county = part.replace(/^jud\.\s*/i, '').trim();
+      county = part.replaceAll(/^jud\.\s*/i, '').trim();
     } else if (lower.startsWith('sector') || lower.match(/^sector\s+\d/i)) {
       // sector is part of Bucharest — keep as part of address
       streetParts.push(part);

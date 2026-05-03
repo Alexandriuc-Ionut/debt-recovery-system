@@ -291,7 +291,7 @@ export class ChatbotService {
 
     const navMatch = raw.match(/<<<NAVIGATE:([^>]+)>>>/);
     const navigate = navMatch ? navMatch[1] : undefined;
-    const reply = raw.replace(/<<<NAVIGATE:[^>]+>>>/, '').trim();
+    const reply = raw.replaceAll(/<<<NAVIGATE:[^>]+>>>/g, '').trim();
 
     return { reply, navigate };
   }

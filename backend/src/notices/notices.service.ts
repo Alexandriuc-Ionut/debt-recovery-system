@@ -6,17 +6,25 @@ const PDFDocument = require('pdfkit') as typeof import('pdfkit');
 // PDFKit built-in fonts only cover WinAnsi (no ș/ț), so transliterate.
 function ro(text: string): string {
   return text
-    .replace(/[ăâ]/g, 'a').replace(/[ĂÂ]/g, 'A')
-    .replace(/î/g, 'i').replace(/Î/g, 'I')
-    .replace(/[șş]/g, 's').replace(/[ȘŞ]/g, 'S')
-    .replace(/[țţ]/g, 't').replace(/[ȚŢ]/g, 'T');
+    .replaceAll(/[ăâ]/g, 'a')
+    .replaceAll(/[ĂÂ]/g, 'A')
+    .replaceAll(/î/g, 'i')
+    .replaceAll(/Î/g, 'I')
+    .replaceAll(/[șş]/g, 's')
+    .replaceAll(/[ȘŞ]/g, 'S')
+    .replaceAll(/[țţ]/g, 't')
+    .replaceAll(/[ȚŢ]/g, 'T');
 }
 
 @Injectable()
 export class NoticesService {
   constructor(private prisma: PrismaService) {}
 
-  async generateSomatie(invoiceId: number, companyId: number, lang: 'ro' | 'en' = 'ro'): Promise<Buffer> {
+  async generateSomatie(
+    invoiceId: number,
+    companyId: number,
+    lang: 'ro' | 'en' = 'ro',
+  ): Promise<Buffer> {
     const isEn = lang === 'en';
     const invoice = await this.prisma.invoice.findFirst({
       where: { id: invoiceId, companyId },
@@ -66,8 +74,20 @@ export class NoticesService {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      const company = { ...invoice.company, name: ro(invoice.company.name), address: invoice.company.address ? ro(invoice.company.address) : invoice.company.address };
-      const client = { ...invoice.client, name: ro(invoice.client.name), address: invoice.client.address ? ro(invoice.client.address) : invoice.client.address };
+      const company = {
+        ...invoice.company,
+        name: ro(invoice.company.name),
+        address: invoice.company.address
+          ? ro(invoice.company.address)
+          : invoice.company.address,
+      };
+      const client = {
+        ...invoice.client,
+        name: ro(invoice.client.name),
+        address: invoice.client.address
+          ? ro(invoice.client.address)
+          : invoice.client.address,
+      };
 
       // ── Header ──────────────────────────────────────────────────────
       doc
@@ -92,7 +112,9 @@ export class NoticesService {
         .fontSize(20)
         .fillColor('#0f172a')
         .font('Helvetica-Bold')
-        .text(isEn ? 'PAYMENT DEMAND NOTICE' : ro('SOMAȚIE DE PLATĂ'), { align: 'center' })
+        .text(isEn ? 'PAYMENT DEMAND NOTICE' : ro('SOMAȚIE DE PLATĂ'), {
+          align: 'center',
+        })
         .moveDown(0.3);
 
       doc
@@ -176,13 +198,19 @@ export class NoticesService {
       const bodyText = isEn
         ? `By means of this notice, ${company.name} hereby demands that debtor ${client.name} pay the outstanding amount ` +
           `for invoice no. ${invoiceRef}, with payment due ${dueStr}, now overdue by ${daysOverdue} day${daysOverdue !== 1 ? 's' : ''}.`
-        : ro(`Prin prezenta, ${company.name} someaza pe debitorul ${client.name} sa achite suma restanta aferenta` +
-          ` facturii fiscale nr. ${invoiceRef}, cu termen de plata ${dueStr}, aflata in intarziere de ${daysOverdue} zile.`);
+        : ro(
+            `Prin prezenta, ${company.name} someaza pe debitorul ${client.name} sa achite suma restanta aferenta` +
+              ` facturii fiscale nr. ${invoiceRef}, cu termen de plata ${dueStr}, aflata in intarziere de ${daysOverdue} zile.`,
+          );
       doc
         .fontSize(11)
         .fillColor('#0f172a')
         .font('Helvetica')
-        .text(bodyText, 60, doc.y, { align: 'justify', lineGap: 2, width: 475 });
+        .text(bodyText, 60, doc.y, {
+          align: 'justify',
+          lineGap: 2,
+          width: 475,
+        });
       doc.y += 16;
 
       // ── Invoice table ────────────────────────────────────────────────
@@ -197,7 +225,11 @@ export class NoticesService {
         .font('Helvetica-Bold')
         .text(isEn ? 'Invoice' : 'Factura', cols[0] + 4, tableTop + 6)
         .text(isEn ? 'Due date' : 'Scadenta la', cols[1] + 4, tableTop + 6)
-        .text(isEn ? 'Total amount' : 'Valoare totala', cols[2] + 4, tableTop + 6)
+        .text(
+          isEn ? 'Total amount' : 'Valoare totala',
+          cols[2] + 4,
+          tableTop + 6,
+        )
         .text(isEn ? 'Amount due' : 'Suma restanta', cols[3] + 4, tableTop + 6);
 
       const rowY = tableTop + 22;
@@ -232,7 +264,9 @@ export class NoticesService {
         .fillColor('#0f172a')
         .font('Helvetica-Bold')
         .text(
-          isEn ? 'Total amount due immediately: ' : 'Suma totala de achitat imediat: ',
+          isEn
+            ? 'Total amount due immediately: '
+            : 'Suma totala de achitat imediat: ',
           60,
           doc.y,
           { continued: true, width: 475 },
@@ -253,7 +287,11 @@ export class NoticesService {
         .fontSize(10.5)
         .font('Helvetica')
         .fillColor('#334155')
-        .text(legalText, 60, doc.y, { align: 'justify', lineGap: 2, width: 475 });
+        .text(legalText, 60, doc.y, {
+          align: 'justify',
+          lineGap: 2,
+          width: 475,
+        });
       doc.y += 28;
 
       // ── Signature ────────────────────────────────────────────────────
@@ -265,15 +303,26 @@ export class NoticesService {
         .fontSize(9)
         .fillColor('#64748b')
         .font('Helvetica-Bold')
-        .text(isEn ? 'Legal Representative / Signature' : 'Reprezentant legal / Semnatura', 60, sigY, { width: 220 })
-        .text(isEn ? 'Company Stamp' : 'Stampila societatii', 335, sigY, { width: 200 });
+        .text(
+          isEn
+            ? 'Legal Representative / Signature'
+            : 'Reprezentant legal / Semnatura',
+          60,
+          sigY,
+          { width: 220 },
+        )
+        .text(isEn ? 'Company Stamp' : 'Stampila societatii', 335, sigY, {
+          width: 200,
+        });
 
       doc
         .fontSize(8)
         .fillColor('#94a3b8')
         .font('Helvetica')
         .text(`${company.name}`, 60, sigY + 14, { width: 220 })
-        .text(`${isEn ? 'Date' : 'Data'}: ${todayStr}`, 60, sigY + 26, { width: 220 });
+        .text(`${isEn ? 'Date' : 'Data'}: ${todayStr}`, 60, sigY + 26, {
+          width: 220,
+        });
 
       doc.flushPages();
       doc.end();

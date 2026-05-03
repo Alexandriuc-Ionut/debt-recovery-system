@@ -20,7 +20,7 @@ export class AuditController {
     @Query('from') fromQ?: string,   // YYYY-MM-DD
     @Query('to') toQ?: string,       // YYYY-MM-DD
   ) {
-    const page = Math.max(1, parseInt(pageQ ?? '1', 10) || 1);
+    const page = Math.max(1, Number.parseInt(pageQ ?? '1', 10) || 1);
     const skip = (page - 1) * PAGE_SIZE;
 
     const where: Record<string, unknown> = { companyId: user.companyId };
