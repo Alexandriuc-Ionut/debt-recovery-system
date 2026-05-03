@@ -82,23 +82,31 @@ function Field({
 function getNotifPrefs() {
   try {
     const raw = localStorage.getItem("notifPrefs");
-    if (raw) return JSON.parse(raw) as { overdue: boolean; payment: boolean; reminder: boolean };
-  } catch { /* noop */ }
+    if (raw)
+      return JSON.parse(raw) as {
+        overdue: boolean;
+        payment: boolean;
+        reminder: boolean;
+      };
+  } catch {
+    /* noop */
+  }
   return null;
 }
 
 export default function ProfilePage() {
   const { t } = useLanguage();
   const [user] = useState<AuthUser | null>(() => authService.getUser());
-  const [companyName, setCompanyName] = useState<string>('');
-  const [companyPhone, setCompanyPhone] = useState<string>('');
+  const [companyName, setCompanyName] = useState<string>("");
+  const [companyPhone, setCompanyPhone] = useState<string>("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   useEffect(() => {
-    settingsService.getCompany()
+    settingsService
+      .getCompany()
       .then((c) => {
         setCompanyName(c.name);
-        setCompanyPhone(c.phone ?? '');
+        setCompanyPhone(c.phone ?? "");
       })
       .catch(() => {});
   }, []);
@@ -114,15 +122,21 @@ export default function ProfilePage() {
   const [savingPassword, setSavingPassword] = useState(false);
 
   // Notification preferences (UI only — stored in localStorage)
-  const [notifOverdue, setNotifOverdue] = useState(() => getNotifPrefs()?.overdue ?? true);
-  const [notifPayment, setNotifPayment] = useState(() => getNotifPrefs()?.payment ?? true);
-  const [notifReminder, setNotifReminder] = useState(() => getNotifPrefs()?.reminder ?? false);
+  const [notifOverdue, setNotifOverdue] = useState(
+    () => getNotifPrefs()?.overdue ?? true,
+  );
+  const [notifPayment, setNotifPayment] = useState(
+    () => getNotifPrefs()?.payment ?? true,
+  );
+  const [notifReminder, setNotifReminder] = useState(
+    () => getNotifPrefs()?.reminder ?? false,
+  );
 
-  // Theme — initialized after mount to read actual DOM state
-  const [isDark, setIsDark] = useState(false);
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+      : false
+  );
 
   function setTheme(dark: boolean) {
     if (dark) {
@@ -208,10 +222,24 @@ export default function ProfilePage() {
         {/* Account info */}
         <SectionCard title={t.landing.profile.AccountInfo} icon={User}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Field label={t.landing.profile.fullname} value={user.fullName ?? ""} />
-            <Field label={t.landing.profile.EmailAddress} value={user.email} hint={t.landing.profile.subEmail} />
-            <Field label={t.landing.profile.Role} value={user.role} hint={t.landing.profile.subRol} />
-            <Field label={t.landing.profile.Company} value={companyName || '—'} />
+            <Field
+              label={t.landing.profile.fullname}
+              value={user.fullName ?? ""}
+            />
+            <Field
+              label={t.landing.profile.EmailAddress}
+              value={user.email}
+              hint={t.landing.profile.subEmail}
+            />
+            <Field
+              label={t.landing.profile.Role}
+              value={user.role}
+              hint={t.landing.profile.subRol}
+            />
+            <Field
+              label={t.landing.profile.Company}
+              value={companyName || "—"}
+            />
           </div>
         </SectionCard>
 
@@ -239,7 +267,9 @@ export default function ProfilePage() {
                 }}
                 className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
-                {showPasswordForm ? t.landing.profile.cancel : t.landing.profile.change}
+                {showPasswordForm
+                  ? t.landing.profile.cancel
+                  : t.landing.profile.change}
               </button>
             </div>
 
@@ -308,7 +338,9 @@ export default function ProfilePage() {
                     disabled={savingPassword}
                     className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors"
                   >
-                    {savingPassword ? t.landing.profile.saving : t.landing.profile.updatePassword}
+                    {savingPassword
+                      ? t.landing.profile.saving
+                      : t.landing.profile.updatePassword}
                   </button>
                 </div>
               </form>
@@ -461,15 +493,23 @@ export default function ProfilePage() {
         {/* Contact info placeholders */}
         <SectionCard title={t.landing.profile.ContactDetails} icon={Phone}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Field label={t.landing.profile.Phone} value={companyPhone || '—'} />
-            <Field label={t.landing.profile.Company} value={companyName || '—'} hint="Manage company details in Settings" />
+            <Field
+              label={t.landing.profile.Phone}
+              value={companyPhone || "—"}
+            />
+            <Field
+              label={t.landing.profile.Company}
+              value={companyName || "—"}
+              hint="Manage company details in Settings"
+            />
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
             <Link
               href="/settings"
               className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors"
             >
-              <Building2 className="w-4 h-4" /> {t.landing.profile.goToSettings} →
+              <Building2 className="w-4 h-4" /> {t.landing.profile.goToSettings}{" "}
+              →
             </Link>
           </div>
         </SectionCard>
