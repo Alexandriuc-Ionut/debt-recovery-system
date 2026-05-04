@@ -108,13 +108,18 @@ function LottieRobot({
   size?: number;
   lottieRef?: React.RefObject<LottieRefCurrentProps | null>;
 }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 120);
+    return () => clearTimeout(t);
+  }, []);
   return (
     <Lottie
       lottieRef={lottieRef}
       animationData={robotData}
       loop
       autoplay
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
       rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
     />
   );

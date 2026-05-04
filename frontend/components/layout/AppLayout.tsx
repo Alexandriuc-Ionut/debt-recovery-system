@@ -33,9 +33,9 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
   }, [router]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#080d14]">
+    <div className="flex h-[100dvh] overflow-hidden bg-slate-50 dark:bg-[#080d14]">
       {/* Desktop sidebar — fixed, never scrolls */}
-      <div className="hidden lg:block w-64 h-screen flex-shrink-0 overflow-y-auto">
+      <div className="hidden lg:block w-64 h-[100dvh] flex-shrink-0 overflow-y-auto">
         <Sidebar open={false} onClose={() => {}} />
       </div>
 
