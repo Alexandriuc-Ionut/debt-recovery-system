@@ -263,19 +263,19 @@ export default function InvoicesPage() {
               />
             </div>
           </div>
-          {/* Row 2: action buttons — wrap on mobile */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Row 2: action buttons — all on one line */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => invoicesService.exportSaga().catch((e: Error) => alert(e.message))}
-              className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap flex-1 justify-center sm:flex-none"
               title="Export to SAGA CSV"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-4 h-4 flex-shrink-0" />
               <span className="hidden sm:inline">Export SAGA</span>
               <span className="sm:hidden">Export</span>
             </button>
-            <label className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer">
-              <Upload className="w-4 h-4" />
+            <label className="flex items-center gap-1.5 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer flex-1 justify-center sm:flex-none">
+              <Upload className="w-4 h-4 flex-shrink-0" />
               <span className="hidden sm:inline">Import CSV</span>
               <span className="sm:hidden">Import</span>
               <input type="file" accept=".csv" className="hidden" onChange={(e) => {
@@ -287,9 +287,9 @@ export default function InvoicesPage() {
             </label>
             <button
               onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap ml-auto"
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap flex-1 justify-center sm:flex-none"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 flex-shrink-0" />
               {t.invoices.addInvoice}
             </button>
           </div>
