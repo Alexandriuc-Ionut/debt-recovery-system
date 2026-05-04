@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth.service";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import dynamic from "next/dynamic";
-const ChatbotWidget = dynamic(() => import("@/components/ui/ChatbotWidget"), { ssr: false });
 
 interface AppLayoutProps {
   title: string;
@@ -16,15 +14,6 @@ interface AppLayoutProps {
 export default function AppLayout({ title, children }: AppLayoutProps) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setModalOpen(document.body.classList.contains('modal-open'));
-    });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     if (!authService.isLoggedIn()) {
@@ -73,9 +62,6 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
         <main className="flex-1 overflow-y-auto p-4 md:p-6 relative">
           {children}
         </main>
-      </div>
-      <div className={sidebarOpen || modalOpen ? 'invisible pointer-events-none' : ''}>
-        <ChatbotWidget />
       </div>
     </div>
   );

@@ -110,7 +110,7 @@ function LottieRobot({
 }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 120);
+    const t = setTimeout(() => setVisible(true), 600);
     return () => clearTimeout(t);
   }, []);
   return (
@@ -119,7 +119,7 @@ function LottieRobot({
       animationData={robotData}
       loop
       autoplay
-      style={{ width: size, height: size, opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
+      style={{ width: size, height: size, opacity: visible ? 1 : 0, transition: 'opacity 0.3s ease' }}
       rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
     />
   );
