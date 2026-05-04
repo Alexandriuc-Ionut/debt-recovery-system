@@ -472,6 +472,13 @@ function initMessages(): Message[] {
 }
 
 export default function ChatbotWidget() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const [open, setOpen] = useState(() => loadSession()?.open ?? false);
   const [messages, setMessages] = useState<Message[]>(initMessages);
   const [history, setHistory] = useState<HistoryItem[]>(
@@ -620,7 +627,7 @@ export default function ChatbotWidget() {
         }}
       >
         <div className="bot-float">
-          <LottieRobot size={typeof window !== 'undefined' && window.innerWidth < 768 ? 60 : 80} lottieRef={lottieRef} />
+          <LottieRobot size={isMobile ? 60 : 80} lottieRef={lottieRef} />
         </div>
         <span
           style={{
