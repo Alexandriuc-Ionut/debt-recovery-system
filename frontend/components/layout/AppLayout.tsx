@@ -74,7 +74,9 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
           {children}
         </main>
       </div>
-      {!sidebarOpen && !modalOpen && <ChatbotWidget />}
+      <div className={sidebarOpen || modalOpen ? 'invisible pointer-events-none' : ''}>
+        <ChatbotWidget />
+      </div>
     </div>
   );
 }
