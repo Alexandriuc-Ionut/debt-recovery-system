@@ -10,21 +10,24 @@ const HIDDEN_PATHS = ["/", "/anaf-simulator"];
 
 export default function PersistentChatbot() {
   const pathname = usePathname();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      setModalOpen(document.body.classList.contains("modal-open"));
+      setOverlayOpen(
+        document.body.classList.contains("modal-open") ||
+        document.body.classList.contains("sidebar-open")
+      );
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
 
-  const hidden = HIDDEN_PATHS.includes(pathname) || pathname.startsWith("/auth/");
-  if (hidden) return null;
+  const hiddenRoute = HIDDEN_PATHS.includes(pathname) || pathname.startsWith("/auth/");
+  if (hiddenRoute) return null;
 
   return (
-    <div className={modalOpen ? "invisible pointer-events-none" : ""}>
+    <div className={overlayOpen ? "invisible pointer-events-none" : ""}>
       <ChatbotWidget />
     </div>
   );

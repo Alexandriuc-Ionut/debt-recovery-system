@@ -21,6 +21,12 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+    return () => document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   return (
     <div className="flex h-[100dvh] overflow-hidden bg-slate-50 dark:bg-[#080d14]">
       {/* Desktop sidebar — fixed, never scrolls */}
