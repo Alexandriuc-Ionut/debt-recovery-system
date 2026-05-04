@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -16,8 +16,27 @@ import { useLanguage } from '@/contexts/LanguageContext';
 function Navbar({ scrolled }: { scrolled: boolean }) {
   const [open, setOpen] = useState(false);
   const { lang, setLang, t } = useLanguage();
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (open && navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [open]);
+
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    e.preventDefault();
+    setOpen(false);
+    const target = document.querySelector(href);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#080d14]/90 backdrop-blur-xl border-b border-white/[0.06] shadow-2xl' : 'bg-transparent'}`}>
+    <nav ref={navRef} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#080d14]/90 backdrop-blur-xl border-b border-white/[0.06] shadow-2xl' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-6">
         {/* Logo */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
@@ -35,7 +54,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
               { label: t.landing.nav.benefits, href: '#benefits' },
               { label: t.landing.nav.pricing, href: '#pricing' },
             ].map(({ label, href }) => (
-            <a key={label} href={href} className="hover:text-white transition-colors">{label}</a>
+            <a key={label} href={href} onClick={(e) => handleNavClick(e, href)} className="hover:text-white transition-colors">{label}</a>
           ))}
         </div>
 
@@ -70,7 +89,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
               { label: t.landing.nav.benefits, href: '#benefits' },
               { label: t.landing.nav.pricing, href: '#pricing' },
             ].map(({ label, href }) => (
-              <a key={label} href={href} onClick={() => setOpen(false)}
+              <a key={label} href={href} onClick={(e) => handleNavClick(e, href)}
                 className="flex items-center justify-between px-3 py-3.5 text-sm font-medium text-slate-300 hover:text-white border-b border-white/[0.04] last:border-0 transition-colors">
                 {label}
                 <ChevronRight className="w-4 h-4 text-slate-600" />

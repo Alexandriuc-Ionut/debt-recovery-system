@@ -235,9 +235,10 @@ export default function InvoicesPage() {
     <AppLayout title={t.invoices.title}>
       <div className="space-y-5">
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col gap-3">
+          {/* Row 1: filters + search */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex gap-1 bg-slate-100 dark:bg-white/[0.05] rounded-lg p-1 overflow-x-auto">
+            <div className="flex gap-1 bg-slate-100 dark:bg-white/[0.05] rounded-lg p-1 overflow-x-auto flex-shrink-0">
               {statusFilters.map(({ label, value }) => (
                 <button
                   key={value}
@@ -252,34 +253,31 @@ export default function InvoicesPage() {
                 </button>
               ))}
             </div>
-            <div className="relative">
+            <div className="relative flex-1 min-w-[140px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                }}
+                onChange={(e) => { setSearch(e.target.value); }}
                 placeholder="Search client or date…"
-                className="pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#070b11] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition w-48"
+                className="pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#070b11] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition w-full"
               />
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          {/* Row 2: action buttons — wrap on mobile */}
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={() =>
-                invoicesService
-                  .exportSaga()
-                  .catch((e: Error) => alert(e.message))
-              }
-              className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+              onClick={() => invoicesService.exportSaga().catch((e: Error) => alert(e.message))}
+              className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap"
               title="Export to SAGA CSV"
             >
               <Download className="w-4 h-4" />
-              Export SAGA
+              <span className="hidden sm:inline">Export SAGA</span>
+              <span className="sm:hidden">Export</span>
             </button>
-            <label className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer">
+            <label className="flex items-center gap-2 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer">
               <Upload className="w-4 h-4" />
-              Import CSV
+              <span className="hidden sm:inline">Import CSV</span>
+              <span className="sm:hidden">Import</span>
               <input type="file" accept=".csv" className="hidden" onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -289,7 +287,7 @@ export default function InvoicesPage() {
             </label>
             <button
               onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap ml-auto"
             >
               <Plus className="w-4 h-4" />
               {t.invoices.addInvoice}
