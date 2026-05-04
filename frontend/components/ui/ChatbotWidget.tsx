@@ -620,7 +620,7 @@ export default function ChatbotWidget() {
         }}
       >
         <div className="bot-float">
-          <LottieRobot size={80} lottieRef={lottieRef} />
+          <LottieRobot size={typeof window !== 'undefined' && window.innerWidth < 768 ? 60 : 80} lottieRef={lottieRef} />
         </div>
         <span
           style={{
