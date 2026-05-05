@@ -37,6 +37,7 @@ export const clientsService = {
   },
 
   lookupCui(cui: string): Promise<{ name: string; address: string; vatPayer: boolean }> {
-    return apiFetch(`/clients/lookup-cui?cui=${encodeURIComponent(cui)}`);
+    const clean = cui.replace(/\D/g, '');
+    return apiFetch(`/settings/anaf/${clean}`);
   },
 };
