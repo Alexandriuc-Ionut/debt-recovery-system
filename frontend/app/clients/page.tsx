@@ -128,7 +128,7 @@ export default function ClientsPage() {
     try {
       const res = await clientsService.lookupCui(form.cui);
       setForm((f) => ({ ...f, name: res.name, address: res.address }));
-      setLookupMsg({ type: 'success', text: `Found: ${res.name}${res.vatPayer ? ' · VAT payer' : ''}` });
+      setLookupMsg({ type: 'success', text: `Găsit în registrul ANAF: ${res.name}${res.vatPayer ? ' · Plătitor TVA' : ''}` });
     } catch {
       setLookupMsg({ type: 'error', text: 'CUI not found in ANAF database' });
     } finally {
