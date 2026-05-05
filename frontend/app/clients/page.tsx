@@ -378,7 +378,7 @@ export default function ClientsPage() {
               disabled={submitting}
               className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors shadow-sm"
             >
-              {submitting ? t.common.loading : t.clients.addClient}
+              {submitting ? t.common.loading : editId ? t.clients.editClient : t.clients.addClient}
             </button>
           </div>
         </form>
