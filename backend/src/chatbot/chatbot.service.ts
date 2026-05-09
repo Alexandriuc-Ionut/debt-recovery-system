@@ -153,8 +153,8 @@ const TOOLS = [
         type: 'object',
         properties: {
           limit: {
-            type: 'number',
-            description: 'How many top debtors to return (default 5)',
+            type: 'string',
+            description: 'How many top debtors to return, e.g. "5"',
           },
         },
         required: [],
@@ -171,8 +171,8 @@ const TOOLS = [
         type: 'object',
         properties: {
           months: {
-            type: 'number',
-            description: 'Months to forecast ahead (default 3, max 6)',
+            type: 'string',
+            description: 'Number of months to forecast ahead, e.g. "3"',
           },
         },
         required: [],
