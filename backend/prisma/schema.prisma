@@ -107,17 +107,19 @@ model Company {
   vatRate   Decimal? @db.Decimal(5, 2)
   createdAt DateTime @default(now())
 
-  users              User[]
-  clients            Client[]
-  invoices           Invoice[]
-  rules              ReminderRule[]
-  aiScores           AIClientScore[]
-  auditLogs          AuditLog[]
-  invoiceSeries      InvoiceSeries[]
-  bankAccounts       BankAccount[]
-  recurringInvoices  RecurringInvoice[]
-  expenses           Expense[]
+  users               User[]
+  clients             Client[]
+  invoices            Invoice[]
+  rules               ReminderRule[]
+  aiScores            AIClientScore[]
+  auditLogs           AuditLog[]
+  invoiceSeries       InvoiceSeries[]
+  bankAccounts        BankAccount[]
+  recurringInvoices   RecurringInvoice[]
+  expenses            Expense[]
   efacturaSubmissions EFacturaSubmission[]
+  clientSnapshots     ClientSnapshot[]
+  onrcAlerts          OnrcAlert[]
 }
 
 model User {
@@ -184,6 +186,8 @@ model Client {
   invoices          Invoice[]
   aiScore           AIClientScore?
   recurringInvoices RecurringInvoice[]
+  snapshot          ClientSnapshot?
+  onrcAlerts        OnrcAlert[]
 
   @@index([companyId])
 }
@@ -375,4 +379,38 @@ model Expense {
 
   @@index([companyId])
   @@index([date])
+}
+
+model ClientSnapshot {
+  id         Int      @id @default(autoincrement())
+  companyId  Int
+  clientId   Int      @unique
+  cui        String
+  anafName   String?
+  vatPayer   Boolean  @default(false)
+  isInactive Boolean  @default(false)
+  isSuspended Boolean @default(false)
+  checkedAt  DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model OnrcAlert {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  clientId    Int
+  clientName  String
+  alertType   String
+  description String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([isRead])
 }

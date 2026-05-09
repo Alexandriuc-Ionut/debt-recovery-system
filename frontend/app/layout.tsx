@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -32,8 +33,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Prevent flash of wrong theme — runs before React hydration */}
-        <script
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.classList.add('dark');}else if(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');localStorage.setItem('theme','dark');}}catch(e){}})();`,
           }}

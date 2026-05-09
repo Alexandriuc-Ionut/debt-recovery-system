@@ -18,6 +18,7 @@ import { ExpensesModule } from './expenses/expenses.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { EFacturaModule } from './efactura/efactura.module';
 import { AnafSimModule } from './anaf-sim/anaf-sim.module';
+import { OnrcMonitorModule } from './onrc-monitor/onrc-monitor.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AnafSimModule } from './anaf-sim/anaf-sim.module';
     ChatbotModule,
     EFacturaModule,
     AnafSimModule,
+    OnrcMonitorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

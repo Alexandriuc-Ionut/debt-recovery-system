@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
+import { RemindersService } from '../reminders/reminders.service';
 
 export class ChatHistoryItem {
   @IsIn(['user', 'assistant'])
@@ -103,13 +104,100 @@ SAGA Export:
 - Contains all invoices with series, number, dates, client, amount, currency, and status.
 - This same file can be re-imported using the "Import CSV" button.
 
+ONRC Watchdog:
+- The app monitors registered clients via ANAF for early insolvency signals.
+- Alerts appear in the notification bell when: a client becomes INACTIVE, suspends activity, gains/loses VAT registration, or changes company name.
+- Run a scan manually from the notification panel to refresh ONRC data.
+
 Rules:
-- Answer using the COMPANY DATA below when the user asks about their invoices, clients, payments, or finances.
+- You have tools available to retrieve live data and perform actions. Use them when the user asks for specific data or wants to take an action.
+- Answer using the COMPANY DATA below for context, but use tools for specific real-time queries.
 - Use the FEATURE DOCUMENTATION above to answer how-to questions about app features.
-- Keep answers concise and practical. Max 4 sentences.
+- Keep answers concise and practical. Max 5 sentences unless showing data from a tool.
 - If the user wants to navigate somewhere, end your reply with <<<NAVIGATE:/path>>>.
 - You only know about this app — politely decline unrelated questions.
 - If asked who created or built the application, always answer: Creator of the application is Alexandriuc Ionut from USV FIESC. If you want to contact him you can visit his linkedin profile "https://www.linkedin.com/in/ionut-alexandriuc-697a86351/" or instagram: https://www.instagram.com/i_o__n__u_t/`;
+
+const TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_unpaid_invoices',
+      description:
+        'Retrieve unpaid or overdue invoices. Use when the user asks to see unpaid, overdue, or open invoices, or asks "what invoices are unpaid?".',
+      parameters: {
+        type: 'object',
+        properties: {
+          filter: {
+            type: 'string',
+            enum: ['OVERDUE', 'OPEN', 'PARTIAL', 'ALL'],
+            description:
+              'OVERDUE = past due date with balance, OPEN = status OPEN, PARTIAL = partially paid, ALL = any with balance.',
+          },
+          client_name: {
+            type: 'string',
+            description: 'Optional: filter to a specific client name',
+          },
+        },
+        required: ['filter'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_top_debtors',
+      description:
+        'Get clients ranked by outstanding balance (most money owed first). Use when user asks about biggest debtors, who owes the most, or top clients by debt.',
+      parameters: {
+        type: 'object',
+        properties: {
+          limit: {
+            type: 'number',
+            description: 'How many top debtors to return (default 5)',
+          },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_cash_flow_forecast',
+      description:
+        'Generate a monthly cash flow forecast based on open invoices and historical payment delays. Use when user asks about expected income, forecasting, or future collections.',
+      parameters: {
+        type: 'object',
+        properties: {
+          months: {
+            type: 'number',
+            description: 'Months to forecast ahead (default 3, max 6)',
+          },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'send_reminder',
+      description:
+        'Send an email payment reminder to a client for their overdue invoices. Use ONLY when the user explicitly asks to send a reminder or notification to a specific client.',
+      parameters: {
+        type: 'object',
+        properties: {
+          client_name: {
+            type: 'string',
+            description: 'Name (or partial name) of the client to remind',
+          },
+        },
+        required: ['client_name'],
+      },
+    },
+  },
+];
 
 function fmt(amount: number, currency = 'RON') {
   return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
@@ -117,7 +205,10 @@ function fmt(amount: number, currency = 'RON') {
 
 @Injectable()
 export class ChatbotService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private remindersService: RemindersService,
+  ) {}
 
   private async buildContext(companyId: number): Promise<string> {
     const today = new Date();
@@ -141,7 +232,6 @@ export class ChatbotService {
       }),
     ]);
 
-    // Wrap each invoice with computed balance fields without spreading (preserves included relations)
     const withBalance = invoices.map((inv) => {
       const total = Number(inv.totalAmount);
       const paid = inv.payments.reduce(
@@ -243,6 +333,207 @@ export class ChatbotService {
     return lines.join('\n');
   }
 
+  // ── Tool executors ─────────────────────────────────────────────────────────
+
+  private async toolGetUnpaidInvoices(
+    companyId: number,
+    filter: string,
+    clientName?: string,
+  ): Promise<string> {
+    const today = new Date();
+    const invoices = await this.prisma.invoice.findMany({
+      where: {
+        companyId,
+        status: { in: ['OPEN', 'PARTIAL'] },
+        ...(clientName
+          ? {
+              client: {
+                name: { contains: clientName, mode: 'insensitive' },
+              },
+            }
+          : {}),
+      },
+      include: { client: true, payments: true },
+      orderBy: { dueDate: 'asc' },
+    });
+
+    const withMeta = invoices.map((inv) => {
+      const total = Number(inv.totalAmount);
+      const paid = inv.payments.reduce((s, p) => s + Number(p.amount), 0);
+      const remaining = total - paid;
+      const daysOverdue =
+        remaining > 0 && inv.dueDate < today
+          ? Math.floor((today.getTime() - inv.dueDate.getTime()) / 86_400_000)
+          : 0;
+      return { inv, remaining, daysOverdue, isOverdue: daysOverdue > 0 };
+    });
+
+    let filtered = withMeta.filter((i) => i.remaining > 0);
+    if (filter === 'OVERDUE') filtered = filtered.filter((i) => i.isOverdue);
+    else if (filter === 'PARTIAL')
+      filtered = filtered.filter((i) => i.inv.status === 'PARTIAL');
+    else if (filter === 'OPEN')
+      filtered = filtered.filter((i) => i.inv.status === 'OPEN');
+
+    if (filtered.length === 0)
+      return 'Nicio factură găsită pentru criteriile specificate.';
+
+    const total = filtered.reduce((s, i) => s + i.remaining, 0);
+    const lines = [
+      `${filtered.length} factură/facturi găsite — total restant: ${fmt(total)}`,
+      '',
+      ...filtered.slice(0, 12).map(({ inv, remaining, daysOverdue }) => {
+        const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
+        const suffix =
+          daysOverdue > 0
+            ? `, ${daysOverdue} zile întârziere`
+            : ` (scadent: ${inv.dueDate.toLocaleDateString('ro-RO')})`;
+        return `• ${inv.client.name} | #${ref} | ${fmt(remaining, inv.currency)}${suffix}`;
+      }),
+    ];
+    if (filtered.length > 12) lines.push(`... și încă ${filtered.length - 12}`);
+    return lines.join('\n');
+  }
+
+  private async toolGetTopDebtors(
+    companyId: number,
+    limit = 5,
+  ): Promise<string> {
+    const clients = await this.prisma.client.findMany({
+      where: { companyId },
+      include: {
+        invoices: {
+          where: { status: { not: 'CANCELED' } },
+          include: { payments: true },
+        },
+      },
+    });
+
+    const ranked = clients
+      .map((c) => {
+        const outstanding = c.invoices.reduce((s, inv) => {
+          const paid = inv.payments.reduce((ps, p) => ps + Number(p.amount), 0);
+          return s + Math.max(0, Number(inv.totalAmount) - paid);
+        }, 0);
+        return { name: c.name, outstanding };
+      })
+      .filter((c) => c.outstanding > 0)
+      .sort((a, b) => b.outstanding - a.outstanding)
+      .slice(0, Math.min(limit, 10));
+
+    if (ranked.length === 0) return 'Niciun client cu sold restant.';
+
+    const grandTotal = ranked.reduce((s, c) => s + c.outstanding, 0);
+    return [
+      `Top ${ranked.length} debitori (total: ${fmt(grandTotal)}):`,
+      '',
+      ...ranked.map((c, i) => `${i + 1}. ${c.name} — ${fmt(c.outstanding)}`),
+    ].join('\n');
+  }
+
+  private async toolGetCashFlowForecast(
+    companyId: number,
+    months = 3,
+  ): Promise<string> {
+    const today = new Date();
+    const endDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + months,
+      today.getDate(),
+    );
+
+    const [openInvoices, paidInvoices] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where: {
+          companyId,
+          status: { in: ['OPEN', 'PARTIAL'] },
+          dueDate: { lte: endDate },
+        },
+        include: { payments: true },
+      }),
+      this.prisma.invoice.findMany({
+        where: { companyId, status: 'PAID' },
+        include: { payments: { orderBy: { paidAt: 'asc' }, take: 1 } },
+        take: 50,
+        orderBy: { dueDate: 'desc' },
+      }),
+    ]);
+
+    // Compute average historical payment delay
+    const delays = paidInvoices
+      .filter((inv) => inv.payments.length > 0)
+      .map((inv) => {
+        const paid = new Date(inv.payments[0].paidAt);
+        return Math.max(
+          0,
+          Math.floor(
+            (paid.getTime() - new Date(inv.dueDate).getTime()) / 86_400_000,
+          ),
+        );
+      });
+    const avgDelay =
+      delays.length > 0
+        ? Math.round(delays.reduce((s, d) => s + d, 0) / delays.length)
+        : 0;
+
+    // Build monthly buckets
+    const monthly: { label: string; amount: number }[] = [];
+    for (let m = 0; m < months; m++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + m, 1);
+      monthly.push({
+        label: d.toLocaleDateString('ro-RO', {
+          month: 'long',
+          year: 'numeric',
+        }),
+        amount: 0,
+      });
+    }
+
+    openInvoices.forEach((inv) => {
+      const paid = inv.payments.reduce((s, p) => s + Number(p.amount), 0);
+      const remaining = Number(inv.totalAmount) - paid;
+      if (remaining <= 0) return;
+
+      const expected = new Date(
+        new Date(inv.dueDate).getTime() + avgDelay * 86_400_000,
+      );
+      const monthIdx =
+        (expected.getFullYear() - today.getFullYear()) * 12 +
+        expected.getMonth() -
+        today.getMonth();
+      if (monthIdx >= 0 && monthIdx < months) {
+        monthly[monthIdx].amount += remaining;
+      }
+    });
+
+    const grandTotal = monthly.reduce((s, m) => s + m.amount, 0);
+    return [
+      `Prognoză flux de numerar — ${months} luni (întârziere medie istorică: ${avgDelay} zile):`,
+      '',
+      ...monthly.map((m) => `• ${m.label}: ${fmt(m.amount)}`),
+      '',
+      `Total estimat: ${fmt(grandTotal)}`,
+    ].join('\n');
+  }
+
+  private async toolSendReminder(
+    companyId: number,
+    clientName: string,
+  ): Promise<string> {
+    const client = await this.prisma.client.findFirst({
+      where: { companyId, name: { contains: clientName, mode: 'insensitive' } },
+    });
+    if (!client) return `Niciun client găsit cu numele "${clientName}".`;
+
+    const result = await this.remindersService.sendToClient(
+      client.id,
+      companyId,
+    );
+    return result.message;
+  }
+
+  // ── Main chat entry point ──────────────────────────────────────────────────
+
   async chat(
     message: string,
     history: ChatHistoryItem[],
@@ -260,39 +551,139 @@ export class ChatbotService {
     const systemPrompt = `${BASE_PROMPT}\n\n${context}`;
     const trimmedHistory = history.slice(-10);
 
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...trimmedHistory,
-          { role: 'user', content: message },
-        ],
-        temperature: 0.7,
-        max_tokens: 400,
-      }),
-    });
+    const messages: object[] = [
+      { role: 'system', content: systemPrompt },
+      ...trimmedHistory,
+      { role: 'user', content: message },
+    ];
 
-    if (!res.ok) {
+    // First call — with tools
+    const res1 = await fetch(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages,
+          tools: TOOLS,
+          tool_choice: 'auto',
+          temperature: 0.4,
+          max_tokens: 800,
+        }),
+      },
+    );
+
+    if (!res1.ok)
       throw new InternalServerErrorException('AI service unavailable');
+
+    const data1 = (await res1.json()) as {
+      choices: {
+        finish_reason: string;
+        message: {
+          content: string | null;
+          tool_calls?: {
+            id: string;
+            function: { name: string; arguments: string };
+          }[];
+        };
+      }[];
+    };
+
+    const choice1 = data1.choices[0];
+
+    // No tool call — return response directly
+    if (choice1.finish_reason !== 'tool_calls' || !choice1.message.tool_calls) {
+      const raw = choice1.message.content ?? 'Nu am putut procesa cererea.';
+      const navMatch = raw.match(/<<<NAVIGATE:([^>]+)>>>/);
+      return {
+        reply: raw.replaceAll(/<<<NAVIGATE:[^>]+>>>/g, '').trim(),
+        navigate: navMatch?.[1],
+      };
     }
 
-    const data = (await res.json()) as {
+    // Execute tools
+    const toolResults: object[] = [];
+    for (const call of choice1.message.tool_calls) {
+      let result = '';
+      try {
+        const args = JSON.parse(call.function.arguments) as Record<
+          string,
+          unknown
+        >;
+        switch (call.function.name) {
+          case 'get_unpaid_invoices':
+            result = await this.toolGetUnpaidInvoices(
+              companyId,
+              (args.filter as string) ?? 'ALL',
+              args.client_name as string | undefined,
+            );
+            break;
+          case 'get_top_debtors':
+            result = await this.toolGetTopDebtors(
+              companyId,
+              (args.limit as number) ?? 5,
+            );
+            break;
+          case 'get_cash_flow_forecast':
+            result = await this.toolGetCashFlowForecast(
+              companyId,
+              (args.months as number) ?? 3,
+            );
+            break;
+          case 'send_reminder':
+            result = await this.toolSendReminder(
+              companyId,
+              args.client_name as string,
+            );
+            break;
+          default:
+            result = 'Unealtă necunoscută.';
+        }
+      } catch {
+        result = 'Eroare la execuția comenzii.';
+      }
+      toolResults.push({
+        role: 'tool',
+        tool_call_id: call.id,
+        content: result,
+      });
+    }
+
+    // Second call — inject tool results
+    const res2 = await fetch(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [...messages, choice1.message, ...toolResults],
+          temperature: 0.4,
+          max_tokens: 700,
+        }),
+      },
+    );
+
+    if (!res2.ok)
+      throw new InternalServerErrorException('AI service unavailable');
+
+    const data2 = (await res2.json()) as {
       choices: { message: { content: string } }[];
     };
 
-    const raw: string =
-      data.choices[0]?.message?.content ?? "I couldn't process that.";
-
+    const raw =
+      data2.choices[0]?.message?.content ?? 'Nu am putut procesa cererea.';
     const navMatch = raw.match(/<<<NAVIGATE:([^>]+)>>>/);
-    const navigate = navMatch ? navMatch[1] : undefined;
-    const reply = raw.replaceAll(/<<<NAVIGATE:[^>]+>>>/g, '').trim();
-
-    return { reply, navigate };
+    return {
+      reply: raw.replaceAll(/<<<NAVIGATE:[^>]+>>>/g, '').trim(),
+      navigate: navMatch?.[1],
+    };
   }
 }

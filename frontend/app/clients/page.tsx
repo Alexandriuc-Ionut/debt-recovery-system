@@ -127,7 +127,7 @@ export default function ClientsPage() {
     setLookupMsg(null);
     try {
       const res = await clientsService.lookupCui(form.cui);
-      setForm((f) => ({ ...f, name: res.name, address: res.address }));
+      setForm((f) => ({ ...f, name: res.name ?? f.name, address: res.address ?? f.address }));
       setLookupMsg({ type: 'success', text: `${t.clients.foundInAnaf}: ${res.name}${res.vatPayer ? ` · ${t.clients.vatPayer}` : ''}` });
     } catch {
       setLookupMsg({ type: 'error', text: t.clients.cuiNotFound });
