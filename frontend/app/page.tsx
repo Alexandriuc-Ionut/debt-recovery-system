@@ -11,11 +11,12 @@ import {
 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { useLanguage } from '@/contexts/LanguageContext';
+import LanguagePicker from '@/components/ui/LanguagePicker';
 
 /* ─── Nav ─────────────────────────────────────────────────────────────────── */
 function Navbar({ scrolled }: { scrolled: boolean }) {
   const [open, setOpen] = useState(false);
-  const { lang, setLang, t } = useLanguage();
+  const { t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -61,11 +62,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
         {/* CTAs */}
         <div className="hidden md:flex items-center gap-3">
           {/* Language toggle */}
-          <div className="flex items-center rounded-lg border border-white/[0.15] overflow-hidden text-xs font-bold">
-            <button onClick={() => setLang('ro')} className={`px-2.5 py-1.5 transition-colors ${lang === 'ro' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>RO</button>
-            <button onClick={() => setLang('fr')} className={`px-2.5 py-1.5 transition-colors border-x border-white/[0.15] ${lang === 'fr' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>FR</button>
-            <button onClick={() => setLang('en')} className={`px-2.5 py-1.5 transition-colors ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'}`}>EN</button>
-          </div>
+          <LanguagePicker />
           <Link href="/auth/login" className="text-sm text-slate-400 hover:text-white font-medium transition-colors px-3 py-1.5">{t.landing.nav.signIn}</Link>
           <Link href="/auth/register"
             className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-blue-500/25">
@@ -101,16 +98,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
           {/* Bottom actions */}
           <div className="px-4 pb-6 pt-2 space-y-3 border-t border-white/[0.06]">
             {/* Language toggle */}
-            <div className="flex items-center justify-between px-1 py-1">
-              <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">Language</span>
-              <div className="relative flex items-center bg-white/[0.06] border border-white/[0.1] rounded-full" style={{ width: 111, padding: 3 }}>
-                <span className="absolute rounded-full bg-blue-600 transition-transform duration-300 ease-in-out"
-                  style={{ width: 35, top: 3, bottom: 3, left: 3, transform: lang === 'ro' ? 'translateX(0)' : lang === 'fr' ? 'translateX(35px)' : 'translateX(70px)' }} />
-                <button onClick={() => setLang('ro')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'ro' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>RO</button>
-                <button onClick={() => setLang('fr')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'fr' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>FR</button>
-                <button onClick={() => setLang('en')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'en' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>EN</button>
-              </div>
-            </div>
+            <LanguagePicker fullWidth />
 
             <Link href="/auth/login" onClick={() => setOpen(false)}
               className="flex items-center justify-center w-full py-3 rounded-xl border border-white/[0.1] text-sm font-semibold text-slate-300 hover:text-white hover:border-white/20 hover:bg-white/[0.04] transition-all">

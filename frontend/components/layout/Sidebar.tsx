@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { authService } from "@/services/auth.service";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguagePicker from "@/components/ui/LanguagePicker";
 
 interface SidebarProps {
   open: boolean;
@@ -28,7 +29,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { t, lang, setLang } = useLanguage();
+  const { t } = useLanguage();
 
   const navItems = [
     { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
@@ -99,16 +100,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
       {/* Bottom */}
       <div className="px-3 pb-4 border-t border-white/5 pt-3 flex-shrink-0 space-y-0.5">
         {/* Language toggle */}
-        <div className="flex items-center px-3 py-1 mb-0.5">
-          <div className="relative flex items-center bg-white/[0.06] border border-white/[0.1] rounded-full" style={{ width: 111, padding: 3 }}>
-            <span
-              className="absolute rounded-full bg-blue-600 transition-transform duration-300 ease-in-out"
-              style={{ width: 35, top: 3, bottom: 3, left: 3, transform: lang === 'ro' ? 'translateX(0)' : lang === 'fr' ? 'translateX(35px)' : 'translateX(70px)' }}
-            />
-            <button onClick={() => setLang('ro')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'ro' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>RO</button>
-            <button onClick={() => setLang('fr')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'fr' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>FR</button>
-            <button onClick={() => setLang('en')} className={`relative z-10 text-[11px] font-bold transition-colors duration-300 ${lang === 'en' ? 'text-white' : 'text-slate-400'}`} style={{ width: 35, padding: '3px 0' }}>EN</button>
-          </div>
+        <div className="px-3 py-1 mb-0.5">
+          <LanguagePicker dropUp fullWidth />
         </div>
 
         <Link
