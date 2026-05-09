@@ -571,7 +571,7 @@ export class ChatbotService {
 
     // First call — with tools
     const res1 = await groqCall({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       messages,
       tools: TOOLS,
       tool_choice: 'auto',
@@ -584,7 +584,7 @@ export class ChatbotService {
       this.logger.error(`Groq call 1 failed ${res1.status}: ${errBody}`);
       // Fallback — retry without tools
       const fallback = await groqCall({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         messages,
         temperature: 0.4,
         max_tokens: 500,
@@ -683,7 +683,7 @@ export class ChatbotService {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
+          model: 'llama-3.1-8b-instant',
           messages: [...messages, choice1.message, ...toolResults],
           temperature: 0.4,
           max_tokens: 700,
