@@ -3,8 +3,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { en } from '@/locales/en';
 import { ro } from '@/locales/ro';
+import { fr } from '@/locales/fr';
 
-export type Lang = 'en' | 'ro';
+export type Lang = 'en' | 'ro' | 'fr';
 export type Translations = typeof en;
 
 interface LanguageContextType {
@@ -25,8 +26,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // After hydration, sync to localStorage without causing a hydration error
   useEffect(() => {
-    const saved = localStorage.getItem('lang');
-    if (saved === 'ro') setLangState('ro');
+    const saved = localStorage.getItem('lang') as Lang | null;
+    if (saved === 'ro' || saved === 'fr') setLangState(saved);
   }, []);
 
   function setLang(l: Lang) {
@@ -34,7 +35,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('lang', l);
   }
 
-  const t = (lang === 'ro' ? ro : en) as typeof en;
+  const t = (lang === 'ro' ? ro : lang === 'fr' ? fr : en) as typeof en;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

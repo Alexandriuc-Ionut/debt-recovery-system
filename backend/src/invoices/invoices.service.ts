@@ -18,7 +18,12 @@ export class InvoicesService {
     private mailService: MailService,
   ) {}
 
-  async findAll(companyId: number, status?: InvoiceStatus, page = 1, limit = 20) {
+  async findAll(
+    companyId: number,
+    status?: InvoiceStatus,
+    page = 1,
+    limit = 20,
+  ) {
     const where = { companyId, ...(status && { status }) };
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
@@ -107,14 +112,28 @@ export class InvoicesService {
         await this.create(rows[i], companyId, userId);
         created++;
       } catch (e) {
-        errors.push({ row: i + 1, message: e instanceof Error ? e.message : 'Unknown error' });
+        errors.push({
+          row: i + 1,
+          message: e instanceof Error ? e.message : 'Unknown error',
+        });
       }
     }
     return { created, errors };
   }
 
-  async update(id: number, dto: { dueDate?: string; notes?: string; totalAmount?: number; currency?: string }, companyId: number) {
-    const invoice = await this.prisma.invoice.findFirst({ where: { id, companyId } });
+  async update(
+    id: number,
+    dto: {
+      dueDate?: string;
+      notes?: string;
+      totalAmount?: number;
+      currency?: string;
+    },
+    companyId: number,
+  ) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, companyId },
+    });
     if (!invoice) throw new NotFoundException('Factura nu a fost gasita');
     return this.prisma.invoice.update({
       where: { id },

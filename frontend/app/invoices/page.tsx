@@ -26,57 +26,102 @@ import { formatCompactCurrency, formatDate } from "@/utils/format";
 import type { Client, Invoice, InvoiceStatus } from "@/types";
 
 type CsvRow = {
-  series: string; number: string; clientName: string;
-  issueDate: string; dueDate: string; totalAmount: string;
-  currency: string; notes: string;
-  clientId?: number; error?: string;
+  series: string;
+  number: string;
+  clientName: string;
+  issueDate: string;
+  dueDate: string;
+  totalAmount: string;
+  currency: string;
+  notes: string;
+  clientId?: number;
+  error?: string;
 };
 
 function toIsoDate(d: string): string {
-  if (d.includes('.')) {
-    const [dd, mm, yyyy] = d.split('.');
-    return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+  if (d.includes(".")) {
+    const [dd, mm, yyyy] = d.split(".");
+    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
   }
   return d;
 }
 
-function parseCsv(text: string, clients: { id: number; name: string }[]): CsvRow[] {
+function parseCsv(
+  text: string,
+  clients: { id: number; name: string }[],
+): CsvRow[] {
   const lines = text.trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return [];
   const header = lines[0].toLowerCase();
-  const isSaga = header.includes('serie') || header.includes('data emitere');
+  const isSaga = header.includes("serie") || header.includes("data emitere");
   const rows = lines.slice(1);
 
   return rows.map((line) => {
-    const cols = line.split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
-    let series = '', number = '', clientName = '', issueDate = '', dueDate = '', totalAmount = '', currency = 'RON', notes = '';
+    const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+    let series = "",
+      number = "",
+      clientName = "",
+      issueDate = "",
+      dueDate = "",
+      totalAmount = "",
+      currency = "RON",
+      notes = "";
     let canceled = false;
 
     if (isSaga) {
       // Nr, Serie, Numar, Data emitere, Data scadenta, Client, CUI Client, Valoare totala, Moneda, Status
-      series      = cols[1] ?? '';
-      number      = cols[2] ?? '';
-      issueDate   = toIsoDate(cols[3] ?? '');
-      dueDate     = toIsoDate(cols[4] ?? '');
-      clientName  = cols[5] ?? '';
-      totalAmount = cols[7] ?? '';
-      currency    = cols[8] ?? 'RON';
-      canceled    = (cols[9] ?? '').toUpperCase() === 'CANCELED';
+      series = cols[1] ?? "";
+      number = cols[2] ?? "";
+      issueDate = toIsoDate(cols[3] ?? "");
+      dueDate = toIsoDate(cols[4] ?? "");
+      clientName = cols[5] ?? "";
+      totalAmount = cols[7] ?? "";
+      currency = cols[8] ?? "RON";
+      canceled = (cols[9] ?? "").toUpperCase() === "CANCELED";
     } else {
-      [series = '', number = '', clientName = '', issueDate = '', dueDate = '', totalAmount = '', currency = 'RON', notes = ''] = cols;
+      [
+        series = "",
+        number = "",
+        clientName = "",
+        issueDate = "",
+        dueDate = "",
+        totalAmount = "",
+        currency = "RON",
+        notes = "",
+      ] = cols;
     }
 
-    const matched = clients.find((c) => c.name.toLowerCase() === clientName.toLowerCase());
-    const error = canceled ? 'Canceled invoices are skipped'
-      : !number ? 'Missing number'
-      : !clientName ? 'Missing client'
-      : !matched ? `Client "${clientName}" not found`
-      : !issueDate ? 'Missing issue date'
-      : !dueDate ? 'Missing due date'
-      : !totalAmount ? 'Missing amount'
-      : undefined;
+    const matched = clients.find(
+      (c) => c.name.toLowerCase() === clientName.toLowerCase(),
+    );
+    const error = canceled
+      ? "Canceled invoices are skipped"
+      : !number
+        ? "Missing number"
+        : !clientName
+          ? "Missing client"
+          : !matched
+            ? `Client "${clientName}" not found`
+            : !issueDate
+              ? "Missing issue date"
+              : !dueDate
+                ? "Missing due date"
+                : !totalAmount
+                  ? "Missing amount"
+                  : undefined;
 
-    return { series, number, clientName, issueDate, dueDate, totalAmount, currency, notes, clientId: matched?.id, error };
+    return {
+      series,
+      number,
+      clientName,
+      issueDate,
+      dueDate,
+      totalAmount,
+      currency,
+      notes,
+      clientId: matched?.id,
+      error,
+    };
   });
 }
 
@@ -104,12 +149,17 @@ export default function InvoicesPage() {
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "ALL">("ALL");
+  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "ALL">(
+    "ALL",
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [csvRows, setCsvRows] = useState<CsvRow[] | null>(null);
   const [importing, setImporting] = useState(false);
-  const [importResult, setImportResult] = useState<{ created: number; errors: { row: number; message: string }[] } | null>(null);
+  const [importResult, setImportResult] = useState<{
+    created: number;
+    errors: { row: number; message: string }[];
+  } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -205,7 +255,8 @@ export default function InvoicesPage() {
   async function handleDownloadSomatie(inv: Invoice) {
     setDownloadingId(inv.id);
     try {
-      const blob = await noticesService.downloadSomatie(inv.id, lang);
+      const pdfLang = lang === 'en' ? 'en' : 'ro';
+      const blob = await noticesService.downloadSomatie(inv.id, pdfLang);
       const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
       const filename =
         lang === "en" ? `payment-notice-${ref}.pdf` : `somatie-${ref}.pdf`;
@@ -257,7 +308,9 @@ export default function InvoicesPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
                 placeholder="Search client or date…"
                 className="pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-white/[0.1] rounded-lg bg-white dark:bg-[#070b11] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition w-full"
               />
@@ -266,7 +319,11 @@ export default function InvoicesPage() {
           {/* Row 2: action buttons — all on one line */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => invoicesService.exportSaga().catch((e: Error) => alert(e.message))}
+              onClick={() =>
+                invoicesService
+                  .exportSaga()
+                  .catch((e: Error) => alert(e.message))
+              }
               className="flex items-center gap-1.5 bg-white dark:bg-[#0d1117]/80 border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.05] text-sm font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap flex-1 justify-center sm:flex-none"
               title="Export to SAGA CSV"
             >
@@ -278,12 +335,20 @@ export default function InvoicesPage() {
               <Upload className="w-4 h-4 flex-shrink-0" />
               <span className="hidden sm:inline">Import CSV</span>
               <span className="sm:hidden">Import</span>
-              <input type="file" accept=".csv" className="hidden" onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                file.text().then((text) => { setCsvRows(parseCsv(text, clients)); setImportResult(null); });
-                e.target.value = '';
-              }} />
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  file.text().then((text) => {
+                    setCsvRows(parseCsv(text, clients));
+                    setImportResult(null);
+                  });
+                  e.target.value = "";
+                }}
+              />
             </label>
             <button
               onClick={() => setModalOpen(true)}
@@ -500,7 +565,6 @@ export default function InvoicesPage() {
                   </div>
                 )}
               </div>
-
             </>
           )}
         </div>
@@ -689,27 +753,65 @@ export default function InvoicesPage() {
           <div className="w-full max-w-3xl rounded-2xl bg-white dark:bg-[#0d1829] border border-slate-200 dark:border-white/[0.08] shadow-2xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
               <div>
-                <h2 className="font-semibold text-slate-900 dark:text-white text-base">Import CSV</h2>
-                <p className="text-xs text-slate-400 mt-0.5">{csvRows.length} rows detected · {csvRows.filter(r => !r.error).length} valid · {csvRows.filter(r => r.error).length} errors</p>
+                <h2 className="font-semibold text-slate-900 dark:text-white text-base">
+                  Import CSV
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {csvRows.length} rows detected ·{" "}
+                  {csvRows.filter((r) => !r.error).length} valid ·{" "}
+                  {csvRows.filter((r) => r.error).length} errors
+                </p>
               </div>
-              <button onClick={() => { setCsvRows(null); setImportResult(null); }} className="text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"><X className="w-5 h-5" /></button>
+              <button
+                onClick={() => {
+                  setCsvRows(null);
+                  setImportResult(null);
+                }}
+                className="text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {importResult ? (
               <div className="p-6 space-y-4">
-                <div className={`flex items-center gap-3 p-4 rounded-xl ${importResult.errors.length === 0 ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-amber-50 dark:bg-amber-500/10'}`}>
-                  {importResult.errors.length === 0
-                    ? <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                    : <AlertCircle className="w-6 h-6 text-amber-500" />}
+                <div
+                  className={`flex items-center gap-3 p-4 rounded-xl ${importResult.errors.length === 0 ? "bg-emerald-50 dark:bg-emerald-500/10" : "bg-amber-50 dark:bg-amber-500/10"}`}
+                >
+                  {importResult.errors.length === 0 ? (
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                  ) : (
+                    <AlertCircle className="w-6 h-6 text-amber-500" />
+                  )}
                   <div>
-                    <p className="font-semibold text-slate-800 dark:text-slate-100">{importResult.created} invoices imported successfully</p>
-                    {importResult.errors.length > 0 && <p className="text-sm text-slate-500">{importResult.errors.length} rows failed</p>}
+                    <p className="font-semibold text-slate-800 dark:text-slate-100">
+                      {importResult.created} invoices imported successfully
+                    </p>
+                    {importResult.errors.length > 0 && (
+                      <p className="text-sm text-slate-500">
+                        {importResult.errors.length} rows failed
+                      </p>
+                    )}
                   </div>
                 </div>
                 {importResult.errors.map((e) => (
-                  <p key={e.row} className="text-xs text-red-600 dark:text-red-400">Row {e.row}: {e.message}</p>
+                  <p
+                    key={e.row}
+                    className="text-xs text-red-600 dark:text-red-400"
+                  >
+                    Row {e.row}: {e.message}
+                  </p>
                 ))}
-                <button onClick={() => { setCsvRows(null); setImportResult(null); load(); }} className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">Done</button>
+                <button
+                  onClick={() => {
+                    setCsvRows(null);
+                    setImportResult(null);
+                    load();
+                  }}
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                >
+                  Done
+                </button>
               </div>
             ) : (
               <>
@@ -717,26 +819,68 @@ export default function InvoicesPage() {
                   <table className="w-full text-xs">
                     <thead className="bg-slate-50 dark:bg-white/[0.03] sticky top-0">
                       <tr>
-                        {['#', 'Client', 'Series', 'Number', 'Issue Date', 'Due Date', 'Amount', 'Currency', 'Status'].map(h => (
-                          <th key={h} className="px-3 py-2.5 text-left font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                        {[
+                          "#",
+                          "Client",
+                          "Series",
+                          "Number",
+                          "Issue Date",
+                          "Due Date",
+                          "Amount",
+                          "Currency",
+                          "Status",
+                        ].map((h) => (
+                          <th
+                            key={h}
+                            className="px-3 py-2.5 text-left font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap"
+                          >
+                            {h}
+                          </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
                       {csvRows.map((row, i) => (
-                        <tr key={i} className={row.error ? 'bg-red-50 dark:bg-red-500/5' : ''}>
+                        <tr
+                          key={i}
+                          className={
+                            row.error ? "bg-red-50 dark:bg-red-500/5" : ""
+                          }
+                        >
                           <td className="px-3 py-2 text-slate-400">{i + 1}</td>
-                          <td className="px-3 py-2 font-medium text-slate-800 dark:text-slate-200">{row.clientName}</td>
-                          <td className="px-3 py-2 font-mono text-slate-500">{row.series || '—'}</td>
-                          <td className="px-3 py-2 font-mono text-slate-700 dark:text-slate-300">{row.number}</td>
-                          <td className="px-3 py-2 text-slate-500">{row.issueDate}</td>
-                          <td className="px-3 py-2 text-slate-500">{row.dueDate}</td>
-                          <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">{row.totalAmount}</td>
-                          <td className="px-3 py-2 text-slate-500">{row.currency}</td>
+                          <td className="px-3 py-2 font-medium text-slate-800 dark:text-slate-200">
+                            {row.clientName}
+                          </td>
+                          <td className="px-3 py-2 font-mono text-slate-500">
+                            {row.series || "—"}
+                          </td>
+                          <td className="px-3 py-2 font-mono text-slate-700 dark:text-slate-300">
+                            {row.number}
+                          </td>
+                          <td className="px-3 py-2 text-slate-500">
+                            {row.issueDate}
+                          </td>
+                          <td className="px-3 py-2 text-slate-500">
+                            {row.dueDate}
+                          </td>
+                          <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">
+                            {row.totalAmount}
+                          </td>
+                          <td className="px-3 py-2 text-slate-500">
+                            {row.currency}
+                          </td>
                           <td className="px-3 py-2">
-                            {row.error
-                              ? <span className="text-red-600 dark:text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{row.error}</span>
-                              : <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />OK</span>}
+                            {row.error ? (
+                              <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {row.error}
+                              </span>
+                            ) : (
+                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                OK
+                              </span>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -745,29 +889,47 @@ export default function InvoicesPage() {
                 </div>
                 <div className="px-6 py-4 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between gap-3">
                   <div className="text-xs text-slate-400">
-                    Expected format: <span className="font-mono">series,number,clientName,issueDate,dueDate,totalAmount,currency,notes</span>
+                    Expected format:{" "}
+                    <span className="font-mono">
+                      series,number,clientName,issueDate,dueDate,totalAmount,currency,notes
+                    </span>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => { setCsvRows(null); setImportResult(null); }} className="px-4 py-2 text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Cancel</button>
                     <button
-                      disabled={importing || csvRows.filter(r => !r.error).length === 0}
+                      onClick={() => {
+                        setCsvRows(null);
+                        setImportResult(null);
+                      }}
+                      className="px-4 py-2 text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      disabled={
+                        importing ||
+                        csvRows.filter((r) => !r.error).length === 0
+                      }
                       onClick={async () => {
                         setImporting(true);
                         try {
-                          const rows = csvRows.filter(r => !r.error).map(r => ({
-                            clientId: r.clientId!,
-                            series: r.series || undefined,
-                            number: r.number,
-                            issueDate: r.issueDate,
-                            dueDate: r.dueDate,
-                            totalAmount: Number(r.totalAmount),
-                            currency: r.currency || 'RON',
-                            notes: r.notes || undefined,
-                          }));
+                          const rows = csvRows
+                            .filter((r) => !r.error)
+                            .map((r) => ({
+                              clientId: r.clientId!,
+                              series: r.series || undefined,
+                              number: r.number,
+                              issueDate: r.issueDate,
+                              dueDate: r.dueDate,
+                              totalAmount: Number(r.totalAmount),
+                              currency: r.currency || "RON",
+                              notes: r.notes || undefined,
+                            }));
                           const result = await invoicesService.createBulk(rows);
                           setImportResult(result);
                         } catch (e) {
-                          alert(e instanceof Error ? e.message : 'Import failed');
+                          alert(
+                            e instanceof Error ? e.message : "Import failed",
+                          );
                         } finally {
                           setImporting(false);
                         }
@@ -775,7 +937,9 @@ export default function InvoicesPage() {
                       className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-lg transition-colors"
                     >
                       <Upload className="w-4 h-4" />
-                      {importing ? 'Importing…' : `Import ${csvRows.filter(r => !r.error).length} invoices`}
+                      {importing
+                        ? "Importing…"
+                        : `Import ${csvRows.filter((r) => !r.error).length} invoices`}
                     </button>
                   </div>
                 </div>

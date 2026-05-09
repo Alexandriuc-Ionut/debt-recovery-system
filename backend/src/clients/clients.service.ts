@@ -94,7 +94,10 @@ export class ClientsService {
     cui: string,
   ): Promise<{ name: string; address: string; vatPayer: boolean }> {
     const today = new Date().toISOString().split('T')[0];
-    const cuiNumber = Number.parseInt(cui.replaceAll('RO', '').replaceAll(' ', ''), 10);
+    const cuiNumber = Number.parseInt(
+      cui.replaceAll('RO', '').replaceAll(' ', ''),
+      10,
+    );
 
     const res = await fetch(
       'https://webservicesp.anaf.ro/PlatitorTvaRest/api/v8/ws/tva',

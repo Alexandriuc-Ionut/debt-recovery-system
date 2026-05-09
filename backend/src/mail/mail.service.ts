@@ -4,7 +4,8 @@ import { Injectable, Logger } from '@nestjs/common';
 export class MailService {
   private readonly logger = new Logger(MailService.name);
   private readonly apiKey = process.env.BREVO_API_KEY ?? '';
-  private readonly fromEmail = process.env.MAIL_FROM ?? 'noreply@debtrecovery.app';
+  private readonly fromEmail =
+    process.env.MAIL_FROM ?? 'noreply@debtrecovery.app';
   private readonly fromName = 'DebtRecovery';
 
   private async send(to: string, subject: string, html: string): Promise<void> {

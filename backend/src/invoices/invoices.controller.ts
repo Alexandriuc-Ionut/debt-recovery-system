@@ -28,7 +28,12 @@ export class InvoicesController {
     @Query() query: FilterInvoicesDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.invoicesService.findAll(user.companyId, query.status, query.page ?? 1, query.limit ?? 20);
+    return this.invoicesService.findAll(
+      user.companyId,
+      query.status,
+      query.page ?? 1,
+      query.limit ?? 20,
+    );
   }
 
   // Must be before GET /:id
@@ -76,7 +81,13 @@ export class InvoicesController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: { dueDate?: string; notes?: string; totalAmount?: number; currency?: string },
+    @Body()
+    dto: {
+      dueDate?: string;
+      notes?: string;
+      totalAmount?: number;
+      currency?: string;
+    },
     @CurrentUser() user: JwtPayload,
   ) {
     return this.invoicesService.update(id, dto, user.companyId);
