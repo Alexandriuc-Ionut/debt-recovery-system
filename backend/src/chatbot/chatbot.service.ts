@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   IsArray,
   IsString,
@@ -205,6 +205,8 @@ function fmt(amount: number, currency = 'RON') {
 
 @Injectable()
 export class ChatbotService {
+  private readonly logger = new Logger(ChatbotService.name);
+
   constructor(
     private prisma: PrismaService,
     private remindersService: RemindersService,
@@ -577,8 +579,11 @@ export class ChatbotService {
       },
     );
 
-    if (!res1.ok)
-      throw new InternalServerErrorException('AI service unavailable');
+    if (!res1.ok) {
+      const errBody = await res1.text();
+      this.logger.error(`Groq call 1 failed ${res1.status}: ${errBody}`);
+      return { reply: 'Serviciul AI este temporar indisponibil. Te rog încearcă din nou în câteva secunde.' };
+    }
 
     const data1 = (await res1.json()) as {
       choices: {
@@ -671,8 +676,11 @@ export class ChatbotService {
       },
     );
 
-    if (!res2.ok)
-      throw new InternalServerErrorException('AI service unavailable');
+    if (!res2.ok) {
+      const errBody = await res2.text();
+      this.logger.error(`Groq call 2 failed ${res2.status}: ${errBody}`);
+      return { reply: 'Serviciul AI este temporar indisponibil. Te rog încearcă din nou în câteva secunde.' };
+    }
 
     const data2 = (await res2.json()) as {
       choices: { message: { content: string } }[];
