@@ -551,7 +551,7 @@ export class ChatbotService {
 
     const context = await this.buildContext(companyId);
     const systemPrompt = `${BASE_PROMPT}\n\n${context}`;
-    const trimmedHistory = history.slice(-10);
+    const trimmedHistory = history.slice(-6);
 
     const messages: object[] = [
       { role: 'system', content: systemPrompt },
@@ -559,30 +559,45 @@ export class ChatbotService {
       { role: 'user', content: message },
     ];
 
-    // First call — with tools
-    const res1 = await fetch(
-      'https://api.groq.com/openai/v1/chat/completions',
-      {
+    const groqCall = async (body: object): Promise<Response> =>
+      fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages,
-          tools: TOOLS,
-          tool_choice: 'auto',
-          temperature: 0.4,
-          max_tokens: 800,
-        }),
-      },
-    );
+        body: JSON.stringify(body),
+      });
+
+    // First call — with tools
+    const res1 = await groqCall({
+      model: 'llama-3.3-70b-versatile',
+      messages,
+      tools: TOOLS,
+      tool_choice: 'auto',
+      temperature: 0.4,
+      max_tokens: 600,
+    });
 
     if (!res1.ok) {
       const errBody = await res1.text();
       this.logger.error(`Groq call 1 failed ${res1.status}: ${errBody}`);
-      return { reply: 'Serviciul AI este temporar indisponibil. Te rog încearcă din nou în câteva secunde.' };
+      // Fallback — retry without tools
+      const fallback = await groqCall({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        temperature: 0.4,
+        max_tokens: 500,
+      });
+      if (!fallback.ok) {
+        const fb = await fallback.text();
+        this.logger.error(`Groq fallback failed ${fallback.status}: ${fb}`);
+        return { reply: 'Serviciul AI este temporar indisponibil. Te rog încearcă din nou.' };
+      }
+      const fd = (await fallback.json()) as { choices: { message: { content: string } }[] };
+      const fr = fd.choices[0]?.message?.content ?? 'Nu am putut procesa cererea.';
+      const fn = fr.match(/<<<NAVIGATE:([^>]+)>>>/);
+      return { reply: fr.replaceAll(/<<<NAVIGATE:[^>]+>>>/g, '').trim(), navigate: fn?.[1] };
     }
 
     const data1 = (await res1.json()) as {
@@ -630,13 +645,13 @@ export class ChatbotService {
           case 'get_top_debtors':
             result = await this.toolGetTopDebtors(
               companyId,
-              (args.limit as number) ?? 5,
+              Number(args.limit) || 5,
             );
             break;
           case 'get_cash_flow_forecast':
             result = await this.toolGetCashFlowForecast(
               companyId,
-              (args.months as number) ?? 3,
+              Number(args.months) || 3,
             );
             break;
           case 'send_reminder':
