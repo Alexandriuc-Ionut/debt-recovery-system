@@ -61,7 +61,7 @@ export class MailService {
         <p>Thank you for registering. Please verify your email address to activate your account.</p>
         <a href="${verifyUrl}" class="btn">Verify Email Address</a>
         <p class="url">Or copy this link:<br/>${verifyUrl}</p>
-        <div class="footer">This link expires in 24 hours.</div>
+        <div class="footer">This link expires in 1 hour.</div>
       </div></body></html>
     `,
     );

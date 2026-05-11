@@ -49,7 +49,7 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const verificationExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
     // Create company + user atomically
     const user = await this.prisma.$transaction(async (tx) => {
@@ -211,7 +211,7 @@ export class AuthService {
     }
 
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const verificationExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
     await this.prisma.user.update({
       where: { id: user.id },
