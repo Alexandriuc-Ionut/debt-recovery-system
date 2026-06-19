@@ -54,7 +54,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </div>
           <div>
             <p className="font-bold text-sm text-white leading-tight tracking-tight">
-              DebtRecovery
+              FinTrace
             </p>
             <p className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">
               Management

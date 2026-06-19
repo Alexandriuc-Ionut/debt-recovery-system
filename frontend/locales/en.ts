@@ -484,7 +484,7 @@ export const en = {
     panelFeature2Desc: 'Predict payment delays before they happen',
     panelFeature3: 'Live cash flow',
     panelFeature3Desc: 'Aging analysis & invoice tracking',
-    copyright: '© 2026 DebtRecovery. All rights reserved.',
+    copyright: '© 2026 FinTrace. All rights reserved.',
   },
   landing: {
     nav: {
@@ -496,7 +496,7 @@ export const en = {
       getStarted: 'Get Started',
     },
     hero: {
-      badge: 'AI-Powered Debt Recovery Platform',
+      badge: 'AI-Powered FinTrace Platform',
       headline1: 'Recover Faster.',
       headline2: 'Invoice Smarter.',
       subtitle: 'The complete B2B debt recovery platform for Romanian enterprises. AI risk scoring, automated reminders, ANAF integration, and professional PDF documents — all in one place.',
@@ -544,7 +544,7 @@ export const en = {
     },
     benefits: {
       sectionLabel: 'Benefits',
-      title: 'Why teams choose DebtRecovery',
+      title: 'Why teams choose FinTrace',
       subtitle: 'Built for the realities of Romanian B2B finance — not a generic tool.',
     },
     pricing: {
@@ -557,7 +557,7 @@ export const en = {
     },
     cta: {
       title: 'Ready to recover what\'s yours?',
-      subtitle: 'Join hundreds of Romanian businesses using DebtRecovery to collect faster, reduce risk, and grow with confidence.',
+      subtitle: 'Join hundreds of Romanian businesses using FinTrace to collect faster, reduce risk, and grow with confidence.',
       createAccount: 'Create Free Account',
       signIn: 'Sign In',
       trustedBy: 'Trusted by SMEs across Romania',
@@ -568,7 +568,7 @@ export const en = {
       pricing: 'Pricing',
       privacy: 'Privacy Policy',
       terms: 'Terms',
-      rights: '© 2026 DebtRecovery. All rights reserved.',
+      rights: '© 2026 FinTrace. All rights reserved.',
     },
     profile: {
       fullname: 'Name',

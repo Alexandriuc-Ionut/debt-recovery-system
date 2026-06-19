@@ -66,7 +66,7 @@ export default function VerifyEmailContent() {
         <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
           <BarChart3 className="w-4 h-4 text-white" />
         </div>
-        <span className="font-bold text-slate-900 text-lg">DebtRecovery</span>
+        <span className="font-bold text-slate-900 text-lg">FinTrace</span>
       </Link>
 
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center">

@@ -44,9 +44,9 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <Image src="/logo.png" alt="DebtRecovery" width={32} height={32} className="w-full h-full object-cover object-top rounded-md" />
+            <Image src="/logo.png" alt="FinTrace" width={32} height={32} className="w-full h-full object-cover object-top rounded-md" />
           </div>
-          <span className="font-bold text-white tracking-tight">DebtRecovery</span>
+          <span className="font-bold text-white tracking-tight">FinTrace</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-7 text-sm font-medium">
@@ -508,7 +508,7 @@ export default function LandingPage() {
 
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] mb-8 shadow-2xl">
-            <Image src="/logo.png" alt="DebtRecovery" width={48} height={48} className="w-10 h-10 object-cover object-top rounded-xl" />
+            <Image src="/logo.png" alt="FinTrace" width={48} height={48} className="w-10 h-10 object-cover object-top rounded-xl" />
           </div>
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 tracking-tight">{t.landing.cta.title}</h2>
           <p className="text-slate-400 text-lg mb-10 leading-relaxed font-light max-w-2xl mx-auto">{t.landing.cta.subtitle}</p>
@@ -528,9 +528,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-              <Image src="/logo.png" alt="DebtRecovery" width={24} height={24} className="w-full h-full object-cover object-top rounded-md" />
+              <Image src="/logo.png" alt="FinTrace" width={24} height={24} className="w-full h-full object-cover object-top rounded-md" />
             </div>
-            <span className="font-bold text-white text-sm">DebtRecovery</span>
+            <span className="font-bold text-white text-sm">FinTrace</span>
             <span className="text-slate-700 text-sm">·</span>
             <span className="text-slate-600 text-sm">{t.landing.footer.tagline}</span>
           </div>

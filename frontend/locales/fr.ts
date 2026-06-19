@@ -484,7 +484,7 @@ export const fr = {
     panelFeature2Desc: 'Anticipez les retards de paiement avant qu\'ils surviennent',
     panelFeature3: 'Trésorerie en direct',
     panelFeature3Desc: 'Analyse d\'ancienneté & suivi des factures',
-    copyright: '© 2026 DebtRecovery. Tous droits réservés.',
+    copyright: '© 2026 FinTrace. Tous droits réservés.',
   },
   landing: {
     nav: {
@@ -544,7 +544,7 @@ export const fr = {
     },
     benefits: {
       sectionLabel: 'Avantages',
-      title: 'Pourquoi les équipes choisissent DebtRecovery',
+      title: 'Pourquoi les équipes choisissent FinTrace',
       subtitle: 'Conçu pour les réalités de la finance B2B roumaine — pas un outil générique.',
     },
     pricing: {
@@ -557,7 +557,7 @@ export const fr = {
     },
     cta: {
       title: 'Prêt à récupérer ce qui vous appartient ?',
-      subtitle: 'Rejoignez des centaines d\'entreprises roumaines qui utilisent DebtRecovery pour encaisser plus vite, réduire les risques et se développer en toute confiance.',
+      subtitle: 'Rejoignez des centaines d\'entreprises roumaines qui utilisent FinTrace pour encaisser plus vite, réduire les risques et se développer en toute confiance.',
       createAccount: 'Créer un compte gratuit',
       signIn: 'Se connecter',
       trustedBy: 'Approuvé par les PME de toute la Roumanie',
@@ -568,7 +568,7 @@ export const fr = {
       pricing: 'Tarifs',
       privacy: 'Politique de confidentialité',
       terms: 'Conditions',
-      rights: '© 2026 DebtRecovery. Tous droits réservés.',
+      rights: '© 2026 FinTrace. Tous droits réservés.',
     },
     profile: {
       fullname: 'Nom',

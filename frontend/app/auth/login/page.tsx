@@ -74,9 +74,9 @@ export default function LoginPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-20">
             <div className="w-9 h-9 rounded-xl bg-white p-0.5 flex-shrink-0 shadow-lg shadow-black/30 overflow-hidden">
-              <Image src="/logo.png" alt="DebtRecovery" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
+              <Image src="/logo.png" alt="FinTrace" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">DebtRecovery</span>
+            <span className="text-white font-bold text-lg tracking-tight">FinTrace</span>
             <span className="text-[10px] text-blue-500 font-semibold uppercase tracking-widest bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full ml-1">Pro</span>
           </div>
 
@@ -118,9 +118,9 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-12 lg:hidden">
             <div className="w-9 h-9 rounded-xl bg-white p-0.5 overflow-hidden shadow-lg shadow-black/30">
-              <Image src="/logo.png" alt="DebtRecovery" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
+              <Image src="/logo.png" alt="FinTrace" width={36} height={36} className="w-full h-full object-cover object-top rounded-lg" />
             </div>
-            <span className="font-bold text-white text-lg">DebtRecovery</span>
+            <span className="font-bold text-white text-lg">FinTrace</span>
           </div>
 
           <div className="mb-10">

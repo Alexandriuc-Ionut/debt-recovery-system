@@ -497,7 +497,7 @@ export const ro = {
     panelFeature2Desc: "Anticipează întârzierile de plată înainte să apară",
     panelFeature3: "Flux numerar live",
     panelFeature3Desc: "Analiză vechime & urmărire facturi",
-    copyright: "© 2026 DebtRecovery. Toate drepturile rezervate.",
+    copyright: "© 2026 FinTrace. Toate drepturile rezervate.",
   },
   landing: {
     nav: {
@@ -591,7 +591,7 @@ export const ro = {
     },
     benefits: {
       sectionLabel: "Beneficii",
-      title: "De ce echipele aleg DebtRecovery",
+      title: "De ce echipele aleg FinTrace",
       subtitle:
         "Construit pentru realitățile finanțelor B2B românești — nu un instrument generic.",
     },
@@ -607,7 +607,7 @@ export const ro = {
     cta: {
       title: "Gata să recuperezi ce ți se cuvine?",
       subtitle:
-        "Alătură-te sutelor de afaceri românești care folosesc DebtRecovery pentru a încasa mai rapid, a reduce riscul și a crește cu încredere.",
+        "Alătură-te sutelor de afaceri românești care folosesc FinTrace pentru a încasa mai rapid, a reduce riscul și a crește cu încredere.",
       createAccount: "Creează Cont Gratuit",
       signIn: "Conectare",
       trustedBy: "De încredere pentru IMM-uri din toată România",
@@ -618,7 +618,7 @@ export const ro = {
       pricing: "Prețuri",
       privacy: "Politică de Confidențialitate",
       terms: "Termeni",
-      rights: "© 2026 DebtRecovery. Toate drepturile rezervate.",
+      rights: "© 2026 FinTrace. Toate drepturile rezervate.",
     },
     profile: {
       fullname: "Nume",

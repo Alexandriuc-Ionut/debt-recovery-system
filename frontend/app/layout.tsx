@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DebtRecovery — Invoice Management",
-  description: "AI-Enhanced Invoice and Debt Recovery Management System for SMEs",
+  title: "FinTrace — Invoice Management",
+  description: "AI-Enhanced Invoice and FinTrace Management System for SMEs",
 };
 
 export default function RootLayout({

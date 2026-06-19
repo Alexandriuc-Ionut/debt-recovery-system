@@ -6,7 +6,7 @@ export class MailService {
   private readonly apiKey = process.env.BREVO_API_KEY ?? '';
   private readonly fromEmail =
     process.env.MAIL_FROM ?? 'noreply@debtrecovery.app';
-  private readonly fromName = 'DebtRecovery';
+  private readonly fromName = 'FinTrace';
 
   private async send(to: string, subject: string, html: string): Promise<void> {
     try {
@@ -43,7 +43,7 @@ export class MailService {
 
     await this.send(
       to,
-      'Verify your email – DebtRecovery',
+      'Verify your email – FinTrace',
       `
       <!DOCTYPE html><html><head><meta charset="utf-8"/>
       <style>
@@ -79,7 +79,7 @@ export class MailService {
 
     await this.send(
       to,
-      `Invoice ${invoiceNumber} – DebtRecovery`,
+      `Invoice ${invoiceNumber} – FinTrace`,
       `
       <!DOCTYPE html><html><head><meta charset="utf-8"/>
       <style>
@@ -102,7 +102,7 @@ export class MailService {
         </div>
         <div class="amount">${totalAmount.toFixed(2)} ${currency}</div>
         <p>Please ensure payment is made before the due date to avoid late fees.</p>
-        <div class="footer">This is an automated message from DebtRecovery.</div>
+        <div class="footer">This is an automated message from FinTrace.</div>
       </div></body></html>
     `,
     );
@@ -221,7 +221,7 @@ export class MailService {
         <div class="amount">${remainingAmount.toFixed(2)} ${currency} de achitat</div>
         <p>${levelConfig.closing}</p>
         <div class="footer">
-          Acest mesaj a fost generat automat de platforma DebtRecovery.<br/>
+          Acest mesaj a fost generat automat de platforma FinTrace.<br/>
           Dacă ați efectuat deja plata, vă rugăm să ignorați acest email.
         </div>
       </div></body></html>
