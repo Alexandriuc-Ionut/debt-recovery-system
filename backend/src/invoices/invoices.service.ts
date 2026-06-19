@@ -18,6 +18,7 @@ export class InvoicesService {
     private mailService: MailService,
   ) {}
 
+  //// Paginare + filtrare paralelă
   async findAll(
     companyId: number,
     status?: InvoiceStatus,

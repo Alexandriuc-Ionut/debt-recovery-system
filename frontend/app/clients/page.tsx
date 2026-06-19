@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Pencil, Users, Search, Mail, Phone, MapPin, Hash, Bell, Loader2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Pencil, Users, Search, Mail, Phone, MapPin, Hash, Bell, Loader2, Sparkles, ChevronLeft, ChevronRight, AlertTriangle, FileText, ShieldCheck, ShieldAlert, ShieldX, X } from 'lucide-react';
 
 const PAGE_SIZE = 15;
 
@@ -33,8 +33,11 @@ import Modal from '@/components/ui/Modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { clientsService } from '@/services/clients.service';
 import { remindersService } from '@/services/reminders.service';
+import { invoicesService } from '@/services/invoices.service';
+import { aiService } from '@/services/ai.service';
+import { onrcMonitorService, type OnrcAlert } from '@/services/onrc-monitor.service';
 import { formatDate } from '@/utils/format';
-import type { Client } from '@/types';
+import type { Client, Invoice, AIClientScore } from '@/types';
 
 const emptyForm = { name: '', cui: '', email: '', phone: '', address: '' };
 const fieldClass = 'w-full border border-slate-200 dark:border-white/[0.1] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#070b11] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 dark:focus:border-blue-500/40 transition';
@@ -136,6 +139,33 @@ export default function ClientsPage() {
     }
   }
 
+  // ── Detail modal ──────────────────────────────────────────────────────────
+  const [detailClient, setDetailClient] = useState<Client | null>(null);
+  const [detailInvoices, setDetailInvoices] = useState<Invoice[]>([]);
+  const [detailScore, setDetailScore] = useState<AIClientScore | null>(null);
+  const [detailAlerts, setDetailAlerts] = useState<OnrcAlert[]>([]);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  async function openDetail(c: Client) {
+    setDetailClient(c);
+    setDetailLoading(true);
+    setDetailInvoices([]);
+    setDetailScore(null);
+    setDetailAlerts([]);
+    try {
+      const [invs, score, alerts] = await Promise.all([
+        invoicesService.getByClient(c.id),
+        aiService.scoreClient(c.id).catch(() => null),
+        onrcMonitorService.getAlerts().catch(() => [] as OnrcAlert[]),
+      ]);
+      setDetailInvoices(invs);
+      setDetailScore(score);
+      setDetailAlerts((alerts as OnrcAlert[]).filter((a) => a.clientId === c.id));
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
   const [page, setPage] = useState(1);
 
   const filtered = clients.filter((c) =>
@@ -203,7 +233,9 @@ export default function ClientsPage() {
                   <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
                     {paginated.map((c) => (
                       <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors group">
-                        <td className="px-5 py-4 font-semibold text-slate-900 dark:text-slate-100">{c.name}</td>
+                        <td className="px-5 py-4 font-semibold text-slate-900 dark:text-slate-100">
+                          <button onClick={() => openDetail(c)} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-left">{c.name}</button>
+                        </td>
                         <td className="px-5 py-4 text-slate-600 dark:text-slate-400 font-mono text-xs">{c.cui ?? <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
                         <td className="px-5 py-4 text-blue-600 dark:text-blue-400">{c.email ?? <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
                         <td className="px-5 py-4 text-slate-700 dark:text-slate-300">{c.phone ?? <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
@@ -311,6 +343,129 @@ export default function ClientsPage() {
           )}
         </div>
       </div>
+
+      {/* Detail Modal */}
+      <Modal title={detailClient?.name ?? ''} open={!!detailClient} onClose={() => setDetailClient(null)}>
+        {detailLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+          </div>
+        ) : detailClient && (
+          <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-1">
+
+            {/* Contact info */}
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {detailClient.cui && (
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                  <Hash className="w-4 h-4 shrink-0 text-slate-400" />
+                  <span className="font-mono">{detailClient.cui}</span>
+                </div>
+              )}
+              {detailClient.email && (
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                  <Mail className="w-4 h-4 shrink-0 text-slate-400" />
+                  <span className="truncate">{detailClient.email}</span>
+                </div>
+              )}
+              {detailClient.phone && (
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                  <Phone className="w-4 h-4 shrink-0 text-slate-400" />
+                  <span>{detailClient.phone}</span>
+                </div>
+              )}
+              {detailClient.address && (
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 col-span-2">
+                  <MapPin className="w-4 h-4 shrink-0 text-slate-400" />
+                  <span>{detailClient.address}</span>
+                </div>
+              )}
+            </div>
+
+            {/* AI Risk Badge */}
+            {detailScore && (
+              <div className={`flex items-center gap-3 rounded-xl px-4 py-3 border ${
+                detailScore.riskLevel === 'LOW'    ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20' :
+                detailScore.riskLevel === 'MEDIUM' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20' :
+                                                      'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20'
+              }`}>
+                {detailScore.riskLevel === 'LOW'    ? <ShieldCheck className="w-5 h-5 text-emerald-500" /> :
+                 detailScore.riskLevel === 'MEDIUM' ? <ShieldAlert className="w-5 h-5 text-amber-500" /> :
+                                                       <ShieldX className="w-5 h-5 text-red-500" />}
+                <div className="flex-1">
+                  <p className={`text-sm font-semibold ${
+                    detailScore.riskLevel === 'LOW' ? 'text-emerald-700 dark:text-emerald-400' :
+                    detailScore.riskLevel === 'MEDIUM' ? 'text-amber-700 dark:text-amber-400' :
+                    'text-red-700 dark:text-red-400'
+                  }`}>Risc AI: {detailScore.riskLevel}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Trust score: {detailScore.trustScore}/100 · Probabilitate întârziere: {Math.round(Number(detailScore.lateProb) * 100)}%</p>
+                </div>
+              </div>
+            )}
+
+            {/* ONRC Alerts */}
+            {detailAlerts.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Alerte ONRC</p>
+                {detailAlerts.map((a) => (
+                  <div key={a.id} className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg px-3 py-2.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">{a.alertType.replace(/_/g, ' ')}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">{a.description}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{formatDate(a.createdAt)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Invoice history */}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" /> Facturi ({detailInvoices.length})
+              </p>
+              {detailInvoices.length === 0 ? (
+                <p className="text-sm text-slate-400 py-2">Nicio factură.</p>
+              ) : (
+                <div className="divide-y divide-slate-100 dark:divide-white/[0.05] rounded-xl border border-slate-200 dark:border-white/[0.06] overflow-hidden">
+                  {detailInvoices.slice(0, 8).map((inv) => {
+                    const ref = inv.series ? `${inv.series}-${inv.number}` : inv.number;
+                    const statusColor = inv.status === 'PAID' ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10' :
+                      inv.status === 'PARTIAL' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' :
+                      inv.status === 'CANCELED' ? 'text-slate-400 bg-slate-100 dark:bg-white/[0.05]' :
+                      'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10';
+                    return (
+                      <div key={inv.id} className="flex items-center justify-between px-3 py-2.5 text-sm bg-white dark:bg-[#0d1117]/60">
+                        <div>
+                          <span className="font-mono font-medium text-slate-800 dark:text-slate-200">#{ref}</span>
+                          <span className="text-slate-400 text-xs ml-2">{formatDate(inv.dueDate)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{Number(inv.totalAmount).toFixed(2)} {inv.currency}</span>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor}`}>{inv.status}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {detailInvoices.length > 8 && (
+                    <div className="px-3 py-2 text-xs text-slate-400 bg-slate-50 dark:bg-white/[0.02]">+{detailInvoices.length - 8} mai multe facturi</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-white/[0.06]">
+              <button onClick={() => { setDetailClient(null); openEdit(detailClient); }} className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium flex items-center gap-1.5">
+                <Pencil className="w-3.5 h-3.5" /> Editează client
+              </button>
+              <button onClick={() => setDetailClient(null)} className="flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-lg transition-colors">
+                <X className="w-4 h-4" /> Închide
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Create Modal */}
       <Modal title={editId ? t.clients.editClient : t.clients.addClient} open={modalOpen} onClose={() => { setModalOpen(false); setEditId(null); setForm(emptyForm); setFormError(''); setLookupMsg(null); }}>

@@ -77,21 +77,24 @@ export class AiService {
     const lateRatio = lateInvoices / totalInvoices;
     const avgDelayDays = lateInvoices > 0 ? totalDelayDays / lateInvoices : 0;
 
+    // Scorul pornește de la 100 și se penalizează pe baza a trei factori
     let trustScore = 100;
 
-    trustScore -= Math.round(lateRatio * 40);
-    trustScore -= Math.min(Math.round(avgDelayDays), 30);
+    trustScore -= Math.round(lateRatio * 40);          // max -40: rata facturilor întârziate
+    trustScore -= Math.min(Math.round(avgDelayDays), 30); // max -30: întârzierea medie în zile
 
     if (totalOutstanding > 10000) {
-      trustScore -= 20;
+      trustScore -= 20; // sold restant mare (> 10.000 RON)
     } else if (totalOutstanding > 5000) {
-      trustScore -= 10;
+      trustScore -= 10; // sold restant mediu (> 5.000 RON)
     }
 
+    // Scorul nu poate fi negativ
     if (trustScore < 0) {
       trustScore = 0;
     }
 
+    // Clasificare risc pe baza scorului final
     let riskLevel: RiskLevel = RiskLevel.LOW;
 
     if (trustScore < 50) {
@@ -100,6 +103,7 @@ export class AiService {
       riskLevel = RiskLevel.MEDIUM;
     }
 
+    // Probabilitate de întârziere = complementul scorului normalizat
     const lateProb = Number((100 - trustScore) / 100);
 
     const score = await this.prisma.aIClientScore.upsert({

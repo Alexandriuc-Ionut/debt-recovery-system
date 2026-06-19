@@ -3,16 +3,19 @@ import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { Channel, ReminderStatus } from '@prisma/client';
 
+// Minim 3 zile între două remindere consecutive pentru aceeași factură
 const COOLDOWN_DAYS = 3;
 
+// Calculează numărul de zile întregi dintre două date
 function daysBetween(a: Date, b: Date): number {
   return Math.abs(Math.floor((a.getTime() - b.getTime()) / 86_400_000));
 }
 
+// Determină nivelul reminderului pe baza numărului de remindere deja trimise
 function nextLevel(sentCount: number): 1 | 2 | 3 {
-  if (sentCount === 0) return 1;
-  if (sentCount === 1) return 2;
-  return 3;
+  if (sentCount === 0) return 1; // Prima reamintire — temă albastră
+  if (sentCount === 1) return 2; // A doua notificare — temă galbenă
+  return 3; // Notificare finală — temă roșie
 }
 
 @Injectable()
@@ -45,10 +48,12 @@ export class RemindersService {
       const isOverdue = remainingAmount > 0 && invoice.dueDate < today;
       if (!isOverdue) continue;
 
+      // Dacă s-a trimis un reminder recent, respectăm cooldown-ul
       const lastSent = invoice.reminders.find((r) => r.status === 'SENT');
       if (lastSent && daysBetween(today, lastSent.sentAt) < COOLDOWN_DAYS)
         continue;
 
+      // Numărul de remindere trimise determină nivelul următor (1, 2 sau 3)
       const sentCount = invoice.reminders.filter(
         (r) => r.status === 'SENT',
       ).length;

@@ -14,9 +14,10 @@ const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
 interface LanguagePickerProps {
   dropUp?: boolean;
   fullWidth?: boolean;
+  light?: boolean;
 }
 
-export default function LanguagePicker({ dropUp = false, fullWidth = false }: LanguagePickerProps) {
+export default function LanguagePicker({ dropUp = false, fullWidth = false, light = false }: LanguagePickerProps) {
   const { lang, setLang } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -31,32 +32,46 @@ export default function LanguagePicker({ dropUp = false, fullWidth = false }: La
 
   const current = LANGUAGES.find(l => l.code === lang) ?? LANGUAGES[2];
 
+  const btnClass = light
+    ? `flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all text-sm font-medium shadow-sm ${fullWidth ? 'w-full' : ''}`
+    : `flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/[0.12] bg-white/[0.06] hover:bg-white/[0.10] text-slate-300 hover:text-white transition-all text-sm font-medium ${fullWidth ? 'w-full' : ''}`;
+
+  const globeClass = light ? 'w-4 h-4 text-slate-500 flex-shrink-0' : 'w-4 h-4 text-slate-400 flex-shrink-0';
+  const chevronClass = light ? 'w-3.5 h-3.5 text-slate-400 flex-shrink-0' : 'w-3.5 h-3.5 text-slate-400 flex-shrink-0';
+
+  const dropdownClass = light
+    ? `absolute ${dropUp ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 z-50 min-w-[150px] bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/60 overflow-hidden`
+    : `absolute ${dropUp ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 z-50 min-w-[150px] bg-[#131c2e] border border-white/[0.1] rounded-xl shadow-2xl shadow-black/40 overflow-hidden`;
+
+  const itemClass = (code: Lang) => light
+    ? `flex items-center gap-2.5 w-full px-3.5 py-2.5 text-sm transition-colors ${
+        lang === code ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+      }`
+    : `flex items-center gap-2.5 w-full px-3.5 py-2.5 text-sm transition-colors ${
+        lang === code ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+      }`;
+
+  const checkClass = light ? 'w-3.5 h-3.5 ml-auto text-blue-600' : 'w-3.5 h-3.5 ml-auto text-blue-400';
+
   return (
     <div ref={ref} className={`relative ${fullWidth ? 'w-full' : ''}`}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/[0.12] bg-white/[0.06] hover:bg-white/[0.10] text-slate-300 hover:text-white transition-all text-sm font-medium ${fullWidth ? 'w-full' : ''}`}
-      >
-        <Globe className="w-4 h-4 text-slate-400 flex-shrink-0" />
+      <button onClick={() => setOpen(o => !o)} className={btnClass}>
+        <Globe className={globeClass} />
         <span className="flex-1 text-left">{current.label}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`${chevronClass} transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className={`absolute ${dropUp ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 z-50 min-w-[150px] bg-[#131c2e] border border-white/[0.1] rounded-xl shadow-2xl shadow-black/40 overflow-hidden`}>
+        <div className={dropdownClass}>
           {LANGUAGES.map(l => (
             <button
               key={l.code}
               onClick={() => { setLang(l.code); setOpen(false); }}
-              className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 text-sm transition-colors ${
-                lang === l.code
-                  ? 'bg-blue-600/20 text-blue-400'
-                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
-              }`}
+              className={itemClass(l.code)}
             >
               <span className="text-base leading-none">{l.flag}</span>
               <span className="font-medium">{l.label}</span>
-              {lang === l.code && <Check className="w-3.5 h-3.5 ml-auto text-blue-400" />}
+              {lang === l.code && <Check className={checkClass} />}
             </button>
           ))}
         </div>

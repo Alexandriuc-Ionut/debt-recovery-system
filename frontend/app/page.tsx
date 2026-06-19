@@ -40,46 +40,46 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
   ];
 
   return (
-    <nav ref={ref} className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#040810]/95 backdrop-blur-2xl border-b border-white/[0.05]' : 'bg-transparent'}`}>
+    <nav ref={ref} className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? 'bg-white/95 backdrop-blur-2xl border-b border-slate-200/80 shadow-sm' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
             <Image src="/logo.png" alt="FinTrace" width={32} height={32} className="w-full h-full object-cover object-top rounded-md" />
           </div>
-          <span className="font-bold text-white tracking-tight">FinTrace</span>
+          <span className="font-bold text-slate-900 tracking-tight">FinTrace</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-7 text-sm font-medium">
           {links.map(({ label, href }) => (
-            <a key={href} href={href} onClick={(e) => smooth(e, href)} className="text-slate-400 hover:text-white transition-colors duration-200">{label}</a>
+            <a key={href} href={href} onClick={(e) => smooth(e, href)} className="text-slate-600 hover:text-slate-900 transition-colors duration-200">{label}</a>
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-2">
-          <LanguagePicker />
-          <Link href="/auth/login" className="text-sm text-slate-400 hover:text-white font-medium px-3 py-1.5 transition-colors">{t.landing.nav.signIn}</Link>
-          <Link href="/auth/register" className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20">
+          <LanguagePicker light />
+          <Link href="/auth/login" className="text-sm text-slate-700 hover:text-slate-900 font-semibold px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-all">{t.landing.nav.signIn}</Link>
+          <Link href="/auth/register" className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2 rounded-lg transition-all shadow-md shadow-blue-500/25">
             {t.landing.nav.getStarted} <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-slate-600 hover:text-slate-900 transition-colors">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="md:hidden bg-[#040810]/98 border-t border-white/[0.06] backdrop-blur-xl">
+        <div className="md:hidden bg-white border-t border-slate-100 shadow-lg">
           <div className="px-4 py-2">
             {links.map(({ label, href }) => (
-              <a key={href} href={href} onClick={(e) => smooth(e, href)} className="flex items-center justify-between px-3 py-3.5 text-sm font-medium text-slate-300 hover:text-white border-b border-white/[0.04] last:border-0 transition-colors">
-                {label} <ChevronRight className="w-4 h-4 text-slate-600" />
+              <a key={href} href={href} onClick={(e) => smooth(e, href)} className="flex items-center justify-between px-3 py-3.5 text-sm font-medium text-slate-700 hover:text-slate-900 border-b border-slate-100 last:border-0 transition-colors">
+                {label} <ChevronRight className="w-4 h-4 text-slate-400" />
               </a>
             ))}
           </div>
-          <div className="px-4 pb-6 pt-3 space-y-3 border-t border-white/[0.06]">
-            <LanguagePicker fullWidth />
-            <Link href="/auth/login" onClick={() => setOpen(false)} className="flex items-center justify-center w-full py-3 rounded-xl border border-white/[0.1] text-sm font-semibold text-slate-300 hover:text-white transition-all">
+          <div className="px-4 pb-6 pt-3 space-y-3 border-t border-slate-100">
+            <LanguagePicker fullWidth light />
+            <Link href="/auth/login" onClick={() => setOpen(false)} className="flex items-center justify-center w-full py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-all">
               {t.landing.nav.signIn}
             </Link>
             <Link href="/auth/register" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors">
@@ -96,7 +96,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
 function MockDashboard() {
   return (
     <div className="relative w-full max-w-2xl mx-auto">
-      <div className="absolute -inset-10 bg-blue-600/10 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -inset-10 bg-blue-500/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative rounded-2xl border border-white/[0.08] bg-[#080f1e]/95 backdrop-blur-xl shadow-2xl shadow-black/60 overflow-hidden">
         {/* Browser chrome */}
@@ -107,7 +107,7 @@ function MockDashboard() {
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
           </div>
           <div className="flex-1 mx-3 h-5 bg-white/[0.03] rounded flex items-center px-2 border border-white/[0.04]">
-            <span className="text-[10px] text-slate-600">app.debtrecovery.ro/dashboard</span>
+            <span className="text-[10px] text-slate-600">app.fintrace.ro/dashboard</span>
           </div>
         </div>
 
@@ -234,46 +234,47 @@ export default function LandingPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-[#040810] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       <Navbar scrolled={scrolled} />
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col justify-center pt-20 pb-16 px-5 sm:px-8 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col justify-center pt-20 pb-16 px-5 sm:px-8 overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-white">
         {/* Grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.06)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
         {/* Radial glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-blue-600/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="absolute top-1/3 left-1/4 w-[500px] h-[400px] bg-indigo-700/8 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-blue-400/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] bg-indigo-300/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/3 right-1/4 w-[400px] h-[300px] bg-cyan-300/10 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto w-full">
           {/* Badge */}
           <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-blue-500/[0.08] border border-blue-500/[0.15] text-blue-300 text-xs font-semibold px-4 py-2 rounded-full backdrop-blur-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg shadow-blue-500/30">
+              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               {t.landing.hero.badge}
             </div>
           </div>
 
           {/* Headline */}
           <h1 className="text-center text-5xl sm:text-6xl lg:text-[80px] font-black tracking-tight leading-[1.04] mb-6">
-            <span className="text-white">{t.landing.hero.headline1}</span>
+            <span className="text-slate-900">{t.landing.hero.headline1}</span>
             <br />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">
               {t.landing.hero.headline2}
             </span>
           </h1>
 
-          <p className="text-center text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+          <p className="text-center text-slate-600 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             {t.landing.hero.subtitle}
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-            <Link href="/auth/register" className="group flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 text-[15px]">
+            <Link href="/auth/register" className="group flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-600/50 hover:-translate-y-0.5 text-[15px]">
               {t.landing.hero.startFree}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <Link href="/auth/login" className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] text-slate-300 hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 text-[15px]">
+            <Link href="/auth/login" className="flex items-center gap-2 bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-200 text-[15px] shadow-sm">
               {t.landing.hero.signIn} <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
@@ -281,11 +282,11 @@ export default function LandingPage() {
           {/* Trust pills */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-20">
             {[
-              { icon: CheckCircle2, label: t.landing.hero.noCard, c: 'text-emerald-400' },
-              { icon: Shield, label: t.landing.hero.gdpr, c: 'text-blue-400' },
-              { icon: Globe, label: t.landing.hero.anafIntegrated, c: 'text-violet-400' },
-            ].map(({ icon: Icon, label, c }) => (
-              <div key={label} className="flex items-center gap-1.5 text-sm text-slate-500 bg-white/[0.025] border border-white/[0.05] px-3 py-1.5 rounded-full">
+              { icon: CheckCircle2, label: t.landing.hero.noCard, c: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-200' },
+              { icon: Shield, label: t.landing.hero.gdpr, c: 'text-blue-600', bg: 'bg-blue-50 border-blue-200' },
+              { icon: Globe, label: t.landing.hero.anafIntegrated, c: 'text-violet-600', bg: 'bg-violet-50 border-violet-200' },
+            ].map(({ icon: Icon, label, c, bg }) => (
+              <div key={label} className={`flex items-center gap-1.5 text-sm font-medium text-slate-700 ${bg} border px-3.5 py-1.5 rounded-full shadow-sm`}>
                 <Icon className={`w-3.5 h-3.5 ${c}`} />
                 {label}
               </div>
@@ -297,18 +298,18 @@ export default function LandingPage() {
       </section>
 
       {/* ── STATS BAR ─────────────────────────────────────────────────────── */}
-      <section className="py-14 px-5 sm:px-8 border-y border-white/[0.05] bg-white/[0.01]">
+      <section className="py-16 px-5 sm:px-8 border-y border-slate-100 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { value: '3×', label: t.landing.stats.fasterRecovery, c: 'text-blue-400' },
-              { value: '98%', label: t.landing.stats.invoiceAccuracy, c: 'text-emerald-400' },
-              { value: '€0', label: t.landing.stats.setupCost, c: 'text-amber-400' },
-              { value: '100%', label: t.landing.stats.anafCompliant, c: 'text-violet-400' },
-            ].map(({ value, label, c }) => (
-              <div key={label} className="bg-[#040810] py-10 px-6 text-center">
-                <p className={`text-5xl font-black tracking-tight mb-2 ${c}`}>{value}</p>
-                <p className="text-sm text-slate-500 font-medium">{label}</p>
+              { value: '3×', label: t.landing.stats.fasterRecovery, c: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+              { value: '98%', label: t.landing.stats.invoiceAccuracy, c: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+              { value: '€0', label: t.landing.stats.setupCost, c: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+              { value: '100%', label: t.landing.stats.anafCompliant, c: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
+            ].map(({ value, label, c, bg, border }) => (
+              <div key={label} className={`${bg} border ${border} rounded-2xl py-8 px-6 text-center shadow-sm`}>
+                <p className={`text-4xl lg:text-5xl font-black tracking-tight mb-2 ${c}`}>{value}</p>
+                <p className="text-sm text-slate-600 font-semibold">{label}</p>
               </div>
             ))}
           </div>
@@ -316,31 +317,31 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ──────────────────────────────────────────────────────── */}
-      <section id="features" className="py-28 px-5 sm:px-8">
+      <section id="features" className="py-28 px-5 sm:px-8 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-xs font-bold text-blue-500 uppercase tracking-[0.2em] mb-4">{t.landing.features.sectionLabel}</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 tracking-tight">{t.landing.features.title}</h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto font-light">{t.landing.features.subtitle}</p>
+            <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-[0.2em] bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full mb-4">{t.landing.features.sectionLabel}</span>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-5 tracking-tight">{t.landing.features.title}</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">{t.landing.features.subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04] rounded-3xl overflow-hidden border border-white/[0.05]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { icon: Brain,      color: 'text-violet-400', bg: 'bg-violet-500/10' },
-              { icon: FileText,   color: 'text-blue-400',   bg: 'bg-blue-500/10' },
-              { icon: CreditCard, color: 'text-emerald-400',bg: 'bg-emerald-500/10' },
-              { icon: Search,     color: 'text-amber-400',  bg: 'bg-amber-500/10' },
-              { icon: Bell,       color: 'text-rose-400',   bg: 'bg-rose-500/10' },
-              { icon: Shield,     color: 'text-slate-400',  bg: 'bg-slate-500/10' },
-              { icon: RefreshCw,  color: 'text-cyan-400',   bg: 'bg-cyan-500/10' },
-              { icon: BarChart3,  color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
-              { icon: Users,      color: 'text-teal-400',   bg: 'bg-teal-500/10' },
-            ].map(({ icon: Icon, color, bg }, i) => (
-              <div key={i} className="bg-[#040810] p-8 hover:bg-white/[0.025] transition-colors duration-300 group">
-                <div className={`inline-flex p-2.5 rounded-xl ${bg} mb-5`}>
+              { icon: Brain,      color: 'text-violet-600', bg: 'bg-violet-100', border: 'border-violet-200' },
+              { icon: FileText,   color: 'text-blue-600',   bg: 'bg-blue-100',   border: 'border-blue-200' },
+              { icon: CreditCard, color: 'text-emerald-600',bg: 'bg-emerald-100',border: 'border-emerald-200' },
+              { icon: Search,     color: 'text-amber-600',  bg: 'bg-amber-100',  border: 'border-amber-200' },
+              { icon: Bell,       color: 'text-rose-600',   bg: 'bg-rose-100',   border: 'border-rose-200' },
+              { icon: Shield,     color: 'text-slate-600',  bg: 'bg-slate-200',  border: 'border-slate-300' },
+              { icon: RefreshCw,  color: 'text-cyan-600',   bg: 'bg-cyan-100',   border: 'border-cyan-200' },
+              { icon: BarChart3,  color: 'text-indigo-600', bg: 'bg-indigo-100', border: 'border-indigo-200' },
+              { icon: Users,      color: 'text-teal-600',   bg: 'bg-teal-100',   border: 'border-teal-200' },
+            ].map(({ icon: Icon, color, bg, border }, i) => (
+              <div key={i} className="bg-white rounded-2xl p-7 border border-slate-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group shadow-sm">
+                <div className={`inline-flex p-2.5 rounded-xl border ${bg} ${border} mb-5`}>
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
-                <h3 className="font-bold text-white text-base mb-2 group-hover:text-blue-300 transition-colors">{t.landing.features.cards[i].title}</h3>
+                <h3 className="font-bold text-slate-900 text-base mb-2 group-hover:text-blue-700 transition-colors">{t.landing.features.cards[i].title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{t.landing.features.cards[i].desc}</p>
               </div>
             ))}
@@ -349,16 +350,15 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-28 px-5 sm:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
+      <section id="how-it-works" className="py-28 px-5 sm:px-8 relative overflow-hidden bg-white">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-100/40 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div>
-              <p className="text-xs font-bold text-blue-500 uppercase tracking-[0.2em] mb-4">{t.landing.howItWorks.sectionLabel}</p>
-              <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 tracking-tight">{t.landing.howItWorks.title}</h2>
-              <p className="text-slate-500 mb-14 leading-relaxed font-light">{t.landing.howItWorks.subtitle}</p>
+              <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-[0.2em] bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full mb-4">{t.landing.howItWorks.sectionLabel}</span>
+              <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-5 tracking-tight">{t.landing.howItWorks.title}</h2>
+              <p className="text-slate-600 mb-14 leading-relaxed">{t.landing.howItWorks.subtitle}</p>
 
               <div className="space-y-0">
                 {[
@@ -369,24 +369,24 @@ export default function LandingPage() {
                 ].map(({ n, icon: Icon, title, desc }) => (
                   <div key={n} className="flex gap-5">
                     <div className="flex flex-col items-center flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full border border-blue-500/40 bg-blue-600/10 flex items-center justify-center text-blue-400 font-black text-sm">
+                      <div className="w-10 h-10 rounded-full border border-blue-300 bg-blue-50 flex items-center justify-center text-blue-600 font-black text-sm">
                         {n}
                       </div>
-                      {n < 4 && <div className="flex-1 w-px bg-gradient-to-b from-blue-500/30 to-transparent mt-2 min-h-[48px]" />}
+                      {n < 4 && <div className="flex-1 w-px bg-gradient-to-b from-blue-400/50 to-transparent mt-2 min-h-[48px]" />}
                     </div>
                     <div className="pt-1.5 pb-10">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <Icon className="w-4 h-4 text-blue-400" />
-                        <h3 className="font-bold text-white text-[15px]">{title}</h3>
+                        <Icon className="w-4 h-4 text-blue-600" />
+                        <h3 className="font-bold text-slate-900 text-[15px]">{title}</h3>
                       </div>
-                      <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+                      <p className="text-sm text-slate-600 leading-relaxed">{desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right panel */}
+            {/* Right panel — kept dark as product UI mock */}
             <div className="relative">
               <div className="absolute -inset-4 bg-blue-500/5 blur-3xl rounded-full pointer-events-none" />
               <div className="relative rounded-2xl bg-[#070d1a] border border-white/[0.07] overflow-hidden shadow-2xl">
@@ -458,41 +458,41 @@ export default function LandingPage() {
       </section>
 
       {/* ── BENEFITS ────────────────────────────────────────────────────────── */}
-      <section id="benefits" className="py-28 px-5 sm:px-8 border-t border-white/[0.05]">
+      <section id="benefits" className="py-28 px-5 sm:px-8 bg-slate-50 border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-xs font-bold text-blue-500 uppercase tracking-[0.2em] mb-4">{t.landing.benefits.sectionLabel}</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 tracking-tight">{t.landing.benefits.title}</h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto font-light">{t.landing.benefits.subtitle}</p>
+            <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-[0.2em] bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full mb-4">{t.landing.benefits.sectionLabel}</span>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-5 tracking-tight">{t.landing.benefits.title}</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">{t.landing.benefits.subtitle}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { icon: TrendingUp, c: 'text-blue-400 bg-blue-500/10',
+              { icon: TrendingUp, iconC: 'text-blue-600', bg: 'bg-blue-100', border: 'border-blue-200',
                 title: 'Reduce DSO by up to 40%',
                 desc: 'Automated reminders and AI prioritization help your team focus on the highest-risk accounts first, dramatically reducing days sales outstanding.' },
-              { icon: Zap, c: 'text-amber-400 bg-amber-500/10',
+              { icon: Zap, iconC: 'text-amber-600', bg: 'bg-amber-100', border: 'border-amber-200',
                 title: 'Save 10+ hours per week',
                 desc: 'Eliminate manual invoice creation, payment tracking spreadsheets, and reminder emails. Automation handles the repetitive work for you.' },
-              { icon: Shield, c: 'text-emerald-400 bg-emerald-500/10',
+              { icon: Shield, iconC: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-200',
                 title: 'Stay legally compliant',
                 desc: 'Generate somații (payment notices) meeting Romanian legal standards with proper diacritics and formatting, ready for court admissibility.' },
-              { icon: Brain, c: 'text-violet-400 bg-violet-500/10',
+              { icon: Brain, iconC: 'text-violet-600', bg: 'bg-violet-100', border: 'border-violet-200',
                 title: 'Predict payment problems early',
                 desc: 'AI scoring flags high-risk clients before they become bad debts, giving your team time to act proactively rather than reactively.' },
-              { icon: Lock, c: 'text-slate-400 bg-slate-500/10',
+              { icon: Lock, iconC: 'text-slate-600', bg: 'bg-slate-200', border: 'border-slate-300',
                 title: 'Enterprise-grade security',
                 desc: 'JWT authentication, encrypted storage, full audit trail and GDPR-compliant data handling — built for regulated B2B environments.' },
-              { icon: Globe, c: 'text-cyan-400 bg-cyan-500/10',
+              { icon: Globe, iconC: 'text-cyan-600', bg: 'bg-cyan-100', border: 'border-cyan-200',
                 title: 'ANAF & e-Factura integrated',
                 desc: 'Auto-populate company data via CUI lookup and submit invoices to ANAF SPV in UBL 2.1 XML format, mandatory since January 2024.' },
-            ].map(({ icon: Icon, c, title, desc }) => (
-              <div key={title} className="group flex gap-5 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.09] transition-all duration-300">
-                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${c}`}>
-                  <Icon className="w-5 h-5" />
+            ].map(({ icon: Icon, iconC, bg, border, title, desc }) => (
+              <div key={title} className="group flex gap-5 p-6 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 shadow-sm">
+                <div className={`flex-shrink-0 w-11 h-11 rounded-xl border flex items-center justify-center ${bg} ${border}`}>
+                  <Icon className={`w-5 h-5 ${iconC}`} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-[15px] mb-2 group-hover:text-blue-300 transition-colors">{title}</h3>
+                  <h3 className="font-bold text-slate-900 text-[15px] mb-2 group-hover:text-blue-700 transition-colors">{title}</h3>
                   <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
                 </div>
               </div>
@@ -502,21 +502,22 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
-      <section className="py-24 px-5 sm:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
+      <section className="py-24 px-5 sm:px-8 relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-700">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-white/5 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-blue-500/40 blur-[80px] rounded-full pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] mb-8 shadow-2xl">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 border border-white/20 mb-8 backdrop-blur-sm">
             <Image src="/logo.png" alt="FinTrace" width={48} height={48} className="w-10 h-10 object-cover object-top rounded-xl" />
           </div>
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 tracking-tight">{t.landing.cta.title}</h2>
-          <p className="text-slate-400 text-lg mb-10 leading-relaxed font-light max-w-2xl mx-auto">{t.landing.cta.subtitle}</p>
+          <p className="text-blue-100 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">{t.landing.cta.subtitle}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/auth/register" className="group flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-9 py-4 rounded-xl transition-all shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 text-base">
+            <Link href="/auth/register" className="group flex items-center gap-2 bg-white hover:bg-blue-50 text-blue-700 font-bold px-9 py-4 rounded-xl transition-all shadow-2xl shadow-black/20 hover:-translate-y-0.5 text-base">
               {t.landing.cta.createAccount} <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <Link href="/auth/login" className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] text-slate-300 hover:text-white font-semibold px-9 py-4 rounded-xl transition-all text-base">
+            <Link href="/auth/login" className="flex items-center gap-2 bg-blue-500/40 hover:bg-blue-500/60 border border-white/20 hover:border-white/40 text-white font-semibold px-9 py-4 rounded-xl transition-all text-base backdrop-blur-sm">
               {t.landing.cta.signIn}
             </Link>
           </div>
@@ -524,22 +525,22 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/[0.05] py-10 px-5 sm:px-8">
+      <footer className="border-t border-slate-100 py-10 px-5 sm:px-8 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-sm">
               <Image src="/logo.png" alt="FinTrace" width={24} height={24} className="w-full h-full object-cover object-top rounded-md" />
             </div>
-            <span className="font-bold text-white text-sm">FinTrace</span>
-            <span className="text-slate-700 text-sm">·</span>
-            <span className="text-slate-600 text-sm">{t.landing.footer.tagline}</span>
+            <span className="font-bold text-slate-900 text-sm">FinTrace</span>
+            <span className="text-slate-300 text-sm mx-1">·</span>
+            <span className="text-slate-500 text-sm">{t.landing.footer.tagline}</span>
           </div>
           <div className="flex items-center gap-6">
             {[t.landing.footer.features, t.landing.footer.privacy, t.landing.footer.terms].map((l) => (
-              <a key={l} href="#" className="text-sm text-slate-600 hover:text-slate-300 transition-colors">{l}</a>
+              <a key={l} href="#" className="text-sm text-slate-500 hover:text-slate-900 font-medium transition-colors">{l}</a>
             ))}
           </div>
-          <p className="text-sm text-slate-700">{t.landing.footer.rights}</p>
+          <p className="text-sm text-slate-400">{t.landing.footer.rights}</p>
         </div>
       </footer>
     </div>

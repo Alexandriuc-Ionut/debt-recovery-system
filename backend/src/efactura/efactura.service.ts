@@ -21,6 +21,7 @@ function generateUblXml(params: {
   buyerCui: string;
   buyerAddress: string;
 }): string {
+  //// Calculul sumelor TVA pentru XML UBL
   const vatAmount = +(
     (params.totalAmount * params.vatRate) /
     (100 + params.vatRate)
