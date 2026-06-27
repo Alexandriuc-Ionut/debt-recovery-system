@@ -80,7 +80,7 @@ export class AiService {
     // Scorul pornește de la 100 și se penalizează pe baza a trei factori
     let trustScore = 100;
 
-    trustScore -= Math.round(lateRatio * 40);          // max -40: rata facturilor întârziate
+    trustScore -= Math.round(lateRatio * 40); // max -40: rata facturilor întârziate
     trustScore -= Math.min(Math.round(avgDelayDays), 30); // max -30: întârzierea medie în zile
 
     if (totalOutstanding > 10000) {

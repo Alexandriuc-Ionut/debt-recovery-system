@@ -29,6 +29,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    // Emailul și CUI-ul trebuie să fie unice în sistem
     const existingUser = await this.prisma.user.findFirst({
       where: { email: dto.email },
     });
@@ -47,11 +48,14 @@ export class AuthService {
       }
     }
 
+    // Parola este hash-uită cu bcrypt (cost factor 12) înainte de a fi stocată
     const passwordHash = await bcrypt.hash(dto.password, 12);
+    // Token aleator pentru confirmarea adresei de email, valabil 1 oră
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
-    // Create company + user atomically
+    // Compania și utilizatorul administrator sunt create într-o tranzacție
+    // atomică — dacă oricare dintre operații eșuează, nimic nu se salvează
     const user = await this.prisma.$transaction(async (tx) => {
       const company = await tx.company.create({
         data: {
@@ -80,6 +84,7 @@ export class AuthService {
       });
     });
 
+    // Emailul de verificare se trimite asincron, fără a bloca răspunsul
     void this.mailService.sendVerificationEmail(
       user.email,
       user.fullName ?? user.email,
@@ -109,11 +114,13 @@ export class AuthService {
       throw new UnauthorizedException('email_not_found');
     }
 
+    // Compararea se face cu hash-ul stocat, niciodată cu parola în clar
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatch) {
       throw new UnauthorizedException('invalid_password');
     }
 
+    // Payload-ul JWT conține datele necesare pentru autorizare pe celelalte rute
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -121,6 +128,7 @@ export class AuthService {
       companyId: user.companyId,
     };
 
+    // Fiecare autentificare este înregistrată în audit log pentru trasabilitate
     await this.auditService.log({
       companyId: user.companyId,
       userId: user.id,

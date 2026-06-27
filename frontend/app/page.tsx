@@ -94,6 +94,9 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
 
 /* ─── Mock Dashboard ───────────────────────────────────────────────────────── */
 function MockDashboard() {
+  const { t } = useLanguage();
+  const m = t.landing.mockDashboard;
+
   return (
     <div className="relative w-full max-w-2xl mx-auto">
       <div className="absolute -inset-10 bg-blue-500/10 blur-3xl rounded-full pointer-events-none" />
@@ -107,7 +110,7 @@ function MockDashboard() {
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
           </div>
           <div className="flex-1 mx-3 h-5 bg-white/[0.03] rounded flex items-center px-2 border border-white/[0.04]">
-            <span className="text-[10px] text-slate-600">app.fintrace.ro/dashboard</span>
+            <span className="text-[10px] text-slate-600">{m.url}</span>
           </div>
         </div>
 
@@ -115,10 +118,10 @@ function MockDashboard() {
           {/* KPI row */}
           <div className="grid grid-cols-4 gap-2">
             {[
-              { label: 'Invoiced', value: '€847K', c: 'text-blue-400', bar: 'from-blue-500 to-blue-600' },
-              { label: 'Collected', value: '€612K', c: 'text-emerald-400', bar: 'from-emerald-500 to-teal-500' },
-              { label: 'Outstanding', value: '€235K', c: 'text-amber-400', bar: 'from-amber-500 to-orange-400' },
-              { label: 'Overdue', value: '12', c: 'text-red-400', bar: 'from-red-500 to-rose-500' },
+              { label: m.invoiced, value: '€847K', c: 'text-blue-400', bar: 'from-blue-500 to-blue-600' },
+              { label: m.collected, value: '€612K', c: 'text-emerald-400', bar: 'from-emerald-500 to-teal-500' },
+              { label: m.outstanding, value: '€235K', c: 'text-amber-400', bar: 'from-amber-500 to-orange-400' },
+              { label: m.overdue, value: '12', c: 'text-red-400', bar: 'from-red-500 to-rose-500' },
             ].map(({ label, value, c, bar }) => (
               <div key={label} className="rounded-xl bg-white/[0.025] border border-white/[0.04] p-3">
                 <p className="text-[8px] text-slate-600 uppercase tracking-widest font-bold mb-1.5">{label}</p>
@@ -131,7 +134,7 @@ function MockDashboard() {
           {/* Chart + Risk */}
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2 rounded-xl bg-white/[0.02] border border-white/[0.04] p-3">
-              <p className="text-[8px] text-slate-600 uppercase tracking-widest font-bold mb-3">Cash Flow Forecast</p>
+              <p className="text-[8px] text-slate-600 uppercase tracking-widest font-bold mb-3">{m.cashFlowForecast}</p>
               <div className="flex items-end gap-0.5 h-14">
                 {[35, 58, 42, 76, 52, 88, 65, 82, 55, 92, 70, 95].map((h, i) => (
                   <div key={i} className="flex-1 rounded-[2px] transition-all" style={{
@@ -142,8 +145,8 @@ function MockDashboard() {
               </div>
             </div>
             <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] p-3">
-              <p className="text-[8px] text-slate-600 uppercase tracking-widest font-bold mb-3">AI Risk</p>
-              {[{ label: 'Low', pct: 62, c: 'bg-emerald-500' }, { label: 'Med', pct: 28, c: 'bg-amber-400' }, { label: 'High', pct: 10, c: 'bg-red-500' }].map(({ label, pct, c }) => (
+              <p className="text-[8px] text-slate-600 uppercase tracking-widest font-bold mb-3">{m.aiRisk}</p>
+              {[{ label: m.low, pct: 62, c: 'bg-emerald-500' }, { label: m.med, pct: 28, c: 'bg-amber-400' }, { label: m.high, pct: 10, c: 'bg-red-500' }].map(({ label, pct, c }) => (
                 <div key={label} className="mb-2 last:mb-0">
                   <div className="flex justify-between mb-1">
                     <span className="text-[8px] text-slate-500">{label}</span>
@@ -160,13 +163,13 @@ function MockDashboard() {
           {/* Invoice list */}
           <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] overflow-hidden">
             <div className="flex justify-between px-3 py-2 border-b border-white/[0.04]">
-              <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Recent Invoices</span>
-              <span className="text-[8px] text-blue-400">View all →</span>
+              <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{m.recentInvoices}</span>
+              <span className="text-[8px] text-blue-400">{m.viewAll}</span>
             </div>
             {[
-              { c: 'Modatex Fashion S.A.', n: 'INV-2024-041', a: '€24,500', s: 'PAID', sc: 'text-emerald-400 bg-emerald-500/10' },
-              { c: 'Aura Wear Group', n: 'INV-2024-042', a: '€18,200', s: 'OPEN', sc: 'text-amber-400 bg-amber-500/10' },
-              { c: 'Romtex Distribution', n: 'INV-2024-043', a: '€9,800', s: 'OVERDUE', sc: 'text-red-400 bg-red-500/10' },
+              { c: 'Modatex Fashion S.A.', n: 'INV-2024-041', a: '€24,500', s: m.statusPaid, sc: 'text-emerald-400 bg-emerald-500/10' },
+              { c: 'Aura Wear Group', n: 'INV-2024-042', a: '€18,200', s: m.statusOpen, sc: 'text-amber-400 bg-amber-500/10' },
+              { c: 'Romtex Distribution', n: 'INV-2024-043', a: '€9,800', s: m.statusOverdue, sc: 'text-red-400 bg-red-500/10' },
             ].map(({ c, n, a, s, sc }) => (
               <div key={n} className="flex items-center justify-between px-3 py-2 border-b border-white/[0.03] last:border-0">
                 <div className="flex items-center gap-2">
@@ -192,16 +195,16 @@ function MockDashboard() {
           <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center">
             <Brain className="w-3 h-3 text-white" />
           </div>
-          <span className="text-[10px] font-bold text-white">AI Score</span>
+          <span className="text-[10px] font-bold text-white">{m.aiScore}</span>
         </div>
-        <p className="text-[8px] text-slate-500 mb-1.5">Modatex Fashion · now</p>
+        <p className="text-[8px] text-slate-500 mb-1.5">{m.scoreUpdated}</p>
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
             <div className="h-full bg-emerald-500 rounded-full" style={{ width: '89%' }} />
           </div>
           <span className="text-[9px] font-bold text-emerald-400">89</span>
         </div>
-        <span className="mt-1.5 inline-block text-[7px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">LOW RISK</span>
+        <span className="mt-1.5 inline-block text-[7px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">{m.lowRisk}</span>
       </div>
 
       {/* Floating notification */}
@@ -211,8 +214,8 @@ function MockDashboard() {
             <Bell className="w-3 h-3 text-white" />
           </div>
           <div>
-            <p className="text-[9px] font-bold text-white">Reminder Sent</p>
-            <p className="text-[8px] text-slate-500">Trend Wear · 3 days late</p>
+            <p className="text-[9px] font-bold text-white">{m.reminderSent}</p>
+            <p className="text-[8px] text-slate-500">{m.reminderDesc}</p>
           </div>
         </div>
       </div>
@@ -396,8 +399,8 @@ export default function LandingPage() {
                       <Brain className="w-3.5 h-3.5 text-white" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">AI Risk Analysis</p>
-                      <p className="text-[10px] text-slate-600">Live · updated now</p>
+                      <p className="text-xs font-bold text-white">{t.landing.aiPanel.title}</p>
+                      <p className="text-[10px] text-slate-600">{t.landing.aiPanel.live}</p>
                     </div>
                   </div>
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -405,10 +408,10 @@ export default function LandingPage() {
 
                 <div className="p-5 space-y-3">
                   {[
-                    { name: 'Modatex Fashion S.A.', score: 92, risk: 'LOW', c: 'emerald' },
-                    { name: 'Aura Wear Group S.R.L.', score: 78, risk: 'LOW', c: 'emerald' },
-                    { name: 'Romtex Distribution', score: 54, risk: 'MEDIUM', c: 'amber' },
-                    { name: 'Elegance Impex S.A.', score: 21, risk: 'HIGH', c: 'red' },
+                    { name: 'Modatex Fashion S.A.', score: 92, risk: t.landing.aiPanel.riskLow, c: 'emerald' },
+                    { name: 'Aura Wear Group S.R.L.', score: 78, risk: t.landing.aiPanel.riskLow, c: 'emerald' },
+                    { name: 'Romtex Distribution', score: 54, risk: t.landing.aiPanel.riskMedium, c: 'amber' },
+                    { name: 'Elegance Impex S.A.', score: 21, risk: t.landing.aiPanel.riskHigh, c: 'red' },
                   ].map(({ name, score, risk, c }) => {
                     const barColor = c === 'emerald' ? 'bg-emerald-500' : c === 'amber' ? 'bg-amber-400' : 'bg-red-500';
                     const textColor = c === 'emerald' ? 'text-emerald-400' : c === 'amber' ? 'text-amber-400' : 'text-red-400';
@@ -434,12 +437,12 @@ export default function LandingPage() {
                 </div>
 
                 <div className="px-5 pb-5 border-t border-white/[0.05] pt-4">
-                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-3">Recent Activity</p>
+                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-3">{t.landing.aiPanel.recentActivity}</p>
                   <div className="space-y-2.5">
                     {[
-                      { icon: Bell, c: 'bg-amber-500/15 text-amber-400', text: 'Reminder sent → Elegance Impex', time: '2m' },
-                      { icon: CheckCircle2, c: 'bg-emerald-500/15 text-emerald-400', text: 'Payment received — Modatex', time: '1h' },
-                      { icon: FileText, c: 'bg-blue-500/15 text-blue-400', text: 'Invoice INV-2024-041 generated', time: '3h' },
+                      { icon: Bell, c: 'bg-amber-500/15 text-amber-400', text: t.landing.aiPanel.activity1, time: '2m' },
+                      { icon: CheckCircle2, c: 'bg-emerald-500/15 text-emerald-400', text: t.landing.aiPanel.activity2, time: '1h' },
+                      { icon: FileText, c: 'bg-blue-500/15 text-blue-400', text: t.landing.aiPanel.activity3, time: '3h' },
                     ].map(({ icon: Icon, c, text, time }) => (
                       <div key={text} className="flex items-center gap-2.5">
                         <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 ${c}`}>
@@ -468,32 +471,20 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { icon: TrendingUp, iconC: 'text-blue-600', bg: 'bg-blue-100', border: 'border-blue-200',
-                title: 'Reduce DSO by up to 40%',
-                desc: 'Automated reminders and AI prioritization help your team focus on the highest-risk accounts first, dramatically reducing days sales outstanding.' },
-              { icon: Zap, iconC: 'text-amber-600', bg: 'bg-amber-100', border: 'border-amber-200',
-                title: 'Save 10+ hours per week',
-                desc: 'Eliminate manual invoice creation, payment tracking spreadsheets, and reminder emails. Automation handles the repetitive work for you.' },
-              { icon: Shield, iconC: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-200',
-                title: 'Stay legally compliant',
-                desc: 'Generate somații (payment notices) meeting Romanian legal standards with proper diacritics and formatting, ready for court admissibility.' },
-              { icon: Brain, iconC: 'text-violet-600', bg: 'bg-violet-100', border: 'border-violet-200',
-                title: 'Predict payment problems early',
-                desc: 'AI scoring flags high-risk clients before they become bad debts, giving your team time to act proactively rather than reactively.' },
-              { icon: Lock, iconC: 'text-slate-600', bg: 'bg-slate-200', border: 'border-slate-300',
-                title: 'Enterprise-grade security',
-                desc: 'JWT authentication, encrypted storage, full audit trail and GDPR-compliant data handling — built for regulated B2B environments.' },
-              { icon: Globe, iconC: 'text-cyan-600', bg: 'bg-cyan-100', border: 'border-cyan-200',
-                title: 'ANAF & e-Factura integrated',
-                desc: 'Auto-populate company data via CUI lookup and submit invoices to ANAF SPV in UBL 2.1 XML format, mandatory since January 2024.' },
-            ].map(({ icon: Icon, iconC, bg, border, title, desc }) => (
-              <div key={title} className="group flex gap-5 p-6 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 shadow-sm">
+              { icon: TrendingUp, iconC: 'text-blue-600', bg: 'bg-blue-100', border: 'border-blue-200' },
+              { icon: Zap, iconC: 'text-amber-600', bg: 'bg-amber-100', border: 'border-amber-200' },
+              { icon: Shield, iconC: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-200' },
+              { icon: Brain, iconC: 'text-violet-600', bg: 'bg-violet-100', border: 'border-violet-200' },
+              { icon: Lock, iconC: 'text-slate-600', bg: 'bg-slate-200', border: 'border-slate-300' },
+              { icon: Globe, iconC: 'text-cyan-600', bg: 'bg-cyan-100', border: 'border-cyan-200' },
+            ].map(({ icon: Icon, iconC, bg, border }, i) => (
+              <div key={i} className="group flex gap-5 p-6 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 shadow-sm">
                 <div className={`flex-shrink-0 w-11 h-11 rounded-xl border flex items-center justify-center ${bg} ${border}`}>
                   <Icon className={`w-5 h-5 ${iconC}`} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-[15px] mb-2 group-hover:text-blue-700 transition-colors">{title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+                  <h3 className="font-bold text-slate-900 text-[15px] mb-2 group-hover:text-blue-700 transition-colors">{t.landing.benefits.cards[i].title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{t.landing.benefits.cards[i].desc}</p>
                 </div>
               </div>
             ))}

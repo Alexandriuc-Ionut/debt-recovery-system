@@ -201,20 +201,20 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
           </button>
 
           {open && (
-            <div className="absolute right-0 top-12 w-[380px] max-w-[calc(100vw-1rem)] bg-white dark:bg-[#0f1623] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl shadow-2xl dark:shadow-black/60 overflow-hidden z-50 ring-1 ring-black/5 dark:ring-white/[0.04]">
+            <div className="absolute right-0 top-12 w-[300px] max-w-[calc(100vw-1rem)] bg-white dark:bg-[#0f1623] border border-slate-200/80 dark:border-white/[0.07] rounded-xl shadow-2xl dark:shadow-black/60 overflow-hidden z-50 ring-1 ring-black/5 dark:ring-white/[0.04]">
 
               {/* Panel header */}
-              <div className="px-4 pt-4 pb-3 bg-gradient-to-br from-slate-50 to-white dark:from-[#141c2b] dark:to-[#0f1623] border-b border-slate-100 dark:border-white/[0.06]">
+              <div className="px-3 pt-3 pb-2 bg-gradient-to-br from-slate-50 to-white dark:from-[#141c2b] dark:to-[#0f1623] border-b border-slate-100 dark:border-white/[0.06]">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-500/15 flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-red-100 dark:bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-800 dark:text-white leading-tight">
+                      <p className="text-xs font-semibold text-slate-800 dark:text-white leading-tight">
                         {t.notifications.overdueInvoices}
                       </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 leading-tight mt-0.5">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">
                         {invoiceUnread > 0 ? `${invoiceUnread} ${t.notifications.newBadge}` : `${notifications.length} facturi`}
                       </p>
                     </div>
@@ -222,9 +222,9 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 px-2.5 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 px-1.5 py-1 rounded-md transition-colors"
                     >
-                      <CheckCheck className="w-3.5 h-3.5" />
+                      <CheckCheck className="w-3 h-3" />
                       {t.notifications.readAll}
                     </button>
                   )}
@@ -232,21 +232,21 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
               </div>
 
               {/* Overdue invoice list */}
-              <div className="max-h-[220px] overflow-y-auto">
+              <div className="max-h-[150px] overflow-y-auto">
                 {loading && (
-                  <div className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">
+                  <div className="px-3 py-4 text-center text-xs text-slate-400 dark:text-slate-500">
                     {t.notifications.loading}
                   </div>
                 )}
                 {!loading && notifications.length === 0 && (
-                  <div className="px-4 py-6 text-center">
-                    <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-2">
-                      <CheckCheck className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+                  <div className="px-3 py-4 text-center">
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-1.5">
+                      <CheckCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       {t.notifications.allCaughtUp}
                     </p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                       {t.notifications.noOverdue}
                     </p>
                   </div>
@@ -256,22 +256,22 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                   return (
                     <div
                       key={inv.id}
-                      className={`group relative flex items-center gap-3 px-4 py-3 transition-colors ${idx > 0 ? "border-t border-slate-100 dark:border-white/[0.04]" : ""} ${isRead ? "opacity-40" : "hover:bg-slate-50 dark:hover:bg-white/[0.03]"}`}
+                      className={`group relative flex items-center gap-2 px-3 py-2 transition-colors ${idx > 0 ? "border-t border-slate-100 dark:border-white/[0.04]" : ""} ${isRead ? "opacity-40" : "hover:bg-slate-50 dark:hover:bg-white/[0.03]"}`}
                     >
                       {!isRead && (
-                        <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-r-full ${inv.overdueDays > 60 ? "bg-red-500" : inv.overdueDays > 30 ? "bg-orange-400" : "bg-amber-400"}`} />
+                        <div className={`absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full ${inv.overdueDays > 60 ? "bg-red-500" : inv.overdueDays > 30 ? "bg-orange-400" : "bg-amber-400"}`} />
                       )}
                       <Link href="/invoices" onClick={() => markRead(inv.id)} className="flex-1 min-w-0 pl-1">
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate leading-tight">{inv.clientName}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-mono">{inv.number}</p>
+                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate leading-tight">{inv.clientName}</p>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 font-mono">{inv.number}</p>
                           </div>
                           <div className="text-right flex-shrink-0">
-                            <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
                               {formatCompactCurrency(Number(inv.totalAmount), inv.currency)}
                             </p>
-                            <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-0.5 ${inv.overdueDays > 60 ? "bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400" : inv.overdueDays > 30 ? "bg-orange-100 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400" : "bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}>
+                            <span className={`inline-block text-[9px] font-bold px-1 py-0.5 rounded-md mt-0.5 ${inv.overdueDays > 60 ? "bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400" : inv.overdueDays > 30 ? "bg-orange-100 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400" : "bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}>
                               +{inv.overdueDays}{t.notifications.daysOverdue}
                             </span>
                           </div>
@@ -279,8 +279,8 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                       </Link>
                       {!isRead && (
                         <button onClick={() => markRead(inv.id)} title={t.notifications.markAsRead}
-                          className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors opacity-0 group-hover:opacity-100">
-                          <Check className="w-3.5 h-3.5" />
+                          className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors opacity-0 group-hover:opacity-100">
+                          <Check className="w-3 h-3" />
                         </button>
                       )}
                     </div>
@@ -290,15 +290,15 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
 
               {/* ONRC Watchdog section */}
               <div className="border-t border-slate-100 dark:border-white/[0.06]">
-                <div className="px-4 pt-3 pb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-md bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-                      <ShieldAlert className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                <div className="px-3 pt-2 pb-1.5 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-md bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                      <ShieldAlert className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 leading-tight">ONRC Watchdog</p>
+                      <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 leading-tight">ONRC Watchdog</p>
                       {onrcUnread > 0 && (
-                        <p className="text-[10px] text-amber-500 dark:text-amber-400 leading-tight">{onrcUnread} alertă nouă</p>
+                        <p className="text-[9px] text-amber-500 dark:text-amber-400 leading-tight">{onrcUnread} alertă nouă</p>
                       )}
                     </div>
                   </div>
@@ -306,16 +306,16 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                     onClick={handleScan}
                     disabled={scanning}
                     title="Scanează clienții via ANAF"
-                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 bg-slate-100 dark:bg-white/[0.05] hover:bg-blue-50 dark:hover:bg-blue-500/10 px-2 py-1 rounded-lg transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 bg-slate-100 dark:bg-white/[0.05] hover:bg-blue-50 dark:hover:bg-blue-500/10 px-1.5 py-1 rounded-md transition-colors disabled:opacity-50"
                   >
-                    <RefreshCw className={`w-3 h-3 ${scanning ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`w-2.5 h-2.5 ${scanning ? "animate-spin" : ""}`} />
                     {scanning ? "Scanare..." : "Scanează"}
                   </button>
                 </div>
 
-                <div className="max-h-[160px] overflow-y-auto pb-1">
+                <div className="max-h-[110px] overflow-y-auto pb-1">
                   {onrcAlerts.length === 0 ? (
-                    <p className="px-4 py-3 text-xs text-slate-400 dark:text-slate-500 text-center">
+                    <p className="px-3 py-2 text-[10px] text-slate-400 dark:text-slate-500 text-center">
                       Nicio alertă ONRC. Apasă Scanează pentru a verifica clienții.
                     </p>
                   ) : (
@@ -325,20 +325,20 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
                       return (
                         <div
                           key={alert.id}
-                          className={`group flex items-start gap-2.5 px-4 py-2.5 transition-colors ${idx > 0 ? "border-t border-slate-100 dark:border-white/[0.04]" : ""} ${alert.isRead ? "opacity-40" : "hover:bg-slate-50 dark:hover:bg-white/[0.03]"}`}
+                          className={`group flex items-start gap-2 px-3 py-1.5 transition-colors ${idx > 0 ? "border-t border-slate-100 dark:border-white/[0.04]" : ""} ${alert.isRead ? "opacity-40" : "hover:bg-slate-50 dark:hover:bg-white/[0.03]"}`}
                         >
-                          <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-md mt-0.5 flex-shrink-0 ${colorClass}`}>
+                          <span className={`inline-block text-[8px] font-bold px-1 py-0.5 rounded-md mt-0.5 flex-shrink-0 ${colorClass}`}>
                             {label}
                           </span>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed flex-1 min-w-0">
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug flex-1 min-w-0">
                             {alert.description}
                           </p>
                           {!alert.isRead && (
                             <button
                               onClick={() => markOnrcRead(alert.id)}
-                              className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
+                              className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-md text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
                             >
-                              <Check className="w-3 h-3" />
+                              <Check className="w-2.5 h-2.5" />
                             </button>
                           )}
                         </div>
@@ -349,14 +349,14 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-3 border-t border-slate-100 dark:border-white/[0.06] bg-slate-50/50 dark:bg-white/[0.02]">
+              <div className="px-3 py-2 border-t border-slate-100 dark:border-white/[0.06] bg-slate-50/50 dark:bg-white/[0.02]">
                 <Link
                   href="/invoices"
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-0.5"
+                  className="flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                 >
                   {t.notifications.viewAllInvoices}
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
